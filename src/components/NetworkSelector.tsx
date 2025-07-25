@@ -11,7 +11,7 @@ export function NetworkSelector({ variant = 'compact' }: NetworkSelectorProps) {
   if (variant === 'full') {
     return (
       <Select value={network} onValueChange={setNetwork}>
-        <SelectTrigger className="w-40">
+        <SelectTrigger className="w-full sm:w-40">
           <SelectValue>
             <span className="text-sm font-medium">
               {network === 'mainnet' ? 'Bitcoin Mainnet' : 'Bitcoin Testnet'}
@@ -39,7 +39,7 @@ export function NetworkSelector({ variant = 'compact' }: NetworkSelectorProps) {
   return (
     <div className="flex items-center space-xl">   
       <Select value={network} onValueChange={setNetwork}>
-        <SelectTrigger className="w-24 h-8">
+        <SelectTrigger className="w-full sm:w-24 h-8">
           <SelectValue>
             <span className="text-sm font-medium">
               {network === 'mainnet' ? 'Mainnet' : 'Testnet'}

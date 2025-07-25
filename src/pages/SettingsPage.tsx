@@ -300,7 +300,7 @@ export function SettingsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div className="space-y-0.5">
                     <Label>Theme</Label>
                     <p className="text-sm text-muted-foreground">
@@ -308,7 +308,7 @@ export function SettingsPage() {
                     </p>
                   </div>
                   <Select value={theme} onValueChange={setTheme}>
-                    <SelectTrigger className="w-40">
+                    <SelectTrigger className="w-full sm:w-40">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -331,8 +331,8 @@ export function SettingsPage() {
                   Configure default platform settings
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
+              <CardContent className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div className="space-y-0.5">
                     <Label>Default Currency Display</Label>
                     <p className="text-sm text-muted-foreground">
@@ -343,7 +343,7 @@ export function SettingsPage() {
                     value={settings.defaultCurrency} 
                     onValueChange={(value: 'sats' | 'btc') => updateSetting('defaultCurrency', value)}
                   >
-                    <SelectTrigger className="w-32">
+                    <SelectTrigger className="w-full sm:w-32">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -353,7 +353,7 @@ export function SettingsPage() {
                   </Select>
                 </div>
                 
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div className="space-y-0.5">
                     <Label>Language</Label>
                     <p className="text-sm text-muted-foreground">
@@ -364,7 +364,7 @@ export function SettingsPage() {
                     value={settings.language} 
                     onValueChange={(value) => updateSetting('language', value)}
                   >
-                    <SelectTrigger className="w-32">
+                    <SelectTrigger className="w-full sm:w-32">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -376,7 +376,7 @@ export function SettingsPage() {
                   </Select>
                 </div>
 
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div className="space-y-0.5">
                     <Label>Auto-connect to Relays</Label>
                     <p className="text-sm text-muted-foreground">
@@ -406,7 +406,7 @@ export function SettingsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div className="space-y-0.5">
                     <Label>Current Network</Label>
                     <p className="text-sm text-muted-foreground">
@@ -430,20 +430,32 @@ export function SettingsPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Add New Indexer */}
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Input
                     placeholder="https://indexer.example.com/"
                     value={newIndexer}
                     onChange={(e) => setNewIndexer(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && addNewIndexer()}
+                    className="flex-1"
                   />
-                  <Button onClick={addNewIndexer} disabled={!newIndexer.trim()}>
-                    <Plus className="w-4 h-4" />
-                  </Button>
-                  <Button onClick={resetIndexersToDefaults} variant="outline">
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Reset
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button 
+                      onClick={addNewIndexer} 
+                      disabled={!newIndexer.trim()}
+                      className="flex-1 sm:flex-none"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add
+                    </Button>
+                    <Button 
+                      onClick={resetIndexersToDefaults} 
+                      variant="outline"
+                      className="flex-1 sm:flex-none"
+                    >
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Reset
+                    </Button>
+                  </div>
                 </div>
 
                 <Separator />
@@ -453,57 +465,64 @@ export function SettingsPage() {
                   {indexers[network].map((indexer) => (
                     <div
                       key={indexer.url}
-                      className={`flex items-center gap-3 p-4 border rounded-lg ${
+                      className={`flex flex-col sm:flex-row sm:items-center gap-3 p-4 border rounded-lg ${
                         indexer.isPrimary ? 'border-primary bg-primary/5' : ''
                       }`}
                     >
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                           <p className="font-medium truncate">{indexer.url}</p>
-                          {indexer.isPrimary && (
-                            <span className="px-2 py-1 text-xs bg-primary text-primary-foreground rounded">
-                              Primary
-                            </span>
-                          )}
+                          <div className="flex items-center gap-2">
+                            {indexer.isPrimary && (
+                              <span className="px-2 py-1 text-xs bg-primary text-primary-foreground rounded whitespace-nowrap">
+                                Primary
+                              </span>
+                            )}
+                          </div>
                         </div>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-muted-foreground mt-1">
                           {indexer.isPrimary ? 'Active indexer for data queries' : 'Backup indexer'}
                         </p>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => testIndexer(indexer.url)}
-                          disabled={testingIndexers.has(indexer.url)}
-                        >
-                          {testingIndexers.has(indexer.url) ? (
-                            <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
-                          ) : (
-                            <AlertCircle className="w-3 h-3 mr-1" />
-                          )}
-                          Test
-                        </Button>
-                        
-                        {!indexer.isPrimary && (
+                      <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+                        <div className="flex gap-2">
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setPrimaryIndexerHandler(indexer.url)}
+                            onClick={() => testIndexer(indexer.url)}
+                            disabled={testingIndexers.has(indexer.url)}
+                            className="flex-1 sm:flex-none"
                           >
-                            Set Primary
+                            {testingIndexers.has(indexer.url) ? (
+                              <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
+                            ) : (
+                              <AlertCircle className="w-3 h-3 mr-1" />
+                            )}
+                            Test
                           </Button>
-                        )}
+                          
+                          {!indexer.isPrimary && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setPrimaryIndexerHandler(indexer.url)}
+                              className="flex-1 sm:flex-none whitespace-nowrap"
+                            >
+                              Set Primary
+                            </Button>
+                          )}
+                        </div>
                         
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => removeIndexerHandler(indexer.url)}
-                          className="text-red-600 hover:text-red-700"
+                          className="text-red-600 hover:text-red-700 w-full sm:w-auto"
                           disabled={indexers[network].length === 1}
                         >
-                          <Trash2 className="w-3 h-3" />
+                          <Trash2 className="w-3 h-3 mr-2" />
+                          Remove
                         </Button>
                       </div>
                     </div>
