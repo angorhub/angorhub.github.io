@@ -1,4 +1,4 @@
-﻿import { useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
 // CORS proxy URLs - try multiple proxies for reliability
 const CORS_PROXIES = [
@@ -29,10 +29,12 @@ function useDenyList(): DenyListService {
       ];
 
       try {
+        console.log('🚫 Fetching deny list...');
         
         // Try proxy URL first (for development)
         let response;
         try {
+          console.log('🔄 Trying proxy URL:', DENY_LIST_PROXY_URL);
           response = await fetch(DENY_LIST_PROXY_URL, { 
             cache: 'no-store',
             headers: {
@@ -41,9 +43,10 @@ function useDenyList(): DenyListService {
           });
           
           if (response.ok) {
+            console.log('✅ Proxy URL worked!');
           }
         } catch (proxyError) {
-          console.warn('âŒ Proxy URL failed, trying direct fetch...', proxyError);
+          console.warn('❌ Proxy URL failed, trying direct fetch...', proxyError);
           
           // Try direct fetch
           try {
@@ -56,13 +59,15 @@ function useDenyList(): DenyListService {
             });
             
             if (response.ok) {
+              console.log('✅ Direct fetch worked!');
             }
           } catch (corsError) {
-            console.warn('âŒ Direct fetch failed due to CORS, trying proxies...', corsError);
+            console.warn('❌ Direct fetch failed due to CORS, trying proxies...', corsError);
             
             // Try CORS proxies one by one
             for (const proxy of CORS_PROXIES) {
               try {
+                console.log(`🔄 Trying proxy: ${proxy}`);
                 response = await fetch(proxy + encodeURIComponent(DENY_LIST_URL), {
                   cache: 'no-store',
                   headers: {
@@ -70,10 +75,11 @@ function useDenyList(): DenyListService {
                   }
                 });
                 if (response.ok) {
+                  console.log(`✅ Proxy ${proxy} worked!`);
                   break;
                 }
               } catch (proxyError) {
-                console.warn(`âŒ Proxy ${proxy} failed:`, proxyError);
+                console.warn(`❌ Proxy ${proxy} failed:`, proxyError);
                 continue;
               }
             }
@@ -81,27 +87,33 @@ function useDenyList(): DenyListService {
         }
         
         if (!response || !response.ok) {
-          console.warn('âŒ Failed to fetch deny list from all sources, using fallback list');
+          console.warn('❌ Failed to fetch deny list from all sources, using fallback list');
           return fallbackDenyList;
         }
         
         const list = await response.json();
         
         if (!Array.isArray(list)) {
-          console.error('âŒ Deny list format is incorrect, using fallback list');
+          console.error('❌ Deny list format is incorrect, using fallback list');
           return fallbackDenyList;
         }
         
+        console.log('✅ Deny list loaded successfully:', list.length, 'entries');
+        console.log('🚫 Full deny list:', list);
         
         // Log each denied project ID separately for clarity
+        console.log('📋 DENIED PROJECTS LIST:');
         list.forEach((projectId, index) => {
+          console.log(`   ${index + 1}. ${projectId}`);
         });
         
         return list;
         
       } catch (error) {
-        console.error('âŒ Error loading deny list, using fallback list:', error);
+        console.error('❌ Error loading deny list, using fallback list:', error);
+        console.log('📋 USING FALLBACK DENIED PROJECTS LIST:');
         fallbackDenyList.forEach((projectId, index) => {
+          console.log(`   ${index + 1}. ${projectId}`);
         });
         return fallbackDenyList;
       }
@@ -120,16 +132,21 @@ function useDenyList(): DenyListService {
     // Special test for the specific project ID
     const testProjectId = 'angor1q2a5m2zcwpmkh49z05pg6gd9cxm4dhx3ywfclem';
     if (projectIdentifier === testProjectId) {
+      console.log(`🔍 Testing specific project: ${projectIdentifier}`);
+      console.log(`🔍 Current deny list (${denyList.length} items):`, denyList);
+      console.log(`🔍 Is "${projectIdentifier}" in deny list:`, denyList.includes(projectIdentifier));
       
       // Check each item individually for debugging
+      console.log('🔍 Checking each deny list item:');
       denyList.forEach((deniedId, index) => {
         const matches = deniedId === projectIdentifier;
+        console.log(`   ${index + 1}. "${deniedId}" === "${projectIdentifier}" ? ${matches}`);
       });
     }
     
     const denied = denyList.includes(projectIdentifier);
     if (denied) {
-      console.warn(`ðŸš« Project ${projectIdentifier} is denied and will be filtered out`);
+      console.warn(`🚫 Project ${projectIdentifier} is denied and will be filtered out`);
     }
     
     return denied;
@@ -151,31 +168,39 @@ function filterDeniedProjects<T extends { projectIdentifier?: string }>(
   }
 
   if (denyService.isLoading) {
+    console.log('🔄 Deny list still loading, showing all projects for now...');
     return projects;
   }
 
   const filtered = projects.filter(project => {
     if (!project.projectIdentifier) {
+      console.log('⚠️ Project without identifier found, keeping it');
       return true;
     }
     
     // Extra logging for our specific test project
     const testProjectId = 'angor1q2a5m2zcwpmkh49z05pg6gd9cxm4dhx3ywfclem';
     if (project.projectIdentifier === testProjectId) {
+      console.log(`🔥 FOUND TEST PROJECT IN FILTER: ${project.projectIdentifier}`);
+      console.log(`🔥 denyService.isLoading: ${denyService.isLoading}`);
+      console.log(`🔥 About to call isDenied...`);
     }
     
     const isDenied = denyService.isDenied(project.projectIdentifier);
     
     if (project.projectIdentifier === testProjectId) {
+      console.log(`🔥 isDenied result for test project: ${isDenied}`);
     }
     
     if (isDenied) {
+      console.log(`🚫 Filtering out denied project: ${project.projectIdentifier}`);
     }
     
     return !isDenied;
   });
 
   if (projects.length !== filtered.length) {
+    console.log(`✅ Filtered ${projects.length - filtered.length} denied projects out of ${projects.length} total`);
   }
   
   return filtered;

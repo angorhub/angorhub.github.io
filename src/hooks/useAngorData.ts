@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState, useCallback } from 'react';
-import { AngorDataAggregator } from '@/services/angorData';
-import { AngorIndexerService } from '@/services/angorIndexer';
+import { angorData } from '@/services/angorData';
+import { angorIndexer } from '@/services/angorIndexer';
 import { useNetwork } from '@/contexts/NetworkContext';
 import { useCurrentIndexer } from '@/hooks/useCurrentIndexer';
 import type { IndexedProject, ProjectFilters } from '@/types/angor';
@@ -33,9 +33,6 @@ export function useAngorProjects(options: UseAngorProjectsOptions = {}) {
     queryKey: ['angor-projects', limit, offset, network, primaryUrl],
     queryFn: async () => {
       setProgress({ current: 0, total: 100, stage: 'Starting...' });
-      
-      // Create data aggregator instance with current primary URL
-      const angorData = new AngorDataAggregator(primaryUrl);
       const projects = await angorData.loadProjectsWithFullData(
         offset,
         limit,
@@ -64,10 +61,7 @@ export function useAngorProject(projectId: string | undefined) {
     queryKey: ['angor-project', projectId, network, primaryUrl],
     queryFn: async () => {
       if (!projectId) return null;
-      
-      // Create indexer service instance with current primary URL
-      const indexerService = new AngorIndexerService(primaryUrl);
-      return indexerService.getProject(projectId, network);
+      return angorIndexer.getProject(projectId, network);
     },
     enabled: !!projectId,
     staleTime: 5 * 60 * 1000,
@@ -83,10 +77,7 @@ export function useAngorProjectStats(projectId: string | undefined) {
     queryKey: ['angor-project-stats', projectId, network, primaryUrl],
     queryFn: async () => {
       if (!projectId) return null;
-      
-      // Create indexer service instance with current primary URL
-      const indexerService = new AngorIndexerService(primaryUrl);
-      return indexerService.getProjectStats(projectId, network);
+      return angorIndexer.getProjectStats(projectId, network);
     },
     enabled: !!projectId,
     staleTime: 2 * 60 * 1000, // More frequent updates for stats
@@ -103,10 +94,7 @@ export function useAngorProjectInvestments(projectId: string | undefined) {
     queryKey: ['angor-project-investments', projectId, network, primaryUrl],
     queryFn: async () => {
       if (!projectId) return [];
-      
-      // Create indexer service instance with current primary URL
-      const indexerService = new AngorIndexerService(primaryUrl);
-      return indexerService.getProjectInvestments(projectId, network);
+      return angorIndexer.getProjectInvestments(projectId, network);
     },
     enabled: !!projectId,
     staleTime: 1 * 60 * 1000, // 1 minute
@@ -122,10 +110,7 @@ export function useAngorProjectSearch(query: string, limit: number = 20) {
     queryKey: ['angor-project-search', query, limit, network, primaryUrl],
     queryFn: async () => {
       if (!query.trim()) return [];
-      
-      // Create indexer service instance with current primary URL
-      const indexerService = new AngorIndexerService(primaryUrl);
-      return indexerService.searchProjects(query, limit, network);
+      return angorIndexer.searchProjects(query, limit, network);
     },
     enabled: !!query.trim(),
     staleTime: 2 * 60 * 1000,
@@ -137,8 +122,6 @@ export function useFilteredProjects(
   projects: IndexedProject[],
   filters: ProjectFilters
 ) {
-  // Create temporary data aggregator instance for filtering (doesn't need URL)
-  const angorData = new AngorDataAggregator();
   const filteredProjects = angorData.filterAndSortProjects(projects, filters);
   const statistics = angorData.getProjectStatistics(filteredProjects);
 
@@ -171,8 +154,6 @@ export function useAngorDashboard(): {
     return { data: undefined, isLoading, error };
   }
 
-  // Create temporary data aggregator instance for statistics (doesn't need URL)
-  const angorData = new AngorDataAggregator();
   const statistics = angorData.getProjectStatistics(projects);
   
   const recentProjects = [...projects]

@@ -39,11 +39,13 @@ function safeJsonParse(content: string, fallback: Record<string, unknown> = {}):
     // Quick check if content looks like JSON
     const trimmed = content.trim();
     if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) {
+      console.log('Content does not appear to be JSON, skipping parse:', trimmed.slice(0, 50) + '...');
       return fallback;
     }
     
     return JSON.parse(content);
   } catch {
+    console.log('Invalid JSON content, skipping:', content.slice(0, 50) + '...');
     return fallback;
   }
 }
@@ -120,36 +122,17 @@ export function useNostrAdditionalData(pubkey: string | undefined) {
   return useQuery({
     queryKey: ['nostr-additional-data', pubkey],
     queryFn: async () => {
-      if (!pubkey) return { faq: {}, media: {}, members: {}, project: {} as NostrProjectDetails, description: '', content: '' };
+      if (!pubkey) return { faq: {}, media: {}, members: {}, project: {} as NostrProjectDetails };
 
       return queryWithRetry(async () => {
         const signal = AbortSignal.timeout(8000);
         
-        // Query kind 30078 (additional data) with separate filters for each d tag
+        // Query both kind 30078 (additional data) and kind 3030 (project info)
         const events = await nostr.query([
           {
             kinds: [ANGOR_EVENT_KINDS.ADDITIONAL_DATA], // 30078
             authors: [pubkey],
-            '#d': ['angor:project'],
-            limit: 1
-          },
-          {
-            kinds: [ANGOR_EVENT_KINDS.ADDITIONAL_DATA], // 30078
-            authors: [pubkey],
-            '#d': ['angor:media'],
-            limit: 1
-          },
-          {
-            kinds: [ANGOR_EVENT_KINDS.ADDITIONAL_DATA], // 30078
-            authors: [pubkey],
-            '#d': ['angor:members'],
-            limit: 1
-          },
-          {
-            kinds: [ANGOR_EVENT_KINDS.ADDITIONAL_DATA], // 30078
-            authors: [pubkey],
-            '#d': ['angor:faq'],
-            limit: 1
+            limit: 100
           },
           {
             kinds: [ANGOR_EVENT_KINDS.PROJECT_INFO], // 3030
@@ -162,7 +145,6 @@ export function useNostrAdditionalData(pubkey: string | undefined) {
         let media: ProjectMedia = {};
         let members: ProjectMembers = { team: [] };
         let project: NostrProjectDetails = {};
-        let description: string = '';
 
         events.forEach(event => {
           if (event.kind === ANGOR_EVENT_KINDS.PROJECT_INFO) {
@@ -184,36 +166,18 @@ export function useNostrAdditionalData(pubkey: string | undefined) {
               } else if (tagValue === 'angor:members' || tagValue === 'members') {
                 members = content as unknown as ProjectMembers;
               } else if (tagValue === 'angor:project' || tagValue === 'project') {
-                // First, try to use the raw content as description (like Angular project)
-                if (event.content && typeof event.content === 'string' && event.content.trim()) {
-                  description = event.content.trim();
-                } else if (typeof content === 'string') {
-                  description = content;
-                } else if (content && typeof content === 'object' && 'description' in content) {
-                  description = (content as Record<string, unknown>).description as string;
-                } else if (content && typeof content === 'object') {
-                  // Check all fields for possible description fields
-                  const obj = content as Record<string, unknown>;
-                  const possibleDescFields = ['content', 'description', 'desc', 'about', 'details'];
-                  
-                  for (const field of possibleDescFields) {
-                    if (field in obj && typeof obj[field] === 'string' && (obj[field] as string).trim()) {
-                      description = (obj[field] as string).trim();
-                      break;
-                    }
-                  }
-                }
-                
                 project = { ...project, ...(content as NostrProjectDetails) };
               }
             } else if (!dTag && content.projectIdentifier) {
               // Untagged project data that contains projectIdentifier (main project details)
               project = { ...project, ...(content as NostrProjectDetails) };
+              console.log(`🎯 Found untagged project data in useNostrAdditionalData:`, content);
+              console.log(`📊 Project fields - targetAmount: ${content.targetAmount}, founderKey: ${content.founderKey}`);
             }
           }
         });
 
-        return { faq, media, members, project, description, content: description };
+        return { faq, media, members, project };
       }, `Additional data for ${pubkey}`);
     },
     enabled: !!pubkey,
@@ -371,6 +335,7 @@ export function useNostrProjectByEventId(eventId: string | undefined) {
               const projectContent = content as NostrProjectDetails;
               additionalData = { ...additionalData, ...projectContent };
               mergedProjectData = { ...mergedProjectData, ...projectContent };
+              console.log(`Found untagged project data with targetAmount: ${content.targetAmount}`);
             }
           }
         }
@@ -418,20 +383,8 @@ export function useProjectMetadata(nostrPubKey: string | undefined) {
           {
             kinds: [ANGOR_EVENT_KINDS.ADDITIONAL_DATA], // 30078
             authors: [nostrPubKey],
-            '#d': ['angor:project'],
-            limit: 1
-          },
-          {
-            kinds: [ANGOR_EVENT_KINDS.ADDITIONAL_DATA], // 30078
-            authors: [nostrPubKey],
-            '#d': ['angor:media'],
-            limit: 1
-          },
-          {
-            kinds: [ANGOR_EVENT_KINDS.ADDITIONAL_DATA], // 30078
-            authors: [nostrPubKey],
-            '#d': ['angor:members'],
-            limit: 1
+            '#d': ['angor:project', 'angor:media', 'angor:members'],
+            limit: 10
           }
         ], { signal });
 
@@ -439,7 +392,6 @@ export function useProjectMetadata(nostrPubKey: string | undefined) {
         let projectData = {};
         let mediaData = {};
         let membersData = {};
-        let description = '';
 
         for (const event of events) {
           if (event.kind === ANGOR_EVENT_KINDS.PROFILE_METADATA) {
@@ -456,25 +408,6 @@ export function useProjectMetadata(nostrPubKey: string | undefined) {
             switch (dTag) {
               case 'angor:project':
                 projectData = content;
-                // First, try to use the raw content as description (like Angular project)
-                if (event.content && typeof event.content === 'string' && event.content.trim()) {
-                  description = event.content.trim();
-                } else if (typeof content === 'string') {
-                  description = content;
-                } else if (content && typeof content === 'object' && 'description' in content) {
-                  description = (content as Record<string, unknown>).description as string;
-                } else if (content && typeof content === 'object') {
-                  // Check all fields for possible description fields
-                  const obj = content as Record<string, unknown>;
-                  const possibleDescFields = ['content', 'description', 'desc', 'about', 'details'];
-                  
-                  for (const field of possibleDescFields) {
-                    if (field in obj && typeof obj[field] === 'string' && (obj[field] as string).trim()) {
-                      description = (obj[field] as string).trim();
-                      break;
-                    }
-                  }
-                }
                 break;
               case 'angor:media':
                 mediaData = content;
@@ -491,8 +424,6 @@ export function useProjectMetadata(nostrPubKey: string | undefined) {
           project: projectData,
           media: mediaData,
           members: membersData,
-          description,
-          content: description, // Alias for compatibility
           nostrPubKey
         };
       }, `Project metadata for ${nostrPubKey}`);

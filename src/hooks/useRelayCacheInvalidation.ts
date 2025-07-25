@@ -10,7 +10,7 @@ export function useRelayCacheInvalidation() {
   const { relayUrls, network } = useCurrentRelays();
 
   useEffect(() => {
-
+    console.log('Relay configuration changed, invalidating Nostr cache...', { network, relayUrls });
     
     // Invalidate all Nostr-related queries when relay configuration changes
     queryClient.invalidateQueries({

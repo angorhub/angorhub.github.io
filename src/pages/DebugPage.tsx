@@ -1,8 +1,8 @@
-﻿import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useNetwork } from '@/contexts/NetworkContext';
 import { useAngorProjects } from '@/hooks/useAngorData';
 import { useCurrentIndexer } from '@/hooks/useCurrentIndexer';
-import { AngorIndexerService } from '@/services/angorIndexer';
+import { angorIndexer } from '@/services/angorIndexer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -32,17 +32,19 @@ export function DebugPage() {
   const projects = useMemo(() => {
     const filtered = rawProjects.filter(project => {
       if (!project.project?.projectIdentifier) {
+        console.log('⚠️ Project without identifier found, keeping it');
         return true;
       }
       
       const isDenied = denyService.isDenied(project.project.projectIdentifier);
       if (isDenied) {
+        console.log(`🚫 Filtering out denied project: ${project.project.projectIdentifier}`);
       }
       return !isDenied;
     });
     
     if (rawProjects.length !== filtered.length) {
-      addDebugInfo(`ðŸš« Filtered ${rawProjects.length - filtered.length} denied projects out of ${rawProjects.length} total`);
+      addDebugInfo(`🚫 Filtered ${rawProjects.length - filtered.length} denied projects out of ${rawProjects.length} total`);
     }
     return filtered;
   }, [rawProjects, denyService]);
@@ -55,10 +57,7 @@ export function DebugPage() {
     try {
       addDebugInfo('Testing direct API call...');
       setApiTestResult('Loading...');
-      
-      // Create indexer service instance with current primary URL  
-      const indexerService = new AngorIndexerService(primaryUrl);
-      const projects = await indexerService.getProjects(0, 5, network);
+      const projects = await angorIndexer.getProjects(0, 5, network);
       setApiTestResult(`Success! Found ${projects.length} projects`);
       addDebugInfo(`Direct API test successful: ${projects.length} projects`);
     } catch (error) {
