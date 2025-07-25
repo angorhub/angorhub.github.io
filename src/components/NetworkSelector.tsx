@@ -5,11 +5,7 @@ export function NetworkSelector() {
   const { network, setNetwork } = useNetwork();
 
   return (
-    <div className="flex items-center space-x-2">
-      <div className="flex items-center space-x-1 text-sm text-muted-foreground">
-        <span>Network:</span>
-      </div>
-      
+    <div className="flex items-center space-xl">   
       <Select value={network} onValueChange={setNetwork}>
         <SelectTrigger className="w-24 h-8">
           <SelectValue>

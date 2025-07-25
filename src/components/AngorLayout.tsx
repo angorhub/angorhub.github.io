@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -15,8 +15,7 @@ import {
   LogOut,
   User,
   Shield,
-  Menu,
-  X
+  Home
 } from 'lucide-react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useLoginActions } from '@/hooks/useLoginActions';
@@ -25,7 +24,6 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { NetworkSelector } from '@/components/NetworkSelector';
 import { useToast } from '@/hooks/useToast';
 import { useAppContext } from '@/hooks/useAppContext';
-import { Sidebar } from '@/components/Sidebar';
 import { ThemeLoadingOverlay } from '@/components/ThemeLoading';
 
 interface AngorLayoutProps {
@@ -40,20 +38,8 @@ export function AngorLayout({ children }: AngorLayoutProps) {
   const { loading } = useAppContext();
   
   const [showLogin, setShowLogin] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Close mobile menu on escape key
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && mobileMenuOpen) {
-        setMobileMenuOpen(false);
-      }
-    };
-
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [mobileMenuOpen]);
-
   const handleLogout = async () => {
     try {
       await logout();
@@ -76,88 +62,42 @@ export function AngorLayout({ children }: AngorLayoutProps) {
   const userNip05 = metadata?.nip05;
 
   return (
-    <div className="h-screen flex flex-col bg-background text-foreground">      {/* Main Content Area */}
+    <div className="h-screen flex flex-col bg-background text-foreground">
+      {/* Main Content Area */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar - Desktop */}
-        <div className="hidden lg:block w-64 h-full">
-          <Sidebar className="h-full" />
-        </div>        {/* Mobile Sidebar Overlay */}
-        {mobileMenuOpen && (
-          <div className="fixed inset-0 z-50 lg:hidden">
-            <div className="absolute inset-0 bg-black/50" onClick={() => setMobileMenuOpen(false)} />
-            <div className="absolute left-0 top-0 w-64 bg-background flex flex-col" 
-                 style={{ 
-                   height: '100vh'
-                 }}>
-              <div className="flex items-center justify-between p-4 border-b flex-shrink-0">
-                <h2 className="text-lg font-semibold">Menu</h2>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              </div>              <div className="flex-1 overflow-hidden">
-                <Sidebar 
-                  className="border-0 h-full"
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Main Content */}
         <div className="flex-1 flex flex-col min-w-0">
-          {/* Top Bar - Desktop */}
-          <div className="hidden lg:flex items-center justify-between p-4 border-b bg-background">
-            <div className="flex items-center gap-4">
-              <h1 className="text-xl font-semibold">Angor Hub</h1>
-            </div>
-            
+          {/* Top Bar */}
+          <div className="flex items-center justify-between p-4 border-b bg-background">
             <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => navigate('/settings')}
+                onClick={() => navigate('/')}
                 className="text-muted-foreground hover:text-foreground"
               >
-                <Settings className="w-5 h-5" />
+                <Home className="w-5 h-5 mr-2" />
+                Angor Hub
               </Button>
-              <NetworkSelector />
-              <ThemeToggle />
-             
             </div>
-          </div>
+            
+            <div className="flex items-center gap-4">
 
-          {/* Top Bar - Mobile */}
-          <div className="lg:hidden flex items-center justify-between p-4 border-b bg-background">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setMobileMenuOpen(true)}
-            >
-              <Menu className="w-5 h-5" />
-            </Button>
-            
-            <h1 className="text-lg font-semibold">Angor Hub</h1>
-            
-            <div className="flex items-center gap-2">
+              <NetworkSelector />
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate('/settings')}
                 className="text-muted-foreground hover:text-foreground"
               >
-                <Settings className="w-5 h-5" />
+              <Settings className="w-5 h-5" />
               </Button>
-              <NetworkSelector />
               <ThemeToggle />
               {user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="sm">
-                      <Avatar className="w-6 h-6">
+                      <Avatar className="w-8 h-8">
                         {userPicture && <AvatarImage src={userPicture} />}
                         <AvatarFallback className="text-xs">
                           {userDisplayName.slice(0, 2).toUpperCase()}
