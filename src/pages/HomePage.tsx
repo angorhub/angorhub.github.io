@@ -345,7 +345,7 @@ export function HomePage() {
       {/* Search and Filters */}
       <div className="sticky top-4 z-30 px-4 mb-12">
         <div className="max-w-6xl mx-auto bg-card/90 backdrop-blur-lg rounded-2xl shadow-2xl border border-border">
-          <div className="flex items-center gap-4 p-4">
+          <div className="flex items-center gap-4 p-2">
             {/* Search Input */}
             <div className="relative flex-grow">
               <Input
