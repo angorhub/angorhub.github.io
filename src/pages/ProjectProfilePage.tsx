@@ -16,7 +16,17 @@ import { useProjectMetadata, useNostrAdditionalData, useProjectUpdates, useNostr
 import { useIndexerProject } from '@/hooks/useIndexerProject';
 
 import { useAuthor } from '@/hooks/useAuthor';
-import type { NostrProfile, ProjectMetadata, ProjectMedia } from '@/types/angor';
+import type { 
+  NostrProfile, 
+  ProjectMetadata, 
+  ProjectMedia, 
+  ProjectMembers, 
+  NostrProjectUpdate, 
+  NostrFAQItem, 
+  ProjectInvestment, 
+  NostrProjectStage,
+  NostrMediaItem
+} from '@/types/angor';
 
 
 const safeFormatDistanceToNow = (timestamp: number | undefined) => {
@@ -134,8 +144,10 @@ export function ProjectProfilePage() {
     return [];
   };
   // Team
-  const teamPubkeys = additionalData?.members && (additionalData.members as any).pubkeys && Array.isArray((additionalData.members as any).pubkeys)
-    ? (additionalData.members as any).pubkeys : [];
+  const teamPubkeys = additionalData?.members && 
+    (additionalData.members as ProjectMembers).pubkeys && 
+    Array.isArray((additionalData.members as ProjectMembers).pubkeys)
+    ? (additionalData.members as ProjectMembers).pubkeys! : [];
   // Investors
   const investorList = investments || [];
   // FAQ
@@ -217,7 +229,7 @@ export function ProjectProfilePage() {
             {/* Project Stages Accordion */}
             {additionalData?.project?.stages && Array.isArray(additionalData.project.stages) && additionalData.project.stages.length > 0 && (
               <Accordion type="single" collapsible className="mt-6">
-                {additionalData.project.stages.map((stage: any, idx: number) => (
+                {additionalData.project.stages.map((stage: NostrProjectStage, idx: number) => (
                   <AccordionItem value={`stage-${idx}`} key={idx}>
                     <AccordionTrigger>Stage {idx + 1}: {stage.name || 'Unnamed Stage'}</AccordionTrigger>
                     <AccordionContent>
@@ -232,9 +244,9 @@ export function ProjectProfilePage() {
           <TabsContent value="updates">
             {updateList.length > 0 ? (
               <Accordion type="single" collapsible>
-                {updateList.map((update: any, idx: number) => (
+                {updateList.map((update: NostrProjectUpdate, idx: number) => (
                   <AccordionItem value={`update-${idx}`} key={update.id}>
-                    <AccordionTrigger>{update.title || `Update #${idx + 1}`}</AccordionTrigger>
+                    <AccordionTrigger>Update #{idx + 1}</AccordionTrigger>
                     <AccordionContent>
                       <div className="text-xs text-muted-foreground mb-2">{safeFormatDistanceToNow(update.created_at)}</div>
                       <div>{update.content}</div>
@@ -249,7 +261,7 @@ export function ProjectProfilePage() {
           <TabsContent value="faq">
             {faqList.length > 0 ? (
               <Accordion type="single" collapsible>
-                {faqList.map((item: any, idx: number) => (
+                {faqList.map((item: NostrFAQItem, idx: number) => (
                   <AccordionItem value={`faq-${idx}`} key={idx}>
                     <AccordionTrigger>{item.question || `FAQ #${idx + 1}`}</AccordionTrigger>
                     <AccordionContent>{item.answer || 'No answer provided.'}</AccordionContent>
@@ -269,14 +281,14 @@ export function ProjectProfilePage() {
                     <table className="min-w-full text-sm">
                       <thead><tr><th className="text-left">Investor</th><th>Amount</th><th>Date</th></tr></thead>
                       <tbody>
-                        {investorList.map((inv: any, idx: number) => (
-                          <tr key={inv.id || idx} className="border-b last:border-0">
+                        {investorList.map((inv: ProjectInvestment, idx: number) => (
+                          <tr key={inv.transactionId || idx} className="border-b last:border-0">
                             <td className="py-2 flex items-center gap-2">
-                              <Avatar className="h-7 w-7"><AvatarFallback>{inv.pubkey?.slice(0, 2)}</AvatarFallback></Avatar>
-                              <span className="font-mono text-xs">{inv.pubkey?.slice(0, 8)}...</span>
+                              <Avatar className="h-7 w-7"><AvatarFallback>{inv.investorPublicKey?.slice(0, 2)}</AvatarFallback></Avatar>
+                              <span className="font-mono text-xs">{inv.investorPublicKey?.slice(0, 8)}...</span>
                             </td>
-                            <td>{formatBTC(inv.amount)}</td>
-                            <td>{safeFormatDistanceToNow(inv.created_at)}</td>
+                            <td>{formatBTC(inv.totalAmount)}</td>
+                            <td>{safeFormatDistanceToNow(inv.timeInvested)}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -302,7 +314,7 @@ export function ProjectProfilePage() {
           <TabsContent value="media">
             {getGalleryItems().length > 0 ? (
               <Carousel>
-                {getGalleryItems().map((item: any, idx: number) => (
+                {getGalleryItems().map((item: NostrMediaItem, idx: number) => (
                   <img key={idx} src={item.url} alt={item.caption || `Media ${idx + 1}`} className="rounded-lg w-full max-h-96 object-contain" />
                 ))}
               </Carousel>

@@ -41,7 +41,16 @@ import { useNetwork } from '@/contexts/NetworkContext';
 import { useSettings } from '@/hooks/useSettings';
 import { formatBitcoinAmount } from '@/lib/formatCurrency';
 import { useAuthor } from '@/hooks/useAuthor';
-import type { NostrProfile, ProjectMetadata, ProjectMedia } from '@/types/angor';
+import type { 
+  NostrProfile, 
+  ProjectMetadata, 
+  ProjectMedia, 
+  ProjectMembers, 
+  NostrProjectStage,
+  NostrFAQItem,
+  NostrMediaItem,
+  NostrTeamMember
+} from '@/types/angor';
 
 // Helper function outside of component to avoid React hooks issues
 const formatAmount = (amount: number | undefined) => {
@@ -257,8 +266,8 @@ export function ProjectDetailPage() {
   // Debug logging for team data - simplified
   if (additionalData?.members) {
     console.log('🧪 Team Data:', {
-      hasPubkeys: !!(additionalData.members as any).pubkeys,
-      pubkeysCount: Array.isArray((additionalData.members as any).pubkeys) ? (additionalData.members as any).pubkeys.length : 0
+      hasPubkeys: !!(additionalData.members as ProjectMembers).pubkeys,
+      pubkeysCount: Array.isArray((additionalData.members as ProjectMembers).pubkeys) ? (additionalData.members as ProjectMembers).pubkeys!.length : 0
     });
   }
   
@@ -456,7 +465,6 @@ export function ProjectDetailPage() {
                       stats?.targetAmount || 
                       additionalData?.project?.targetAmount || 
                       project?.details?.targetAmount || 
-                      (additionalData?.project as any)?.targetAmount ||
                       0;
   const amountInvested = indexerProject?.amountInvested || stats?.amountInvested || 0;
   const investorCount = indexerProject?.investorCount || stats?.investorCount || 0;
@@ -932,7 +940,7 @@ export function ProjectDetailPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {additionalData?.project.stages.map((stage: any, index: number) => (
+                  {additionalData?.project.stages.map((stage: NostrProjectStage, index: number) => (
                     <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="space-y-1">
                         <div className="font-medium">Stage {index + 1}</div>
@@ -951,7 +959,7 @@ export function ProjectDetailPage() {
                           {stage.amountToRelease}% of funds
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          {additionalData?.project.targetAmount ? 
+                          {additionalData?.project.targetAmount && stage.amountToRelease ? 
                             formatBTC((additionalData?.project.targetAmount * stage.amountToRelease) / 100) : 'N/A'
                           }
                         </div>
@@ -1000,7 +1008,7 @@ export function ProjectDetailPage() {
                 {/* Display media from Kind 30078 (additionalData.media array) */}
                 {additionalData?.media && Array.isArray(additionalData.media) && additionalData.media.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                    {additionalData.media.map((item: any, index: number) => (
+                    {additionalData.media.map((item: NostrMediaItem, index: number) => (
                       <div key={index} className="bg-muted rounded-lg overflow-hidden">
                         {item?.type === 'video' && item?.url ? (
                           <div className="aspect-video">
@@ -1108,7 +1116,7 @@ export function ProjectDetailPage() {
                 <CardTitle>Frequently Asked Questions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                {additionalData.faq.map((item: any, index: number) => (
+                {(additionalData.faq as NostrFAQItem[]).map((item: NostrFAQItem, index: number) => (
                   <div key={index}>
                     <h4 className="font-medium mb-2">
                       {item?.question || `Question ${index + 1}`}
@@ -1116,7 +1124,7 @@ export function ProjectDetailPage() {
                     <p className="text-muted-foreground">
                       {item?.answer || 'No answer provided'}
                     </p>
-                    {index < (additionalData.faq as any[]).length - 1 && <Separator className="mt-4" />}
+                    {index < (additionalData.faq as NostrFAQItem[]).length - 1 && <Separator className="mt-4" />}
                   </div>
                 ))}
               </CardContent>
@@ -1185,7 +1193,7 @@ export function ProjectDetailPage() {
 
         <TabsContent value="team" className="space-y-6">
           {(additionalData?.members && 
-            (((additionalData.members as any).pubkeys && Array.isArray((additionalData.members as any).pubkeys) && (additionalData.members as any).pubkeys.length > 0) ||
+            (((additionalData.members as ProjectMembers).pubkeys && Array.isArray((additionalData.members as ProjectMembers).pubkeys) && (additionalData.members as ProjectMembers).pubkeys!.length > 0) ||
              ('team' in additionalData.members && Array.isArray(additionalData.members.team) && additionalData.members.team.length > 0))) ? (
             <Card>
               <CardHeader>
@@ -1197,51 +1205,33 @@ export function ProjectDetailPage() {
               <CardContent>
                 <div className="grid grid-cols-1 gap-6">
                   {/* Display team members from pubkeys with clean profile layout */}
-                  {(additionalData.members as any).pubkeys && Array.isArray((additionalData.members as any).pubkeys) && 
-                    (additionalData.members as any).pubkeys.map((pubkey: string, index: number) => (
+                  {(additionalData.members as ProjectMembers).pubkeys && Array.isArray((additionalData.members as ProjectMembers).pubkeys) && 
+                    (additionalData.members as ProjectMembers).pubkeys!.map((pubkey: string, index: number) => (
                       <TeamMemberProfile key={pubkey} pubkey={pubkey} index={index} />
                     ))
                   }
                   
                   {/* Display team members from team array (if available) */}
                   {'team' in additionalData.members && Array.isArray(additionalData.members.team) && 
-                    additionalData.members.team.map((member: any, index: number) => (
+                    additionalData.members.team.map((member: NostrTeamMember, index: number) => (
                       <div key={`team-${index}`} className="flex items-start space-x-4 p-4 border rounded-lg bg-card hover:bg-accent/5 transition-colors">
                         <Avatar className="h-16 w-16">
-                          <AvatarImage src={
-                            member && typeof member === 'object' && 'picture' in member 
-                              ? (member as { picture?: string }).picture 
-                              : undefined
-                          } />
+                          <AvatarImage src={member.picture} />
                           <AvatarFallback className="text-lg">
-                            {member && typeof member === 'object' && 'name' in member 
-                              ? ((member as { name?: string }).name?.charAt(0) || 'T')
-                              : 'T'
-                            }
+                            {member.name?.charAt(0) || 'T'}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1 space-y-2">
                           <div>
                             <h4 className="font-semibold text-lg">
-                              {member && typeof member === 'object' && 'name' in member 
-                                ? ((member as { name?: string }).name || 'Team Member')
-                                : 'Team Member'
-                              }
+                              {member.name || 'Team Member'}
                             </h4>
                             <p className="text-sm text-primary font-medium">
-                              {member && typeof member === 'object' && 'role' in member 
-                                ? (member as { role?: string }).role 
-                                : 'Team Member'
-                              }
+                              {member.role || 'Team Member'}
                             </p>
                           </div>
-                          {member && typeof member === 'object' && 'bio' in member && (member as { bio?: string }).bio && (
-                            <p className="text-sm text-foreground/80">{(member as { bio: string }).bio}</p>
-                          )}
-                          {member && typeof member === 'object' && 'contact' in member && (member as { contact?: string }).contact && (
-                            <div className="flex items-center space-x-1 text-xs text-muted-foreground">
-                              <span>Contact: {(member as { contact: string }).contact}</span>
-                            </div>
+                          {member.bio && (
+                            <p className="text-sm text-foreground/80">{member.bio}</p>
                           )}
                         </div>
                       </div>

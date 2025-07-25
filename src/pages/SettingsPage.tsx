@@ -28,6 +28,7 @@ import { useNetwork } from '@/contexts/NetworkContext';
 import { useIndexer } from '@/contexts/IndexerContext';
 import { useRelay } from '@/hooks/useRelay';
 import { useSettings } from '@/hooks/useSettings';
+import { NetworkSelector } from '@/components/NetworkSelector';
 
 export function SettingsPage() {
   const { theme, setTheme } = useTheme();
@@ -397,6 +398,30 @@ export function SettingsPage() {
 
           {/* Indexers Settings */}
           <TabsContent value="indexers" className="space-y-6">
+            {/* Network Selection */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Globe className="w-5 h-5" />
+                  Network Selection
+                </CardTitle>
+                <CardDescription>
+                  Choose the Bitcoin network for indexer connections. This affects which project data is displayed.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>Current Network</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Switch between Bitcoin Mainnet and Testnet networks
+                    </p>
+                  </div>
+                  <NetworkSelector variant="full" />
+                </div>
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">

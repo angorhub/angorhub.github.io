@@ -3,15 +3,14 @@ import { useEffect, useRef } from "react";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { AngorLayout } from "./components/AngorLayout";
 import { useGlobalLoading } from "./hooks/useGlobalLoading";
-import { HomePage } from "./pages/HomePage";
- import { ProjectDetailPage } from "./pages/ProjectDetailPage";
-import { ProjectDebugPage } from "./pages/ProjectDebugPage";
+import { ProjectDetailPage } from "./pages/ProjectDetailPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { TrendingPage } from "./pages/TrendingPage";
 import { AnalyticsPage } from "./pages/AnalyticsPage";
 import { DebugPage } from "./pages/DebugPage";
 import NotFound from "./pages/NotFound";
+import { HomePage } from "./pages/HomePage";
 
 // Component to handle route loading
 function RouteLoadingHandler() {
@@ -81,7 +80,6 @@ export function AppRouter() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/project/:projectId" element={<ProjectDetailPage />} />
-          <Route path="/project/:projectId/debug" element={<ProjectDebugPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/trending" element={<TrendingPage />} />
           <Route path="/profile" element={<ProfilePage />} />

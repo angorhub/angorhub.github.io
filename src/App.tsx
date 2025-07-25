@@ -15,6 +15,7 @@ import { IndexerProvider } from '@/contexts/IndexerContext';
 import { RelayProvider } from '@/contexts/RelayContext';
 import AppRouter from './AppRouter';
 import type { AppConfig } from "./contexts/AppContext";
+import SWhandler from "smart-widget-handler";
 
 const head = createHead({
   plugins: [
@@ -49,6 +50,7 @@ const presetRelays = [
 ];
 
 export function App() {
+  SWhandler.client.ready();
   return (
     <UnheadProvider head={head}>
       <NetworkProvider>

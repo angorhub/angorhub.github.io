@@ -110,6 +110,67 @@ export interface ProjectMembers {
     bio?: string;
     picture?: string;
   }>;
+  pubkeys?: string[];
+}
+
+// Additional types for Nostr data structures
+export interface NostrProjectUpdate {
+  id: string;
+  content: string;
+  created_at: number;
+  author: string;
+  tags: string[][];
+}
+
+export interface NostrFAQItem {
+  question: string;
+  answer: string;
+}
+
+export interface NostrMediaItem {
+  url: string;
+  type: 'image' | 'video' | 'document';
+  caption?: string;
+}
+
+export interface NostrTeamMember {
+  pubkey: string;
+  name?: string;
+  role?: string;
+  bio?: string;
+  picture?: string;
+}
+
+export interface NostrInvestment {
+  id: string;
+  pubkey: string;
+  amount: number;
+  created_at: number;
+}
+
+export interface NostrProjectStage {
+  name: string;
+  description: string;
+  targetAmount: number;
+  amountToRelease?: number;
+  releaseDate?: number;
+}
+
+// Additional data structure for Nostr events
+export interface NostrAdditionalData {
+  faq?: NostrFAQItem[];
+  media?: NostrMediaItem[] | ProjectMedia;
+  members?: ProjectMembers;
+  project?: {
+    targetAmount?: number;
+    expiryDate?: number;
+    stages?: NostrProjectStage[];
+    projectSeeders?: {
+      threshold: number;
+      secretHashes: string[];
+    };
+    [key: string]: unknown;
+  };
 }
 
 export interface IndexedProject {

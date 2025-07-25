@@ -21,7 +21,6 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useLoginActions } from '@/hooks/useLoginActions';
 import LoginDialog from '@/components/auth/LoginDialog';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { NetworkSelector } from '@/components/NetworkSelector';
 import { useToast } from '@/hooks/useToast';
 import { useAppContext } from '@/hooks/useAppContext';
 import { ThemeLoadingOverlay } from '@/components/ThemeLoading';
@@ -83,7 +82,6 @@ export function AngorLayout({ children }: AngorLayoutProps) {
             
             <div className="flex items-center gap-4">
 
-              <NetworkSelector />
               <Button
                 variant="ghost"
                 size="sm"
