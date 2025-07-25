@@ -199,6 +199,8 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onClose, onLogin, onS
                       className='hidden'
                       ref={fileInputRef}
                       onChange={handleFileUpload}
+                      placeholder="Upload your nsec key file"
+                      title="Upload your nsec key file"
                     />
                     <Button
                       variant='outline'

@@ -312,6 +312,8 @@ const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
             ref={fileInputRef}
             accept="image/*"
             className="hidden"
+            title={`Upload ${label}`}
+            placeholder={`Choose ${label} image`}
             onChange={(e) => {
               const file = e.target.files?.[0];
               if (file) {
