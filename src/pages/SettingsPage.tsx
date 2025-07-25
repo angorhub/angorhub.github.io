@@ -11,8 +11,6 @@ import {
   Settings, 
   Palette, 
   Wifi, 
-  Shield, 
-  Bell,
   Trash2,
   Plus,
   X,
@@ -269,7 +267,7 @@ export function SettingsPage() {
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
+    <div className="container mx-auto p-4 sm:p-6 max-w-4xl">
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center gap-3">
@@ -283,12 +281,10 @@ export function SettingsPage() {
         </div>
 
         <Tabs defaultValue="general" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="general">General</TabsTrigger>
             <TabsTrigger value="indexers">Indexers</TabsTrigger>
-            <TabsTrigger value="notifications">Notifications</TabsTrigger>
             <TabsTrigger value="relays">Relays</TabsTrigger>
-            <TabsTrigger value="privacy">Privacy</TabsTrigger>
           </TabsList>
 
           {/* General Settings */}
@@ -530,62 +526,6 @@ export function SettingsPage() {
             </Card>
           </TabsContent>
 
-          {/* Notifications Settings */}
-          <TabsContent value="notifications" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Bell className="w-5 h-5" />
-                  Notification Preferences
-                </CardTitle>
-                <CardDescription>
-                  Configure how you receive updates about projects and funding
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Project Updates</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Get notified when projects you backed post updates
-                    </p>
-                  </div>
-                  <Switch
-                    checked={settings.projectUpdates}
-                    onCheckedChange={(checked) => updateSetting('projectUpdates', checked)}
-                  />
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Funding Alerts</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Notifications when funding goals are reached
-                    </p>
-                  </div>
-                  <Switch
-                    checked={settings.fundingAlerts}
-                    onCheckedChange={(checked) => updateSetting('fundingAlerts', checked)}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>New Projects</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Get notified about new projects in categories you follow
-                    </p>
-                  </div>
-                  <Switch
-                    checked={settings.newProjects}
-                    onCheckedChange={(checked) => updateSetting('newProjects', checked)}
-                  />
-                </div>
-
-              </CardContent>
-            </Card>
-          </TabsContent>
-
           {/* Relays Settings */}
           <TabsContent value="relays" className="space-y-6">
             <Card>
@@ -600,15 +540,21 @@ export function SettingsPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Add New Relay */}
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Input
                     placeholder="wss://relay.example.com"
                     value={newRelay}
                     onChange={(e) => setNewRelay(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && addNewRelay()}
+                    className="flex-1"
                   />
-                  <Button onClick={addNewRelay} disabled={!newRelay}>
-                    <Plus className="w-4 h-4" />
+                  <Button 
+                    onClick={addNewRelay} 
+                    disabled={!newRelay}
+                    className="w-full sm:w-auto"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Relay
                   </Button>
                 </div>
 
@@ -625,102 +571,111 @@ export function SettingsPage() {
                   {relays[network].map((relay) => (
                     <div
                       key={relay.url}
-                      className="flex items-center gap-3 p-4 border rounded-lg"
+                      className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 border rounded-lg"
                     >
-                      <div className={`w-3 h-3 rounded-full ${getStatusColor(relay.status)}`} />
-                      
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium truncate">{relay.url}</p>
-                          {relay.isDefault && (
-                            <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full">
-                              Default
-                            </span>
-                          )}
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className={`w-3 h-3 rounded-full ${getStatusColor(relay.status)} flex-shrink-0`} />
+                        
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                            <p className="font-medium truncate">{relay.url}</p>
+                            <div className="flex items-center gap-2">
+                                                  <span className="px-2 py-1 text-xs bg-muted text-muted-foreground rounded-full capitalize whitespace-nowrap">
+                                {relay.status}
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                        <p className="text-sm text-muted-foreground capitalize">{relay.status}</p>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        {/* Connection Controls */}
-                        {relay.status === 'disconnected' ? (
+                      {/* Mobile: Stack controls vertically, Desktop: Horizontal */}
+                      <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+                        {/* Row 1: Connection + Test */}
+                        <div className="flex gap-2">
+                          {/* Connection Controls */}
+                          {relay.status === 'disconnected' ? (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => connectRelayHandler(relay.url)}
+                              disabled={testingRelays.has(relay.url)}
+                              className="flex-1 sm:flex-none"
+                            >
+                              {testingRelays.has(relay.url) ? (
+                                <RefreshCw className="w-3 h-3 animate-spin mr-1" />
+                              ) : (
+                                <Wifi className="w-3 h-3 mr-1" />
+                              )}
+                              </Button>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => disconnectRelayHandler(relay.url)}
+                              className="flex-1 sm:flex-none"
+                            >
+                              <X className="w-3 h-3 mr-1" />
+                              </Button>
+                          )}
+
+                          {/* Test Connection */}
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => connectRelayHandler(relay.url)}
+                            onClick={() => testRelay(relay.url)}
                             disabled={testingRelays.has(relay.url)}
+                            className="flex-shrink-0"
                           >
                             {testingRelays.has(relay.url) ? (
-                              <RefreshCw className="w-3 h-3 animate-spin mr-1" />
+                              <RefreshCw className="w-3 h-3 animate-spin" />
                             ) : (
-                              <Wifi className="w-3 h-3 mr-1" />
+                              <AlertCircle className="w-3 h-3" />
                             )}
-                            Connect
                           </Button>
-                        ) : (
+                        </div>
+
+                        {/* Row 2: Permissions + Remove */}
+                        <div className="flex gap-2">
+                          {/* Read Permission */}
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => disconnectRelayHandler(relay.url)}
+                            onClick={() => toggleRelayPermissionHandler(relay.url, 'read')}
+                            className={`flex-1 sm:flex-none ${relay.read ? 'bg-green-50 text-green-700 border-green-200' : ''}`}
                           >
-                            <X className="w-3 h-3 mr-1" />
-                            Disconnect
+                            {relay.read ? <Check className="w-3 h-3 mr-1" /> : <X className="w-3 h-3 mr-1" />}
+                            Read
                           </Button>
-                        )}
-
-                        {/* Test Connection */}
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => testRelay(relay.url)}
-                          disabled={testingRelays.has(relay.url)}
-                        >
-                          {testingRelays.has(relay.url) ? (
-                            <RefreshCw className="w-3 h-3 animate-spin" />
-                          ) : (
-                            <AlertCircle className="w-3 h-3" />
-                          )}
-                        </Button>
-
-                        {/* Read Permission */}
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => toggleRelayPermissionHandler(relay.url, 'read')}
-                          className={relay.read ? 'bg-green-50 text-green-700 border-green-200' : ''}
-                        >
-                          {relay.read ? <Check className="w-3 h-3 mr-1" /> : <X className="w-3 h-3 mr-1" />}
-                          Read
-                        </Button>
-                        
-                        {/* Write Permission */}
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => toggleRelayPermissionHandler(relay.url, 'write')}
-                          className={relay.write ? 'bg-blue-50 text-blue-700 border-blue-200' : ''}
-                        >
-                          {relay.write ? <Check className="w-3 h-3 mr-1" /> : <X className="w-3 h-3 mr-1" />}
-                          Write
-                        </Button>
-                        
-                        {/* Remove Relay */}
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => removeRelayHandler(relay.url)}
-                          className="text-red-600 hover:text-red-700"
-                          disabled={relay.isDefault || relays[network].length === 1}
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </Button>
+                          
+                          {/* Write Permission */}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => toggleRelayPermissionHandler(relay.url, 'write')}
+                            className={`flex-1 sm:flex-none ${relay.write ? 'bg-blue-50 text-blue-700 border-blue-200' : ''}`}
+                          >
+                            {relay.write ? <Check className="w-3 h-3 mr-1" /> : <X className="w-3 h-3 mr-1" />}
+                            Write
+                          </Button>
+                          
+                          {/* Remove Relay */}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => removeRelayHandler(relay.url)}
+                            className="text-red-600 hover:text-red-700 flex-shrink-0"
+                            disabled={relay.isDefault || relays[network].length === 1}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                           </Button>
+                        </div>
                       </div>
                     </div>
                   ))}
                 </div>
 
                 {/* Reset to Defaults */}
-                <div className="flex justify-between items-center pt-4 border-t">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 pt-4 border-t">
                   <div>
                     <p className="font-medium">Reset to Defaults</p>
                     <p className="text-sm text-muted-foreground">
@@ -731,7 +686,7 @@ export function SettingsPage() {
                     variant="outline"
                     onClick={resetRelaysToDefaultsHandler}
                     disabled={resettingRelays}
-                    className="text-orange-600 hover:text-orange-700"
+                    className="text-orange-600 hover:text-orange-700 w-full sm:w-auto"
                   >
                     <RefreshCw className={`w-4 h-4 mr-2 ${resettingRelays ? 'animate-spin' : ''}`} />
                     {resettingRelays ? 'Resetting...' : 'Reset'}
@@ -760,84 +715,6 @@ export function SettingsPage() {
                     </Button>
                   </div>
                 )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Privacy Settings */}
-          <TabsContent value="privacy" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Shield className="w-5 h-5" />
-                  Privacy & Security
-                </CardTitle>
-                <CardDescription>
-                  Control your privacy and data sharing preferences
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Public Profile</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Make your profile and projects visible to others
-                    </p>
-                  </div>
-                  <Switch
-                    checked={settings.publicProfile}
-                    onCheckedChange={(checked) => updateSetting('publicProfile', checked)}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Show Funding Activity</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Display your funding contributions on your profile
-                    </p>
-                  </div>
-                  <Switch
-                    checked={settings.showFundingActivity}
-                    onCheckedChange={(checked) => updateSetting('showFundingActivity', checked)}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Allow Direct Messages</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Let other users send you direct messages via Nostr
-                    </p>
-                  </div>
-                  <Switch
-                    checked={settings.allowDirectMessages}
-                    onCheckedChange={(checked) => updateSetting('allowDirectMessages', checked)}
-                  />
-                </div>
-
-                <Separator />
-
-                <div className="p-4 bg-muted/50 rounded-lg">
-                  <h4 className="font-medium mb-2">Data Protection</h4>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Your data is stored on the decentralized Nostr network. You have full control over your information.
-                  </p>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Check className="w-4 h-4 text-green-600" />
-                      <span>Your private keys never leave your device</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Check className="w-4 h-4 text-green-600" />
-                      <span>No centralized data collection</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Check className="w-4 h-4 text-green-600" />
-                      <span>Full ownership of your content</span>
-                    </div>
-                  </div>
-                </div>
               </CardContent>
             </Card>
           </TabsContent>
