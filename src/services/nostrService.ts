@@ -32,6 +32,25 @@ export async function queryWithRetry<T>(
 }
 
 /**
+ * Helper function to safely parse JSON content
+ */
+function safeJsonParse(content: string, fallback: Record<string, unknown> = {}): Record<string, unknown> {
+  try {
+    // Quick check if content looks like JSON
+    const trimmed = content.trim();
+    if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) {
+      console.log('Content does not appear to be JSON, skipping parse:', trimmed.slice(0, 50) + '...');
+      return fallback;
+    }
+    
+    return JSON.parse(content);
+  } catch {
+    console.log('Invalid JSON content, skipping:', content.slice(0, 50) + '...');
+    return fallback;
+  }
+}
+
+/**
  * Hook to fetch user profile by pubkey
  */
 export function useNostrProfile(pubkey: string | undefined) {
@@ -51,12 +70,8 @@ export function useNostrProfile(pubkey: string | undefined) {
         }], { signal });
 
         if (events.length > 0) {
-          try {
-            return JSON.parse(events[0].content) as NostrProfile;
-          } catch (error) {
-            console.error('Error parsing profile metadata:', error);
-            return {};
-          }
+          const parsedContent = safeJsonParse(events[0].content, {});
+          return parsedContent as NostrProfile;
         }
         return {};
       }, `Profile for ${pubkey}`);
@@ -86,12 +101,8 @@ export function useNostrProjectDetails(eventId: string | undefined) {
         }], { signal });
 
         if (events.length > 0) {
-          try {
-            return JSON.parse(events[0].content) as ProjectDetails;
-          } catch (error) {
-            console.error('Error parsing project details:', error);
-            return {};
-          }
+          const parsedContent = safeJsonParse(events[0].content, {});
+          return parsedContent as ProjectDetails;
         }
         return {};
       }, `Project details for ${eventId}`);
@@ -136,36 +147,33 @@ export function useNostrAdditionalData(pubkey: string | undefined) {
         let project: NostrProjectDetails = {};
 
         events.forEach(event => {
-          try {
-            if (event.kind === ANGOR_EVENT_KINDS.PROJECT_INFO) {
-              // Kind 3030 - Project information
-              project = JSON.parse(event.content);
-            } else if (event.kind === ANGOR_EVENT_KINDS.ADDITIONAL_DATA) {
-              // Kind 30078 - Additional data with d tags
-              const dTag = event.tags.find(tag => tag[0] === 'd');
-              const content = JSON.parse(event.content);
+          if (event.kind === ANGOR_EVENT_KINDS.PROJECT_INFO) {
+            // Kind 3030 - Project information
+            const content = safeJsonParse(event.content, {});
+            project = content as NostrProjectDetails;
+          } else if (event.kind === ANGOR_EVENT_KINDS.ADDITIONAL_DATA) {
+            // Kind 30078 - Additional data with d tags
+            const dTag = event.tags.find(tag => tag[0] === 'd');
+            const content = safeJsonParse(event.content, {});
+            
+            if (dTag) {
+              const tagValue = dTag[1];
               
-              if (dTag) {
-                const tagValue = dTag[1];
-                
-                if (tagValue === 'angor:faq' || tagValue === 'faq') {
-                  faq = content;
-                } else if (tagValue === 'angor:media' || tagValue === 'media') {
-                  media = content;
-                } else if (tagValue === 'angor:members' || tagValue === 'members') {
-                  members = content;
-                } else if (tagValue === 'angor:project' || tagValue === 'project') {
-                  project = { ...project, ...content };
-                }
-              } else if (!dTag && content.projectIdentifier) {
-                // Untagged project data that contains projectIdentifier (main project details)
-                project = { ...project, ...content };
-                console.log(`🎯 Found untagged project data in useNostrAdditionalData:`, content);
-                console.log(`📊 Project fields - targetAmount: ${content.targetAmount}, founderKey: ${content.founderKey}`);
+              if (tagValue === 'angor:faq' || tagValue === 'faq') {
+                faq = content as unknown as ProjectFAQ;
+              } else if (tagValue === 'angor:media' || tagValue === 'media') {
+                media = content as unknown as ProjectMedia;
+              } else if (tagValue === 'angor:members' || tagValue === 'members') {
+                members = content as unknown as ProjectMembers;
+              } else if (tagValue === 'angor:project' || tagValue === 'project') {
+                project = { ...project, ...(content as NostrProjectDetails) };
               }
+            } else if (!dTag && content.projectIdentifier) {
+              // Untagged project data that contains projectIdentifier (main project details)
+              project = { ...project, ...(content as NostrProjectDetails) };
+              console.log(`🎯 Found untagged project data in useNostrAdditionalData:`, content);
+              console.log(`📊 Project fields - targetAmount: ${content.targetAmount}, founderKey: ${content.founderKey}`);
             }
-          } catch (error) {
-            console.error(`Error parsing event content (kind ${event.kind}):`, error);
           }
         });
 
@@ -233,18 +241,17 @@ export function useNostrProjects() {
         return events
           .sort((a, b) => b.created_at - a.created_at)
           .map(event => {
-            try {
-              const content = JSON.parse(event.content);
-              return {
-                ...content,
-                eventId: event.id,
-                pubkey: event.pubkey,
-                created_at: event.created_at,
-              };
-            } catch (error) {
-              console.error('Error parsing project event:', error);
-              return null;
+            const content = safeJsonParse(event.content, {});
+            if (Object.keys(content).length === 0) {
+              return null; // Skip non-JSON content
             }
+            
+            return {
+              ...content,
+              eventId: event.id,
+              pubkey: event.pubkey,
+              created_at: event.created_at,
+            };
           })
           .filter(Boolean);
       }, 'All Nostr projects');
@@ -302,30 +309,34 @@ export function useNostrProjectByEventId(eventId: string | undefined) {
         let mergedProjectData: NostrProjectDetails = {};
 
         for (const event of allEvents) {
-          try {
-            const content = JSON.parse(event.content);
+          const content = safeJsonParse(event.content, {});
+          
+          // Skip non-JSON content
+          if (Object.keys(content).length === 0) {
+            continue;
+          }
+          
+          if (event.kind === ANGOR_EVENT_KINDS.PROJECT_INFO) {
+            // Kind 3030 - Project information
+            const projectContent = content as NostrProjectDetails;
+            projectDetails = { ...projectDetails, ...projectContent };
+            mergedProjectData = { ...mergedProjectData, ...projectContent };
+          } else if (event.kind === ANGOR_EVENT_KINDS.ADDITIONAL_DATA) {
+            // Kind 30078 - Additional data
+            const dTag = event.tags.find(tag => tag[0] === 'd')?.[1];
             
-            if (event.kind === ANGOR_EVENT_KINDS.PROJECT_INFO) {
-              // Kind 3030 - Project information
-              projectDetails = { ...projectDetails, ...content };
-              mergedProjectData = { ...mergedProjectData, ...content };
-            } else if (event.kind === ANGOR_EVENT_KINDS.ADDITIONAL_DATA) {
-              // Kind 30078 - Additional data
-              const dTag = event.tags.find(tag => tag[0] === 'd')?.[1];
-              
-              if (dTag === 'angor:project' || dTag === 'project') {
-                // Tagged project data
-                additionalData = { ...additionalData, ...content };
-                mergedProjectData = { ...mergedProjectData, ...content };
-              } else if (!dTag && content.projectIdentifier) {
-                // Untagged project data that contains projectIdentifier (main project details)
-                additionalData = { ...additionalData, ...content };
-                mergedProjectData = { ...mergedProjectData, ...content };
-                console.log(`Found untagged project data with targetAmount: ${content.targetAmount}`);
-              }
+            if (dTag === 'angor:project' || dTag === 'project') {
+              // Tagged project data
+              const projectContent = content as NostrProjectDetails;
+              additionalData = { ...additionalData, ...projectContent };
+              mergedProjectData = { ...mergedProjectData, ...projectContent };
+            } else if (!dTag && content.projectIdentifier) {
+              // Untagged project data that contains projectIdentifier (main project details)
+              const projectContent = content as NostrProjectDetails;
+              additionalData = { ...additionalData, ...projectContent };
+              mergedProjectData = { ...mergedProjectData, ...projectContent };
+              console.log(`Found untagged project data with targetAmount: ${content.targetAmount}`);
             }
-          } catch (error) {
-            console.error(`Error parsing event content (kind ${event.kind}):`, error);
           }
         }
 
@@ -383,27 +394,28 @@ export function useProjectMetadata(nostrPubKey: string | undefined) {
         let membersData = {};
 
         for (const event of events) {
-          try {
-            if (event.kind === ANGOR_EVENT_KINDS.PROFILE_METADATA) {
-              profile = JSON.parse(event.content);
-            } else if (event.kind === ANGOR_EVENT_KINDS.ADDITIONAL_DATA) {
-              const dTag = event.tags.find(tag => tag[0] === 'd')?.[1];
-              const content = JSON.parse(event.content);
-              
-              switch (dTag) {
-                case 'angor:project':
-                  projectData = content;
-                  break;
-                case 'angor:media':
-                  mediaData = content;
-                  break;
-                case 'angor:members':
-                  membersData = content;
-                  break;
-              }
+          if (event.kind === ANGOR_EVENT_KINDS.PROFILE_METADATA) {
+            profile = safeJsonParse(event.content, {});
+          } else if (event.kind === ANGOR_EVENT_KINDS.ADDITIONAL_DATA) {
+            const dTag = event.tags.find(tag => tag[0] === 'd')?.[1];
+            const content = safeJsonParse(event.content, {});
+            
+            // Skip non-JSON content
+            if (Object.keys(content).length === 0) {
+              continue;
             }
-          } catch (error) {
-            console.error('Error parsing event content:', error);
+            
+            switch (dTag) {
+              case 'angor:project':
+                projectData = content;
+                break;
+              case 'angor:media':
+                mediaData = content;
+                break;
+              case 'angor:members':
+                membersData = content;
+                break;
+            }
           }
         }
 
