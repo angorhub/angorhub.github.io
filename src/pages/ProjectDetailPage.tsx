@@ -707,8 +707,13 @@ export function ProjectDetailPage() {
               <CardTitle>Project Description</CardTitle>
             </CardHeader>
             <CardContent>
-              {/* Render description from additional data (kind 30078) as markdown */}
-              {additionalData?.project?.about ? (
+              {/* Render content from additional data (kind 30078 with #d: ['angor:project']) as markdown */}
+              {additionalData?.content ? (
+                <MarkdownRenderer 
+                  content={additionalData.content} 
+                  className="prose-sm"
+                />
+              ) : additionalData?.project?.about ? (
                 <MarkdownRenderer 
                   content={additionalData.project.about} 
                   className="prose-sm"

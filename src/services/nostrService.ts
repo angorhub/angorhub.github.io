@@ -122,7 +122,7 @@ export function useNostrAdditionalData(pubkey: string | undefined) {
   return useQuery({
     queryKey: ['nostr-additional-data', pubkey],
     queryFn: async () => {
-      if (!pubkey) return { faq: {}, media: {}, members: {}, project: {} as NostrProjectDetails };
+      if (!pubkey) return { faq: {}, media: {}, members: {}, project: {} as NostrProjectDetails, content: '' };
 
       return queryWithRetry(async () => {
         const signal = AbortSignal.timeout(8000);
@@ -145,39 +145,40 @@ export function useNostrAdditionalData(pubkey: string | undefined) {
         let media: ProjectMedia = {};
         let members: ProjectMembers = { team: [] };
         let project: NostrProjectDetails = {};
+        let content: string = '';
 
         events.forEach(event => {
           if (event.kind === ANGOR_EVENT_KINDS.PROJECT_INFO) {
             // Kind 3030 - Project information
-            const content = safeJsonParse(event.content, {});
-            project = content as NostrProjectDetails;
+            const parsedContent = safeJsonParse(event.content, {});
+            project = parsedContent as NostrProjectDetails;
           } else if (event.kind === ANGOR_EVENT_KINDS.ADDITIONAL_DATA) {
             // Kind 30078 - Additional data with d tags
             const dTag = event.tags.find(tag => tag[0] === 'd');
-            const content = safeJsonParse(event.content, {});
+            const parsedContent = safeJsonParse(event.content, {});
             
             if (dTag) {
               const tagValue = dTag[1];
               
               if (tagValue === 'angor:faq' || tagValue === 'faq') {
-                faq = content as unknown as ProjectFAQ;
+                faq = parsedContent as unknown as ProjectFAQ;
               } else if (tagValue === 'angor:media' || tagValue === 'media') {
-                media = content as unknown as ProjectMedia;
+                media = parsedContent as unknown as ProjectMedia;
               } else if (tagValue === 'angor:members' || tagValue === 'members') {
-                members = content as unknown as ProjectMembers;
+                members = parsedContent as unknown as ProjectMembers;
               } else if (tagValue === 'angor:project' || tagValue === 'project') {
-                project = { ...project, ...(content as NostrProjectDetails) };
+                project = { ...project, ...(parsedContent as NostrProjectDetails) };
+                // Store the raw content for markdown rendering
+                content = event.content;
               }
-            } else if (!dTag && content.projectIdentifier) {
+            } else if (!dTag && parsedContent.projectIdentifier) {
               // Untagged project data that contains projectIdentifier (main project details)
-              project = { ...project, ...(content as NostrProjectDetails) };
-              console.log(`🎯 Found untagged project data in useNostrAdditionalData:`, content);
-              console.log(`📊 Project fields - targetAmount: ${content.targetAmount}, founderKey: ${content.founderKey}`);
+              project = { ...project, ...(parsedContent as NostrProjectDetails) };
             }
           }
         });
 
-        return { faq, media, members, project };
+        return { faq, media, members, project, content };
       }, `Additional data for ${pubkey}`);
     },
     enabled: !!pubkey,
