@@ -381,7 +381,7 @@ export function HomePage() {
             {/* Desktop Filters */}
             <div className="hidden md:flex items-center gap-3">
               <Select value={activeFilter} onValueChange={(value: FilterType) => setActiveFilter(value)}>
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-full sm:w-40">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -394,7 +394,7 @@ export function HomePage() {
               </Select>
 
               <Select value={activeSort} onValueChange={(value: SortType) => setActiveSort(value)}>
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-full sm:w-40">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -425,7 +425,7 @@ export function HomePage() {
               <div>
                 <label className="text-sm font-medium mb-2 block">Filter by Status</label>
                 <Select value={activeFilter} onValueChange={(value: FilterType) => setActiveFilter(value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -441,7 +441,7 @@ export function HomePage() {
               <div>
                 <label className="text-sm font-medium mb-2 block">Sort by</label>
                 <Select value={activeSort} onValueChange={(value: SortType) => setActiveSort(value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -470,7 +470,6 @@ export function HomePage() {
         {/* Always show statistics at the top, even during loading or error */}
         <ProjectsStatistics 
           projects={allProjectsFiltered} 
-          filteredProjects={projects}
           isLoading={isLoading}
         />
 

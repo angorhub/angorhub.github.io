@@ -108,7 +108,7 @@ export function AngorProjectCard({ project }: AngorProjectCardProps) {
   const calculateDaysRemaining = () => {
     // First try to get expiryDate from Nostr data
     const expiryDate = nostrProjectData?.projectDetails?.expiryDate || 
-                      (nostrProjectData?.projectDetails as any)?.expiryDate ||
+                      (nostrProjectData?.projectDetails as Record<string, unknown>)?.expiryDate ||
                       project.details?.expiryDate;
     
     if (expiryDate) {

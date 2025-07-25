@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Target, TrendingUp, Users, Bitcoin } from 'lucide-react';
 import type { AngorProject } from '@/types/angor';
 import { useProjectsStatistics } from '@/hooks/useProjectsStatistics';
@@ -7,13 +7,11 @@ import { useBitcoinPrice } from '@/hooks/useBitcoinPrice';
 
 interface ProjectsStatisticsProps {
   projects: AngorProject[];
-  filteredProjects: AngorProject[];
   isLoading?: boolean;
 }
 
 export function ProjectsStatistics({ 
   projects, 
-  filteredProjects, 
   isLoading = false
 }: ProjectsStatisticsProps) {
   
@@ -31,98 +29,84 @@ export function ProjectsStatistics({
 
   if (isLoading || statistics.isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <Card key={i} className="animate-pulse">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <div className="h-4 bg-muted rounded w-20"></div>
-              <div className="h-4 w-4 bg-muted rounded"></div>
-            </CardHeader>
-            <CardContent>
-              <div className="h-8 bg-muted rounded w-16 mb-2"></div>
-              <div className="h-3 bg-muted rounded w-24"></div>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i} className="animate-pulse border-none shadow-sm py-0">
+              <CardContent className="p-2 sm:p-3">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="h-3 bg-muted rounded w-16 sm:w-20"></div>
+                  <div className="h-4 w-4 bg-muted rounded"></div>
+                </div>
+                <div className="h-5 sm:h-6 bg-muted rounded w-12 sm:w-16"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="mb-8">
-      {/* Simplified Statistics - Single Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="mb-6">
+      {/* Ultra Compact Statistics Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         {/* Total Projects */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{statistics.totalProjects}</div>
-            <p className="text-xs text-muted-foreground">
-              {filteredProjects.length} matching filters
-            </p>
+        <Card className="border-none shadow-sm hover:shadow-md transition-shadow duration-200 py-0">
+          <CardContent className="p-2 sm:p-3">
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-xs sm:text-sm font-medium text-muted-foreground">Projects</p>
+              <Target className="h-4 w-4 text-muted-foreground/60" />
+            </div>
+            <p className="text-base sm:text-xl font-bold">{statistics.totalProjects}</p>
           </CardContent>
         </Card>
 
         {/* Total Funding */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Raised</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {statistics.formatted.totalRaised} {network === 'mainnet' ? 'BTC' : 'TBTC'}
+        <Card className="border-none shadow-sm hover:shadow-md transition-shadow duration-200 py-0">
+          <CardContent className="p-2 sm:p-3">
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-xs sm:text-sm font-medium text-muted-foreground">Raised</p>
+              <TrendingUp className="h-4 w-4 text-muted-foreground/60" />
             </div>
-            <p className="text-xs text-muted-foreground">
-              {statistics.formatted.totalRaisedShort} satoshis
+            <p className="text-base sm:text-xl font-bold">
+              {statistics.formatted.totalRaised} {network === 'mainnet' ? 'BTC' : 'TBTC'}
             </p>
           </CardContent>
         </Card>
 
         {/* Total Investors */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Investors</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{statistics.formatted.totalInvestorsShort}</div>
-            <p className="text-xs text-muted-foreground">
-              {statistics.formatted.totalInvestmentsShort} investments
-            </p>
+        <Card className="border-none shadow-sm hover:shadow-md transition-shadow duration-200 py-0">
+          <CardContent className="p-2 sm:p-3">
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-xs sm:text-sm font-medium text-muted-foreground">Investors</p>
+              <Users className="h-4 w-4 text-muted-foreground/60" />
+            </div>
+            <p className="text-base sm:text-xl font-bold">{statistics.formatted.totalInvestorsShort}</p>
           </CardContent>
         </Card>
 
         {/* Bitcoin Price */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {network === 'mainnet' ? 'Bitcoin Price' : 'Bitcoin Testnet'}
-            </CardTitle>
-            <Bitcoin className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
+        <Card className="border-none shadow-sm hover:shadow-md transition-shadow duration-200 py-0">
+          <CardContent className="p-2 sm:p-3">
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-xs sm:text-sm font-medium text-muted-foreground">
+                {network === 'mainnet' ? 'BTC Price' : 'Testnet'}
+              </p>
+              <Bitcoin className="h-4 w-4 text-muted-foreground/60" />
+            </div>
             {network === 'testnet' ? (
-              <>
-                <div className="text-2xl font-bold">TBTC</div>
-                <p className="text-xs text-muted-foreground">Testnet mode</p>
-              </>
+              <p className="text-base sm:text-xl font-bold">TBTC</p>
             ) : priceLoading ? (
-              <div className="text-2xl font-bold text-muted-foreground">Loading...</div>
+              <div className="h-5 sm:h-6 bg-muted rounded w-16 animate-pulse"></div>
             ) : priceError ? (
-              <div className="text-2xl font-bold text-red-500">Error</div>
+              <p className="text-base sm:text-xl font-bold text-red-500">Error</p>
             ) : bitcoinPrice ? (
-              <>
-                <div className="text-2xl font-bold">
-                  ${bitcoinPrice.USD.toLocaleString()}
-                </div>
-                <p className="text-xs text-muted-foreground">Live price</p>
-              </>
+              <p className="text-base sm:text-xl font-bold">
+                ${bitcoinPrice.USD.toLocaleString()}
+              </p>
             ) : (
-              <div className="text-2xl font-bold text-muted-foreground">N/A</div>
+              <p className="text-base sm:text-xl font-bold text-muted-foreground">N/A</p>
             )}
           </CardContent>
         </Card>
