@@ -509,7 +509,7 @@ export function ProjectDetailPage() {
       {/* Back Button */}
       <Button
         variant="ghost"
-        onClick={() => navigate('/explore')}
+        onClick={() => navigate('/')}
         className="flex items-center space-x-2"
       >
         <ArrowLeft className="h-4 w-4" />
@@ -1433,7 +1433,7 @@ function ProjectNotFound() {
           <p className="text-muted-foreground mb-6">
             The project you're looking for doesn't exist or has been removed.
           </p>
-          <Button onClick={() => navigate('/explore')}>
+          <Button onClick={() => navigate('/')}>
             Back to Discover
           </Button>
         </CardContent>

@@ -113,7 +113,7 @@ export function ProjectProfilePage() {
     return <div className="container mx-auto px-4 py-8"><div className="h-10 w-32 bg-gray-200 rounded animate-pulse" /><div className="grid grid-cols-1 lg:grid-cols-3 gap-8"><div className="lg:col-span-2 space-y-6"><div className="h-8 w-3/4 bg-gray-200 rounded animate-pulse" /><div className="h-32 bg-gray-200 rounded animate-pulse" /><div className="h-48 bg-gray-200 rounded animate-pulse" /></div><div className="lg:col-span-1"><div className="h-64 bg-gray-200 rounded animate-pulse" /></div></div></div>;
   }
   if (!project || !stats) {
-    return <div className="container mx-auto px-4 py-8"><Card><CardContent className="py-12 text-center"><h2 className="text-2xl font-bold mb-2">Project Not Found</h2><p className="text-muted-foreground mb-6">The project you're looking for doesn't exist or has been removed.</p><Button onClick={() => navigate('/explore')}>Back to Discover</Button></CardContent></Card></div>;
+    return <div className="container mx-auto px-4 py-8"><Card><CardContent className="py-12 text-center"><h2 className="text-2xl font-bold mb-2">Project Not Found</h2><p className="text-muted-foreground mb-6">The project you're looking for doesn't exist or has been removed.</p><Button onClick={() => navigate('/')}>Back to Discover</Button></CardContent></Card></div>;
   }
   // Funding progress
   const targetAmount = indexerProject?.targetAmount || indexerProject?.details?.targetAmount || stats?.targetAmount || additionalData?.project?.targetAmount || project?.details?.targetAmount || 0;
@@ -170,7 +170,7 @@ export function ProjectProfilePage() {
             <div className="mt-2 text-white/80 max-w-2xl line-clamp-2">{projectData?.about || profile?.about || 'No description available'}</div>
           </div>
           <div className="flex flex-col gap-2">
-            <Button variant="ghost" onClick={() => navigate('/explore')} className="text-white/80"><ArrowLeft className="h-5 w-5 mr-2" />Back</Button>
+            <Button variant="ghost" onClick={() => navigate('/')} className="text-white/80"><ArrowLeft className="h-5 w-5 mr-2" />Back</Button>
             <Button variant="secondary" className="bg-angor-orange text-white flex items-center gap-2"><Share2 className="h-4 w-4" />Share</Button>
           </div>
         </div>
