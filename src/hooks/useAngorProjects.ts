@@ -25,8 +25,8 @@ export function useAngorProjects(options: UseAngorProjectsOptions = {}) {
   const { primaryUrl } = useCurrentIndexer();
   const queryClient = useQueryClient();
   
-  // Create indexer service instance
-  const indexerService = new AngorIndexerService();
+  // Create indexer service instance with current primary URL
+  const indexerService = new AngorIndexerService(primaryUrl);
 
   // Invalidate cache when network or indexer changes
   useEffect(() => {
@@ -149,7 +149,7 @@ export function useAngorProject(projectId: string, options: { enabled?: boolean 
   const { network } = useNetwork();
   const { primaryUrl } = useCurrentIndexer();
   
-  const indexerService = new AngorIndexerService();
+  const indexerService = new AngorIndexerService(primaryUrl);
 
   return useQuery({
     queryKey: ['angor-project', projectId, network, primaryUrl],
@@ -169,7 +169,7 @@ export function useAngorProjectStats(projectId: string, options: { enabled?: boo
   const { network } = useNetwork();
   const { primaryUrl } = useCurrentIndexer();
   
-  const indexerService = new AngorIndexerService();
+  const indexerService = new AngorIndexerService(primaryUrl);
 
   return useQuery<ProjectStats>({
     queryKey: ['angor-project-stats', projectId, network, primaryUrl],
@@ -192,7 +192,7 @@ export function useAngorProjectInvestments(
   const { network } = useNetwork();
   const { primaryUrl } = useCurrentIndexer();
   
-  const indexerService = new AngorIndexerService();
+  const indexerService = new AngorIndexerService(primaryUrl);
 
   return useQuery<ProjectInvestment[]>({
     queryKey: ['angor-project-investments', projectId, network, primaryUrl],

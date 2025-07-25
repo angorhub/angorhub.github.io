@@ -1,7 +1,7 @@
 import { useNostr } from '@nostrify/react';
 import { useQuery } from '@tanstack/react-query';
 import { ANGOR_EVENT_KINDS } from '@/types/angor';
-import type { NostrProfile, ProjectDetails, ProjectFAQ, ProjectMedia, ProjectMembers } from '@/types/angor';
+import type { NostrProfile, ProjectDetails, ProjectFAQ, ProjectMedia, ProjectMembers, NostrProjectDetails } from '@/types/angor';
 
 /**
  * Retry mechanism for Nostr queries
@@ -111,7 +111,7 @@ export function useNostrAdditionalData(pubkey: string | undefined) {
   return useQuery({
     queryKey: ['nostr-additional-data', pubkey],
     queryFn: async () => {
-      if (!pubkey) return { faq: {}, media: {}, members: {}, project: {} };
+      if (!pubkey) return { faq: {}, media: {}, members: {}, project: {} as NostrProjectDetails };
 
       return queryWithRetry(async () => {
         const signal = AbortSignal.timeout(8000);
@@ -133,7 +133,7 @@ export function useNostrAdditionalData(pubkey: string | undefined) {
         let faq: ProjectFAQ = { questions: [] };
         let media: ProjectMedia = {};
         let members: ProjectMembers = { team: [] };
-        let project: any = {};
+        let project: NostrProjectDetails = {};
 
         events.forEach(event => {
           try {
@@ -297,9 +297,9 @@ export function useNostrProjectByEventId(eventId: string | undefined) {
         ], { signal });
 
         // Step 3: Process and merge all project data
-        let projectDetails: any = {};
-        let additionalData: any = {};
-        let mergedProjectData: any = {};
+        let projectDetails: NostrProjectDetails = {};
+        let additionalData: Partial<NostrProjectDetails> = {};
+        let mergedProjectData: NostrProjectDetails = {};
 
         for (const event of allEvents) {
           try {

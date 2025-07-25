@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { NPool, NRelay1, type NostrEvent } from '@nostrify/nostrify';
 import { NostrContext } from '@nostrify/react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useAppContext } from '@/hooks/useAppContext';
+import { useCurrentRelays } from '@/hooks/useCurrentRelays';
 
 interface NostrProviderProps {
   children: React.ReactNode;
@@ -10,21 +10,36 @@ interface NostrProviderProps {
 
 const NostrProvider: React.FC<NostrProviderProps> = (props) => {
   const { children } = props;
-  const { config, presetRelays } = useAppContext();
-
+  const { readableUrls, writableUrls, network } = useCurrentRelays();
   const queryClient = useQueryClient();
 
   // Create NPool instance only once
   const pool = useRef<NPool | undefined>(undefined);
 
   // Use refs so the pool always has the latest data
-  const relayUrl = useRef<string>(config.relayUrl);
+  const readableRelays = useRef<string[]>(readableUrls);
+  const writableRelays = useRef<string[]>(writableUrls);
 
-  // Update refs when config changes
+  // Update refs when relays change
   useEffect(() => {
-    relayUrl.current = config.relayUrl;
-    queryClient.resetQueries();
-  }, [config.relayUrl, queryClient]);
+    readableRelays.current = readableUrls;
+    writableRelays.current = writableUrls;
+    
+    console.log(`🔄 NostrProvider: Relay configuration updated for ${network}`, {
+      readable: readableUrls,
+      writable: writableUrls
+    });
+    
+    // Reset queries when relay configuration changes
+    queryClient.resetQueries({
+      predicate: (query) => {
+        const queryKey = query.queryKey;
+        return Array.isArray(queryKey) && queryKey.some(key => 
+          typeof key === 'string' && key.startsWith('nostr-')
+        );
+      }
+    });
+  }, [readableUrls, writableUrls, network, queryClient]);
 
   // Initialize NPool only once
   if (!pool.current) {
@@ -33,19 +48,20 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
         return new NRelay1(url);
       },
       reqRouter(filters) {
-        // Use all available relays for reading data
-        const allRelays = new Set<string>([relayUrl.current]);
+        // Use all readable relays for data fetching
+        const activeReadableRelays = new Set<string>(readableRelays.current);
         
-        // Add all preset relays for data fetching
-        for (const { url } of (presetRelays ?? [])) {
-          allRelays.add(url);
+        if (activeReadableRelays.size === 0) {
+          console.warn('⚠️ NostrProvider: No readable relays available, using fallback');
+          // Fallback to at least one relay if none are configured
+          activeReadableRelays.add('wss://relay.angor.io');
         }
         
-        console.log(`🔄 NostrProvider: Using ${allRelays.size} relays for data fetching:`, Array.from(allRelays));
+        console.log(`🔄 NostrProvider: Using ${activeReadableRelays.size} readable relays for data fetching:`, Array.from(activeReadableRelays));
         
         // Return the same filters for all relays to aggregate data
         const relayMap = new Map();
-        for (const relay of allRelays) {
+        for (const relay of activeReadableRelays) {
           relayMap.set(relay, filters);
         }
         
@@ -53,19 +69,18 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
       },
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       eventRouter(_event: NostrEvent) {
-        // Publish to the selected relay
-        const allRelays = new Set<string>([relayUrl.current]);
+        // Publish to writable relays
+        const activeWritableRelays = new Set<string>(writableRelays.current);
 
-        // Also publish to the preset relays, capped to 5
-        for (const { url } of (presetRelays ?? [])) {
-          allRelays.add(url);
-
-          if (allRelays.size >= 5) {
-            break;
-          }
+        if (activeWritableRelays.size === 0) {
+          console.warn('⚠️ NostrProvider: No writable relays available, using fallback');
+          // Fallback to at least one relay if none are configured
+          activeWritableRelays.add('wss://relay.angor.io');
         }
 
-        return [...allRelays];
+        console.log(`📤 NostrProvider: Publishing to ${activeWritableRelays.size} writable relays:`, Array.from(activeWritableRelays));
+
+        return [...activeWritableRelays];
       },
     });
   }

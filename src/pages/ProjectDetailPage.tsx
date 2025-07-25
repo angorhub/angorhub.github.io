@@ -46,7 +46,6 @@ import type {
   ProjectMetadata, 
   ProjectMedia, 
   ProjectMembers, 
-  NostrProjectStage,
   NostrFAQItem,
   NostrMediaItem,
   NostrTeamMember
@@ -857,8 +856,8 @@ export function ProjectDetailPage() {
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">Start Date</Label>
                     <div className="text-sm text-muted-foreground">
-                      {(nostrProjectData?.projectDetails?.startDate || additionalData?.project?.startDate) ? 
-                        new Date((nostrProjectData?.projectDetails?.startDate || additionalData?.project.startDate) * 1000).toLocaleDateString('en-US', {
+                      {(nostrProjectData?.projectDetails?.startDate || additionalData?.project?.startDate) ?
+                        new Date(((nostrProjectData?.projectDetails?.startDate || additionalData?.project?.startDate) ?? 0) * 1000).toLocaleDateString('en-US', {
                           year: 'numeric',
                           month: 'long',
                           day: 'numeric',
@@ -879,8 +878,8 @@ export function ProjectDetailPage() {
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">Expiry Date</Label>
                     <div className="text-sm text-muted-foreground">
-                      {(nostrProjectData?.projectDetails?.expiryDate || additionalData?.project?.expiryDate) ? 
-                        new Date((nostrProjectData?.projectDetails?.expiryDate || additionalData?.project.expiryDate) * 1000).toLocaleDateString('en-US', {
+                      {(nostrProjectData?.projectDetails?.expiryDate || additionalData?.project?.expiryDate) ?
+                        new Date(((nostrProjectData?.projectDetails?.expiryDate || additionalData?.project?.expiryDate) ?? 0) * 1000).toLocaleDateString('en-US', {
                           year: 'numeric',
                           month: 'long',
                           day: 'numeric',
@@ -940,7 +939,7 @@ export function ProjectDetailPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {additionalData?.project.stages.map((stage: NostrProjectStage, index: number) => (
+                  {additionalData?.project.stages?.map((stage, index: number) => (
                     <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="space-y-1">
                         <div className="font-medium">Stage {index + 1}</div>

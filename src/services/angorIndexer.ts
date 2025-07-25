@@ -3,15 +3,20 @@ import type { AngorProject, ProjectStats, ProjectInvestment } from '@/types/ango
 import type { NetworkType } from '@/contexts/NetworkContext';
 
 export class AngorIndexerService {
+  private customBaseUrl?: string;
+
+  constructor(customBaseUrl?: string) {
+    this.customBaseUrl = customBaseUrl;
+  }
+
   private getBaseUrl(network: NetworkType): string {
-    // Check if we're in a React context and can access IndexerContext
-    try {
-      // For now, use the helper function. In hooks, we'll use useCurrentIndexer
-      return getPrimaryIndexerUrl(network);
-    } catch {
-      // Fallback if not in React context
-      return getPrimaryIndexerUrl(network);
+    // Use custom base URL if provided (from useCurrentIndexer hook)
+    if (this.customBaseUrl) {
+      return this.customBaseUrl;
     }
+    
+    // Fallback to default configuration
+    return getPrimaryIndexerUrl(network);
   }
 
   /**

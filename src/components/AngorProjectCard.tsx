@@ -113,7 +113,7 @@ export function AngorProjectCard({ project }: AngorProjectCardProps) {
     
     if (expiryDate) {
       const currentTime = Math.floor(Date.now() / 1000); // Current timestamp in seconds
-      const timeRemaining = expiryDate - currentTime;
+      const timeRemaining = Number(expiryDate) - currentTime;
       
       if (timeRemaining <= 0) {
         return 0; // Expired

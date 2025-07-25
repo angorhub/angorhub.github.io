@@ -202,7 +202,7 @@ export class AngorDataAggregator {
         return sorted.sort((a, b) => b.stats.investorCount - a.stats.investorCount);
       
       case 'newest':
-        return sorted.sort((a, b) => b.projectData.startDate - a.projectData.startDate);
+        return sorted.sort((a, b) => (b.projectData.startDate ?? 0) - (a.projectData.startDate ?? 0));
       
       case 'amount':
         return sorted.sort((a, b) => b.stats.targetAmount - a.stats.targetAmount);

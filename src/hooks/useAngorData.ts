@@ -157,7 +157,7 @@ export function useAngorDashboard(): {
   const statistics = angorData.getProjectStatistics(projects);
   
   const recentProjects = [...projects]
-    .sort((a, b) => b.projectData.startDate - a.projectData.startDate)
+    .sort((a, b) => (b.projectData.startDate ?? 0) - (a.projectData.startDate ?? 0))
     .slice(0, 5);
 
   const topFundedProjects = [...projects]

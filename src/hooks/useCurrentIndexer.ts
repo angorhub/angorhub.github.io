@@ -8,9 +8,13 @@ export function useCurrentIndexer() {
   const { network } = useNetwork();
   const { getPrimaryUrl } = useIndexer();
   
+  const primaryUrl = getPrimaryUrl(network);
+  
+  console.log('🔧 useCurrentIndexer:', { network, primaryUrl });
+  
   return {
     network,
-    primaryUrl: getPrimaryUrl(network),
-    baseUrl: getPrimaryUrl(network)
+    primaryUrl,
+    baseUrl: primaryUrl
   };
 }

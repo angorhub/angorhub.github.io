@@ -45,12 +45,17 @@ export interface ProjectStats {
 }
 
 export interface ProjectDetails {
-  targetAmount: number;
-  startDate: number;
-  expiryDate: number;
-  nostrPubKey: string;
-  projectIdentifier: string;
-  createdOnBlock: number;
+  targetAmount?: number;
+  startDate?: number;
+  expiryDate?: number;
+  nostrPubKey?: string;
+  projectIdentifier?: string;
+  createdOnBlock?: number;
+  founderKey?: string;
+  founderRecoveryKey?: string;
+  penaltyDays?: number;
+  name?: string;
+  about?: string;
   stages?: ProjectStage[];
   description?: string;
   roadmap?: string[];
@@ -161,16 +166,7 @@ export interface NostrAdditionalData {
   faq?: NostrFAQItem[];
   media?: NostrMediaItem[] | ProjectMedia;
   members?: ProjectMembers;
-  project?: {
-    targetAmount?: number;
-    expiryDate?: number;
-    stages?: NostrProjectStage[];
-    projectSeeders?: {
-      threshold: number;
-      secretHashes: string[];
-    };
-    [key: string]: unknown;
-  };
+  project?: NostrProjectDetails;
 }
 
 export interface IndexedProject {
@@ -222,13 +218,16 @@ export interface IndexerConfig {
 // Constants - Multi-indexer configuration
 export const ANGOR_INDEXER_CONFIG: IndexerConfig = {
   mainnet: [
-    { url: 'https://explorer.angor.io/', isPrimary: true },
+    { url: 'https://indexer.angor.io/', isPrimary: true },
     { url: 'https://fulcrum.angor.online/', isPrimary: false },
-    { url: 'https://electrs.angor.online/', isPrimary: false }
+    { url: 'https://electrs.angor.online/', isPrimary: false },
+    { url: 'https://cyphermunkhouse.angor.online/', isPrimary: false },
+    { url: 'https://indexer.angor.fund/', isPrimary: false }
   ],
   testnet: [
-    { url: 'https://tbtc.indexer.angor.io/', isPrimary: false },
-    { url: 'https://signet.angor.online/', isPrimary: true }
+    { url: 'https://test.indexer.angor.io/', isPrimary: true },
+    { url: 'https://signet.angor.online/', isPrimary: false },
+    { url: 'https://signet2.angor.online/', isPrimary: false }
   ]
 };
 
@@ -237,7 +236,7 @@ export const getPrimaryIndexerUrl = (network: 'mainnet' | 'testnet'): string => 
   const indexers = ANGOR_INDEXER_CONFIG[network];
   const primary = indexers.find(indexer => indexer.isPrimary);
   return primary ? primary.url : indexers[0]?.url || 
-    (network === 'mainnet' ? 'https://explorer.angor.io/' : 'https://tbtc.indexer.angor.io/');
+    (network === 'mainnet' ? 'https://indexer.angor.io/' : 'https://test.indexer.angor.io/');
 };
 
 // Backward compatibility - keep the old constant for now
@@ -264,19 +263,21 @@ export const ANGOR_RELAY_POOL = {
 } as const;
 
 export interface NostrProjectDetails {
-  founderKey: string;
-  founderRecoveryKey: string;
-  projectIdentifier: string;
-  nostrPubKey: string;
-  startDate: number;
-  penaltyDays: number;
-  expiryDate: number;
-  targetAmount: number;
-  stages: Array<{
+  founderKey?: string;
+  founderRecoveryKey?: string;
+  projectIdentifier?: string;
+  nostrPubKey?: string;
+  startDate?: number;
+  penaltyDays?: number;
+  expiryDate?: number;
+  targetAmount?: number;
+  name?: string;
+  about?: string;
+  stages?: Array<{
     amountToRelease: number;
     releaseDate: number;
   }>;
-  projectSeeders: {
+  projectSeeders?: {
     threshold: number;
     secretHashes: string[];
   };

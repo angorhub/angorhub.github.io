@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/select';
 import { useAngorProjects } from '@/hooks/useAngorProjects';
 import { useIndexerCacheInvalidation } from '@/hooks/useIndexerCacheInvalidation';
+import { useRelayCacheInvalidation } from '@/hooks/useRelayCacheInvalidation';
 import { useDenyList, filterDeniedProjects } from '@/services/denyService';
 import type { FilterType, SortType, AngorProject } from '@/types/angor';
 
@@ -60,8 +61,9 @@ export function HomePage() {
     return filterDeniedProjects(allProjects, denyService);
   }, [allProjects, denyService]);
 
-  // Automatically invalidate cache when indexer changes
+  // Automatically invalidate cache when indexer or relays change
   useIndexerCacheInvalidation();
+  useRelayCacheInvalidation();
 
   // Update URL params when filters change
   useEffect(() => {
