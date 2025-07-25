@@ -80,28 +80,8 @@ export function HomePage() {
     let filtered = allProjectsFiltered;
     const search = searchTerm.toLowerCase().trim();
 
-    // Debug logging for initial state
-    console.log('🔍 Filter Debug - Starting:', {
-      totalProjects: allProjectsFiltered.length,
-      searchTerm: search,
-      activeFilter,
-      activeSort,
-      isLoading,
-      hasProjects: allProjectsFiltered.length > 0,
-      sampleProject: allProjectsFiltered[0] ? {
-        id: allProjectsFiltered[0].projectIdentifier,
-        name: allProjectsFiltered[0].metadata?.name || allProjectsFiltered[0].profile?.name,
-        about: allProjectsFiltered[0].metadata?.about || allProjectsFiltered[0].profile?.about,
-        hasMetadata: !!allProjectsFiltered[0].metadata,
-        hasProfile: !!allProjectsFiltered[0].profile,
-        hasStats: !!allProjectsFiltered[0].stats,
-        hasDetails: !!allProjectsFiltered[0].details
-      } : 'No projects available'
-    });
-
     // Apply search filter with comprehensive field checking
     if (search) {
-      const beforeSearchCount = filtered.length;
       filtered = filtered.filter(project => {
         // Check all possible name sources
         const projectName = project.metadata?.name || 
@@ -139,34 +119,14 @@ export function HomePage() {
           founderKey.toLowerCase().includes(search)
         );
 
-        // Debug individual project matching
-        if (process.env.NODE_ENV === 'development' && search.length > 2) {
-          console.log(`🔍 Search test for "${search}" in project ${identifier}:`, {
-            projectName: projectName || 'empty',
-            projectDescription: projectDescription || 'empty',
-            identifier: identifier || 'empty',
-            category: category || 'empty',
-            matches,
-            nameMatch: projectName.toLowerCase().includes(search),
-            descMatch: projectDescription.toLowerCase().includes(search),
-            idMatch: identifier.toLowerCase().includes(search)
-          });
-        }
 
         return matches;
       });
-      
-      console.log('🔍 After search filter:', {
-        searchTerm: search,
-        beforeCount: beforeSearchCount,
-        afterCount: filtered.length,
-        filteredOut: beforeSearchCount - filtered.length
-      });
+
     }
 
     // Apply status filter with improved logic
     if (activeFilter !== 'all') {
-      const beforeFilterCount = filtered.length;
       filtered = filtered.filter(project => {
         const now = Date.now() / 1000;
         const startDate = project.details?.startDate;
@@ -211,27 +171,7 @@ export function HomePage() {
           }
         }
 
-        // Debug individual project filtering
-        if (process.env.NODE_ENV === 'development') {
-          console.log(`📊 Filter "${activeFilter}" for project ${project.projectIdentifier}:`, {
-            startDate: startDate ? new Date(startDate * 1000).toISOString() : 'none',
-            expiryDate: expiryDate ? new Date(expiryDate * 1000).toISOString() : 'none',
-            completionPercentage,
-            now: new Date(now * 1000).toISOString(),
-            shouldInclude,
-            stats: project.stats ? 'has stats' : 'no stats',
-            details: project.details ? 'has details' : 'no details'
-          });
-        }
-
-        return shouldInclude;
-      });
-      
-      console.log('📊 After status filter:', {
-        filter: activeFilter,
-        beforeCount: beforeFilterCount,
-        afterCount: filtered.length,
-        filteredOut: beforeFilterCount - filtered.length
+       return shouldInclude;
       });
     }
 
@@ -267,26 +207,8 @@ export function HomePage() {
         return bTarget - aTarget;
       });
     }
-
-    // Debug logging (only in development)
-    console.log('✅ Final Filter Results:', {
-      searchTerm,
-      activeFilter,
-      activeSort,
-      allProjectsCount: allProjectsFiltered.length,
-      filteredCount: filtered.length,
-      isLoading,
-      hasError: !!error,
-      sampleFilteredProject: filtered[0] ? {
-        name: filtered[0].metadata?.name || filtered[0].profile?.name || 'Unnamed',
-        about: filtered[0].metadata?.about?.substring(0, 50) + '...' || 'No description',
-        identifier: filtered[0].projectIdentifier,
-        amount: filtered[0].stats?.amountInvested || filtered[0].amountInvested || 0
-      } : 'No filtered projects'
-    });
-
     return filtered;
-  }, [allProjectsFiltered, searchTerm, activeFilter, activeSort, isLoading, error]);
+  }, [allProjectsFiltered, searchTerm, activeFilter, activeSort, isLoading]);
 
   const projects = filteredProjects;
 
@@ -298,7 +220,6 @@ export function HomePage() {
       ([entry]) => {
         // Only trigger if we have projects and there are more to load
         if (entry.isIntersecting && hasNextPage && !isFetchingNextPage && !isComplete) {
-          console.log('📜 Infinite scroll triggered - loading more projects');
           loadMore();
         }
       },

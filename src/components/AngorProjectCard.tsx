@@ -322,23 +322,57 @@ export function AngorProjectCardSkeleton({ count = 1 }: AngorProjectCardSkeleton
   return (
     <>
       {Array.from({ length: count }).map((_, i) => (
-        <Card key={i} className="animate-pulse p-0 overflow-hidden min-h-[480px]">
-          <div className="h-44 w-full bg-muted rounded-t-xl" />
-          <CardContent className="pt-7">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="h-12 w-12 bg-muted rounded-full" />
+        <Card key={i} className="overflow-hidden min-h-[480px] border border-border">
+          {/* Project Image */}
+          <div className="h-44 w-full bg-muted animate-pulse rounded-t-xl" />
+          
+          <CardContent className="pt-7 space-y-4">
+            {/* Creator Info */}
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 bg-muted animate-pulse rounded-full" />
               <div className="flex-1 space-y-2">
-                <div className="h-5 w-36 bg-muted rounded" />
-                <div className="h-4 w-24 bg-muted rounded" />
+                <div className="h-5 w-36 bg-muted animate-pulse rounded" />
+                <div className="h-4 w-24 bg-muted animate-pulse rounded" />
+              </div>
+              <div className="h-6 w-16 bg-muted animate-pulse rounded-full" />
+            </div>
+            
+            {/* Project Description */}
+            <div className="space-y-2 pt-2">
+              <div className="h-4 w-full bg-muted animate-pulse rounded" />
+              <div className="h-4 w-4/5 bg-muted animate-pulse rounded" />
+              <div className="h-4 w-3/5 bg-muted animate-pulse rounded" />
+            </div>
+            
+            {/* Progress Section */}
+            <div className="space-y-3 pt-4">
+              <div className="flex justify-between items-center">
+                <div className="h-4 w-20 bg-muted animate-pulse rounded" />
+                <div className="h-4 w-12 bg-muted animate-pulse rounded" />
+              </div>
+              <div className="h-2 w-full bg-muted animate-pulse rounded-full" />
+            </div>
+            
+            {/* Stats Grid */}
+            <div className="grid grid-cols-3 gap-4 pt-4">
+              <div className="text-center space-y-1">
+                <div className="h-5 w-16 bg-muted animate-pulse rounded mx-auto" />
+                <div className="h-3 w-12 bg-muted animate-pulse rounded mx-auto" />
+              </div>
+              <div className="text-center space-y-1">
+                <div className="h-5 w-10 bg-muted animate-pulse rounded mx-auto" />
+                <div className="h-3 w-16 bg-muted animate-pulse rounded mx-auto" />
+              </div>
+              <div className="text-center space-y-1">
+                <div className="h-5 w-14 bg-muted animate-pulse rounded mx-auto" />
+                <div className="h-3 w-10 bg-muted animate-pulse rounded mx-auto" />
               </div>
             </div>
-            <div className="h-4 w-full bg-muted rounded mb-4" />
-            <div className="h-4 w-4/5 bg-muted rounded mb-4" />
-            <div className="h-4 w-3/5 bg-muted rounded" />
-            <div className="flex items-center gap-2 mt-7">
-              <div className="h-5 w-16 bg-muted rounded" />
-              <div className="h-5 w-10 bg-muted rounded" />
-              <div className="h-5 w-10 bg-muted rounded" />
+            
+            {/* Action Buttons */}
+            <div className="flex gap-2 pt-6">
+              <div className="h-9 flex-1 bg-muted animate-pulse rounded-md" />
+              <div className="h-9 flex-1 bg-primary/20 animate-pulse rounded-md" />
             </div>
           </CardContent>
         </Card>

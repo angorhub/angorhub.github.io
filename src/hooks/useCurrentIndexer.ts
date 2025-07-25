@@ -10,8 +10,7 @@ export function useCurrentIndexer() {
   
   const primaryUrl = getPrimaryUrl(network);
   
-  console.log('🔧 useCurrentIndexer:', { network, primaryUrl });
-  
+ 
   return {
     network,
     primaryUrl,

@@ -32,13 +32,14 @@ export function ProjectsStatistics({
       <div className="mb-6">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Card key={i} className="animate-pulse border-none shadow-sm py-0">
+            <Card key={i} className="border border-border shadow-sm py-0">
               <CardContent className="p-2 sm:p-3">
                 <div className="flex items-center justify-between mb-1">
-                  <div className="h-3 bg-muted rounded w-16 sm:w-20"></div>
-                  <div className="h-4 w-4 bg-muted rounded"></div>
+                  <div className="h-3 bg-muted animate-pulse rounded w-16 sm:w-20"></div>
+                  <div className="h-4 w-4 bg-muted animate-pulse rounded"></div>
                 </div>
-                <div className="h-5 sm:h-6 bg-muted rounded w-12 sm:w-16"></div>
+                <div className="h-5 sm:h-6 bg-muted animate-pulse rounded w-12 sm:w-16 mb-1"></div>
+                <div className="h-3 bg-muted/70 animate-pulse rounded w-8 sm:w-12"></div>
               </CardContent>
             </Card>
           ))}

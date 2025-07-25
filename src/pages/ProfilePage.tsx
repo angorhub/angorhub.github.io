@@ -310,4 +310,84 @@ export function ProfilePage() {
   );
 }
 
+export function ProfilePageSkeleton() {
+  return (
+    <div className="container mx-auto px-4 py-8 space-y-6">
+      {/* Header */}
+      <div className="space-y-2">
+        <div className="h-8 w-48 bg-muted animate-pulse rounded-md" />
+        <div className="h-4 w-64 bg-muted animate-pulse rounded-md" />
+      </div>
+      
+      {/* Profile Card */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex items-start space-x-4">
+            {/* Avatar */}
+            <div className="h-24 w-24 bg-muted animate-pulse rounded-full" />
+            
+            {/* Profile Info */}
+            <div className="flex-1 space-y-3">
+              <div className="space-y-2">
+                <div className="h-6 w-32 bg-muted animate-pulse rounded-md" />
+                <div className="h-4 w-48 bg-muted animate-pulse rounded-md" />
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <div className="h-6 w-16 bg-muted animate-pulse rounded-full" />
+                <div className="h-8 w-24 bg-muted animate-pulse rounded-md" />
+              </div>
+            </div>
+            
+            {/* Edit Button */}
+            <div className="h-9 w-20 bg-muted animate-pulse rounded-md" />
+          </div>
+        </CardContent>
+      </Card>
+      
+      {/* Tabs Skeleton */}
+      <div className="space-y-4">
+        {/* Tab Navigation */}
+        <div className="flex border-b border-border">
+          <div className="h-10 w-24 bg-muted animate-pulse rounded-t-md m-1" />
+          <div className="h-10 w-20 bg-muted/50 animate-pulse rounded-t-md m-1" />
+        </div>
+        
+        {/* Tab Content */}
+        <Card>
+          <CardContent className="space-y-6 pt-6">
+            {/* Form Fields */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <div className="h-4 w-16 bg-muted animate-pulse rounded" />
+                <div className="h-10 w-full bg-muted animate-pulse rounded-md" />
+              </div>
+              <div className="space-y-2">
+                <div className="h-4 w-20 bg-muted animate-pulse rounded" />
+                <div className="h-10 w-full bg-muted animate-pulse rounded-md" />
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="h-4 w-24 bg-muted animate-pulse rounded" />
+              <div className="h-20 w-full bg-muted animate-pulse rounded-md" />
+            </div>
+            
+            <div className="space-y-2">
+              <div className="h-4 w-20 bg-muted animate-pulse rounded" />
+              <div className="h-10 w-full bg-muted animate-pulse rounded-md" />
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="flex justify-end space-x-2">
+              <div className="h-9 w-16 bg-muted animate-pulse rounded-md" />
+              <div className="h-9 w-20 bg-primary/20 animate-pulse rounded-md" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
 export default ProfilePage;

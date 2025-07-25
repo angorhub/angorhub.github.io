@@ -191,16 +191,7 @@ export function useProjectsStatistics({
     const errors = statsQueries.filter(query => query.error).map(query => query.error);
     const error = errors.length > 0 ? errors[0] as Error : null;
 
-    console.log('📊 Calculated statistics:', {
-      totalProjects: projects.length,
-      totalRaised,
-      totalInvestors,
-      totalInvestments,
-      totalTarget,
-      isLoading,
-      queriesLoaded: statsQueries.filter(q => q.data).length,
-      totalQueries: statsQueries.length
-    });
+ 
 
     return {
       totalProjects: projects.length,

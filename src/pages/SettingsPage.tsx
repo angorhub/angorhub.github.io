@@ -743,4 +743,100 @@ export function SettingsPage() {
   );
 }
 
+export function SettingsPageSkeleton() {
+  return (
+    <div className="container mx-auto px-4 py-8 space-y-6">
+      {/* Header */}
+      <div className="space-y-2">
+        <div className="h-8 w-32 bg-muted animate-pulse rounded-md" />
+        <div className="h-4 w-48 bg-muted animate-pulse rounded-md" />
+      </div>
+      
+      {/* Tabs Skeleton */}
+      <div className="space-y-4">
+        {/* Tab Navigation */}
+        <div className="flex border-b border-border space-x-2">
+          <div className="h-10 w-20 bg-muted animate-pulse rounded-t-md" />
+          <div className="h-10 w-24 bg-muted/50 animate-pulse rounded-t-md" />
+          <div className="h-10 w-20 bg-muted/50 animate-pulse rounded-t-md" />
+        </div>
+        
+        {/* Settings Cards */}
+        <div className="space-y-6">
+          {/* Theme Settings Card */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center space-x-2">
+                <div className="h-5 w-5 bg-muted animate-pulse rounded" />
+                <div className="h-6 w-24 bg-muted animate-pulse rounded" />
+              </div>
+              <div className="h-4 w-48 bg-muted animate-pulse rounded" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <div className="h-4 w-20 bg-muted animate-pulse rounded" />
+                  <div className="h-3 w-32 bg-muted animate-pulse rounded" />
+                </div>
+                <div className="h-6 w-11 bg-muted animate-pulse rounded-full" />
+              </div>
+              <div className="space-y-2">
+                <div className="h-4 w-16 bg-muted animate-pulse rounded" />
+                <div className="h-9 w-32 bg-muted animate-pulse rounded-md" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* Network Settings Card */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center space-x-2">
+                <div className="h-5 w-5 bg-muted animate-pulse rounded" />
+                <div className="h-6 w-28 bg-muted animate-pulse rounded" />
+              </div>
+              <div className="h-4 w-56 bg-muted animate-pulse rounded" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <div className="h-4 w-20 bg-muted animate-pulse rounded" />
+                <div className="h-9 w-40 bg-muted animate-pulse rounded-md" />
+              </div>
+              <div className="space-y-2">
+                <div className="h-4 w-24 bg-muted animate-pulse rounded" />
+                <div className="h-9 w-full bg-muted animate-pulse rounded-md" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* Relay Settings Card */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center space-x-2">
+                <div className="h-5 w-5 bg-muted animate-pulse rounded" />
+                <div className="h-6 w-20 bg-muted animate-pulse rounded" />
+              </div>
+              <div className="h-4 w-44 bg-muted animate-pulse rounded" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="flex items-center justify-between p-3 border border-border rounded-lg">
+                  <div className="space-y-1">
+                    <div className="h-4 w-32 bg-muted animate-pulse rounded" />
+                    <div className="h-3 w-24 bg-muted animate-pulse rounded" />
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="h-6 w-11 bg-muted animate-pulse rounded-full" />
+                    <div className="h-8 w-8 bg-muted animate-pulse rounded" />
+                  </div>
+                </div>
+              ))}
+              <div className="h-9 w-28 bg-primary/20 animate-pulse rounded-md" />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default SettingsPage;
