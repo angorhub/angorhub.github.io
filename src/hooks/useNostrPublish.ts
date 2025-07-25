@@ -36,7 +36,7 @@ export function useNostrPublish(): UseMutationResult<NostrEvent, Error, Omit<Nos
       console.error("Failed to publish event:", error);
     },
     onSuccess: (data) => {
-      console.log("Event published successfully:", data);
+
     },
   });
 }

@@ -1,4 +1,4 @@
-import { useIndexer } from '@/contexts/IndexerContext';
+﻿import { useIndexer } from '@/contexts/IndexerContext';
 import { useNetwork } from '@/contexts/NetworkContext';
 
 /**
@@ -10,7 +10,6 @@ export function useCurrentIndexer() {
   
   const primaryUrl = getPrimaryUrl(network);
   
-  console.log('🔧 useCurrentIndexer:', { network, primaryUrl });
   
   return {
     network,

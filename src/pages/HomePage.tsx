@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+﻿import { useState, useEffect, useRef, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AngorProjectCard, AngorProjectCardSkeleton } from '@/components/AngorProjectCard';
 import { ProjectsStatistics } from '@/components/ProjectsStatistics';
@@ -81,7 +81,6 @@ export function HomePage() {
     const search = searchTerm.toLowerCase().trim();
 
     // Debug logging for initial state
-    console.log('🔍 Filter Debug - Starting:', {
       totalProjects: allProjectsFiltered.length,
       searchTerm: search,
       activeFilter,
@@ -141,7 +140,6 @@ export function HomePage() {
 
         // Debug individual project matching
         if (process.env.NODE_ENV === 'development' && search.length > 2) {
-          console.log(`🔍 Search test for "${search}" in project ${identifier}:`, {
             projectName: projectName || 'empty',
             projectDescription: projectDescription || 'empty',
             identifier: identifier || 'empty',
@@ -156,7 +154,6 @@ export function HomePage() {
         return matches;
       });
       
-      console.log('🔍 After search filter:', {
         searchTerm: search,
         beforeCount: beforeSearchCount,
         afterCount: filtered.length,
@@ -213,7 +210,6 @@ export function HomePage() {
 
         // Debug individual project filtering
         if (process.env.NODE_ENV === 'development') {
-          console.log(`📊 Filter "${activeFilter}" for project ${project.projectIdentifier}:`, {
             startDate: startDate ? new Date(startDate * 1000).toISOString() : 'none',
             expiryDate: expiryDate ? new Date(expiryDate * 1000).toISOString() : 'none',
             completionPercentage,
@@ -227,7 +223,6 @@ export function HomePage() {
         return shouldInclude;
       });
       
-      console.log('📊 After status filter:', {
         filter: activeFilter,
         beforeCount: beforeFilterCount,
         afterCount: filtered.length,
@@ -269,7 +264,6 @@ export function HomePage() {
     }
 
     // Debug logging (only in development)
-    console.log('✅ Final Filter Results:', {
       searchTerm,
       activeFilter,
       activeSort,
@@ -298,7 +292,6 @@ export function HomePage() {
       ([entry]) => {
         // Only trigger if we have projects and there are more to load
         if (entry.isIntersecting && hasNextPage && !isFetchingNextPage && !isComplete) {
-          console.log('📜 Infinite scroll triggered - loading more projects');
           loadMore();
         }
       },

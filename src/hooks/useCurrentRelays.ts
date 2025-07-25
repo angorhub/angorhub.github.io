@@ -1,4 +1,4 @@
-import { useRelay } from '@/contexts/RelayContext';
+﻿import { useRelay } from '@/contexts/RelayContext';
 import { useNetwork } from '@/contexts/NetworkContext';
 
 /**
@@ -37,7 +37,6 @@ export function useCurrentRelays() {
     writableUrls: writableRelays.map(relay => relay.url),
   };
   
-  console.log('🔧 useCurrentRelays:', result);
   
   return result;
 }

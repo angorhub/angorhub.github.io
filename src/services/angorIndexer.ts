@@ -1,4 +1,4 @@
-import { getPrimaryIndexerUrl } from '@/types/angor';
+﻿import { getPrimaryIndexerUrl } from '@/types/angor';
 import type { AngorProject, ProjectStats, ProjectInvestment } from '@/types/angor';
 import type { NetworkType } from '@/contexts/NetworkContext';
 
@@ -27,25 +27,22 @@ export class AngorIndexerService {
       const baseUrl = this.getBaseUrl(network);
       const url = `${baseUrl}api/query/Angor/projects?offset=${offset}&limit=${limit}`;
       
-      console.log(`🌐 Fetching projects from: ${url}`);
       
       const response = await fetch(url, {
         method: 'GET',
         // Remove Content-Type header to avoid CORS issues
       });
 
-      console.log(`📡 Response status: ${response.status}`);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const projects = await response.json();
-      console.log(`✅ Successfully fetched ${Array.isArray(projects) ? projects.length : 0} projects`);
       
       return Array.isArray(projects) ? projects : [];
     } catch (error) {
-      console.error('❌ Error fetching projects:', error);
+      console.error('âŒ Error fetching projects:', error);
       return [];
     }
   }
@@ -191,5 +188,5 @@ export class AngorIndexerService {
   }
 }
 
-// Export singleton instance
-export const angorIndexer = new AngorIndexerService();
+// Note: No longer exporting singleton instance
+// Each hook should create its own instance with the appropriate base URL

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+﻿import React, { useEffect, useRef } from 'react';
 import { NPool, NRelay1, type NostrEvent } from '@nostrify/nostrify';
 import { NostrContext } from '@nostrify/react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -25,7 +25,6 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
     readableRelays.current = readableUrls;
     writableRelays.current = writableUrls;
     
-    console.log(`🔄 NostrProvider: Relay configuration updated for ${network}`, {
       readable: readableUrls,
       writable: writableUrls
     });
@@ -52,12 +51,11 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
         const activeReadableRelays = new Set<string>(readableRelays.current);
         
         if (activeReadableRelays.size === 0) {
-          console.warn('⚠️ NostrProvider: No readable relays available, using fallback');
+          console.warn('âš ï¸ NostrProvider: No readable relays available, using fallback');
           // Fallback to at least one relay if none are configured
           activeReadableRelays.add('wss://relay.angor.io');
         }
         
-        console.log(`🔄 NostrProvider: Using ${activeReadableRelays.size} readable relays for data fetching:`, Array.from(activeReadableRelays));
         
         // Return the same filters for all relays to aggregate data
         const relayMap = new Map();
@@ -73,12 +71,11 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
         const activeWritableRelays = new Set<string>(writableRelays.current);
 
         if (activeWritableRelays.size === 0) {
-          console.warn('⚠️ NostrProvider: No writable relays available, using fallback');
+          console.warn('âš ï¸ NostrProvider: No writable relays available, using fallback');
           // Fallback to at least one relay if none are configured
           activeWritableRelays.add('wss://relay.angor.io');
         }
 
-        console.log(`📤 NostrProvider: Publishing to ${activeWritableRelays.size} writable relays:`, Array.from(activeWritableRelays));
 
         return [...activeWritableRelays];
       },

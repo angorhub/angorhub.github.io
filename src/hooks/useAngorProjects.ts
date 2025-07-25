@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+﻿import { useCallback, useEffect } from 'react';
 import { useQuery, useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { useNetwork } from '@/contexts/NetworkContext';
 import { useCurrentIndexer } from '@/hooks/useCurrentIndexer';
@@ -70,11 +70,9 @@ export function useAngorProjects(options: UseAngorProjectsOptions = {}) {
   // Fetch a single page of projects
   const fetchProjectsPage = async (offset: number): Promise<ProjectsResponse> => {
     try {
-      console.log(`🔄 Fetching projects: offset=${offset}, limit=${LIMIT}`);
       
       const projects = await indexerService.getProjects(offset, LIMIT, network);
       
-      console.log(`✅ Fetched ${projects.length} projects from offset ${offset}`);
       
       // If we got fewer projects than requested, we've reached the end
       const hasMore = projects.length === LIMIT;
@@ -86,7 +84,7 @@ export function useAngorProjects(options: UseAngorProjectsOptions = {}) {
         hasMore
       };
     } catch (error) {
-      console.error('❌ Error fetching projects page:', error);
+      console.error('âŒ Error fetching projects page:', error);
       return { 
         projects: [], 
         offset, 

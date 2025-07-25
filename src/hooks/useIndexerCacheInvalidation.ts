@@ -1,4 +1,4 @@
-import { useQueryClient } from '@tanstack/react-query';
+﻿import { useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { useCurrentIndexer } from './useCurrentIndexer';
 import { useNetwork } from '@/contexts/NetworkContext';
@@ -12,7 +12,6 @@ export function useIndexerCacheInvalidation() {
   const { network } = useNetwork();
 
   useEffect(() => {
-    console.log('Network or indexer changed, invalidating cache...', { network, primaryUrl });
     // Invalidate all queries that depend on the indexer when it changes
     queryClient.invalidateQueries({
       predicate: (query) => {

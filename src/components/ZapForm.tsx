@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -196,7 +196,6 @@ export function ZapForm({
           });
           return;
         } catch (weblnError) {
-          console.log('WebLN failed, falling back to URL opening:', weblnError);
         }
       }
 
@@ -362,7 +361,7 @@ export function ZapForm({
               <div className="text-xs text-muted-foreground text-center space-y-1">
                 <div>Scan QR code or copy invoice to your Lightning wallet</div>
                 <div className="text-green-600">
-                  ⚡ WebLN compatible wallets will open automatically
+                  âš¡ WebLN compatible wallets will open automatically
                 </div>
               </div>
             </div>

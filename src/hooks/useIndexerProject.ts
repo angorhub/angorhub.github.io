@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { angorIndexer } from '@/services/angorIndexer';
+import { AngorIndexerService } from '@/services/angorIndexer';
 import { useCurrentIndexer } from '@/hooks/useCurrentIndexer';
 import type { AngorProject } from '@/types/angor';
 
@@ -7,20 +7,23 @@ import type { AngorProject } from '@/types/angor';
  * Hook to fetch project data from the indexer API
  */
 export function useIndexerProject(projectIdentifier: string | undefined) {
-  const { network } = useCurrentIndexer();
+  const { primaryUrl, network } = useCurrentIndexer();
 
   return useQuery({
-    queryKey: ['indexer-project', projectIdentifier, network],
+    queryKey: ['indexer-project', projectIdentifier, network, primaryUrl],
     queryFn: async (): Promise<AngorProject | null> => {
       if (!projectIdentifier) return null;
       
-      console.log(`🔍 Fetching indexer project data for: ${projectIdentifier}`);
-      const project = await angorIndexer.getProject(projectIdentifier, network);
+
+      
+      // Create indexer service instance with current primary URL
+      const indexerService = new AngorIndexerService(primaryUrl);
+      const project = await indexerService.getProject(projectIdentifier, network);
       
       if (project) {
-        console.log(`✅ Successfully fetched indexer project data:`, project);
+
       } else {
-        console.log(`❌ No indexer project data found for: ${projectIdentifier}`);
+
       }
       
       return project;

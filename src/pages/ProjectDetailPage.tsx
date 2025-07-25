@@ -35,6 +35,7 @@ import {
 import { formatDistanceToNow } from 'date-fns';
 import { useAngorProject, useAngorProjectStats, useAngorProjectInvestments } from '@/hooks/useAngorData';
 import { useProjectMetadata, useNostrAdditionalData, useProjectUpdates, useNostrProjectByEventId } from '@/services/nostrService';
+import MarkdownRenderer from '@/components/MarkdownRenderer';
 import { useIndexerProject } from '@/hooks/useIndexerProject';
 import { useDenyList } from '@/services/denyService';
 import { useNetwork } from '@/contexts/NetworkContext';
@@ -98,21 +99,6 @@ function TeamMemberProfile({ pubkey, index }: { pubkey: string; index: number })
   const metadata = author.data?.metadata;
   const isLoading = author.isLoading;
   const hasError = author.isError;
-
-  // Debug logging
-  console.log(`🧑‍🤝‍🧑 Team Member ${index + 1}:`, {
-    originalPubkey: pubkey.startsWith('npub') ? `${pubkey.slice(0, 12)}...` : `${pubkey.slice(0, 16)}...`,
-    hexPubkey: `${hexPubkey.slice(0, 16)}...`,
-    isLoading,
-    hasError,
-    hasMetadata: !!metadata,
-    metadata: metadata ? {
-      name: metadata.name,
-      display_name: metadata.display_name,
-      about: metadata.about?.slice(0, 50) + '...',
-      picture: !!metadata.picture
-    } : null
-  });
 
   if (isLoading) {
     return (
@@ -264,10 +250,7 @@ export function ProjectDetailPage() {
   
   // Debug logging for team data - simplified
   if (additionalData?.members) {
-    console.log('🧪 Team Data:', {
-      hasPubkeys: !!(additionalData.members as ProjectMembers).pubkeys,
-      pubkeysCount: Array.isArray((additionalData.members as ProjectMembers).pubkeys) ? (additionalData.members as ProjectMembers).pubkeys!.length : 0
-    });
+    // Team data debug removed for production
   }
   
   // Extract profile data from projectMetadata with type safety - Must be before early returns
@@ -379,37 +362,41 @@ export function ProjectDetailPage() {
   
   // Debug logging - Enhanced for Nostr project data and indexer data
   useEffect(() => {
-    console.log('🔍 ProjectDetailPage - Debug Info for project:', projectId);
-    console.log('� Project data:', project);
-    console.log('📈 Stats data:', stats);
-    console.log('🏛️ Indexer project data:', indexerProject);
-    console.log('🆔 Event ID found:', eventId);
-    console.log('🌟 Nostr project data from event:', nostrProjectData);
-    console.log('🔗 Final Nostr PubKey used:', nostrPubKey);
+
+
+
+
+
+
+
     
     if (projectMetadata) {
-      console.log('🔍 ProjectDetailPage - projectMetadata loaded:', projectMetadata);
-      console.log('📋 Profile data:', profile);
-      console.log('🎯 Project data:', projectData);
-      console.log('🖼️ Media data:', mediaData);
+
+
+
+
+
+
     } else {
-      console.log('❌ No projectMetadata loaded');
+
     }
     
     if (additionalData) {
-      console.log('🌐 Additional Nostr data:', additionalData);
-      console.log('🏗️ Additional Project data (3030/30078):', additionalData?.project);
+
+
+
+
     } else {
-      console.log('❌ No additionalData loaded');
+
     }
     
     if (indexerProject) {
-      console.log('🏛️ Indexer project data details:');
-      console.log('🔗 Indexer founderKey:', indexerProject.founderKey);
-      console.log('🧱 Indexer createdOnBlock:', indexerProject.createdOnBlock);
-      console.log('📜 Indexer trxId:', indexerProject.trxId);
-      console.log('🆔 Indexer nostrEventId:', indexerProject.nostrEventId);
-      console.log('🔑 Indexer nostrPubKey:', indexerProject.nostrPubKey);
+
+
+
+
+
+
     }
   }, [projectId, project, stats, indexerProject, eventId, nostrProjectData, nostrPubKey, projectMetadata, profile, projectData, mediaData, additionalData]);
   
@@ -478,7 +465,7 @@ export function ProjectDetailPage() {
   );
 
   // Debug logging for funding progress
-  console.log('💰 Funding Progress Debug:', {
+
     targetAmount,
     amountInvested,
     statsCompletionPercentage: stats?.completionPercentage,
@@ -757,13 +744,12 @@ export function ProjectDetailPage() {
 
       {/* Project Details Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="updates">Updates</TabsTrigger>
           <TabsTrigger value="faq">FAQ</TabsTrigger>
           <TabsTrigger value="investors">Investors</TabsTrigger>
           <TabsTrigger value="team">Team</TabsTrigger>
-          <TabsTrigger value="raw-data">Raw Data</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -773,11 +759,9 @@ export function ProjectDetailPage() {
               <CardTitle>Project Description</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="prose max-w-none">
-                <p>
-                  {projectData?.about || profile?.about || 'Detailed project description will be available here once the creator provides more information.'}
-                </p>
-              </div>
+              <MarkdownRenderer 
+                content={projectMetadata?.description || projectMetadata?.content || additionalData?.description || additionalData?.content || 'Detailed project description will be available here once the creator provides more information.'} 
+              />
             </CardContent>
           </Card>
 
@@ -1252,139 +1236,6 @@ export function ProjectDetailPage() {
               </CardContent>
             </Card>
           )}
-        </TabsContent>
-
-        <TabsContent value="raw-data" className="space-y-6">
-          {/* Raw Nostr Data Display */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Raw Nostr Data (Kind 3030 - Project Info)</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {additionalData?.project ? (
-                <div className="bg-slate-900 text-green-400 p-4 rounded-lg overflow-auto">
-                  <pre className="text-sm">
-                    {JSON.stringify(additionalData?.project, null, 2)}
-                  </pre>
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground">
-                    No Kind 3030 project data available
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Raw Additional Data Display */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Raw Additional Data (Kind 30078)</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {additionalData ? (
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-medium mb-2">FAQ Data:</h4>
-                    <div className="bg-slate-900 text-green-400 p-4 rounded-lg overflow-auto">
-                      <pre className="text-sm">
-                        {JSON.stringify(additionalData.faq, null, 2)}
-                      </pre>
-                    </div>
-                  </div>
-                  <div>
-                    <h4 className="font-medium mb-2">Media Data:</h4>
-                    <div className="bg-slate-900 text-green-400 p-4 rounded-lg overflow-auto">
-                      <pre className="text-sm">
-                        {JSON.stringify(additionalData.media, null, 2)}
-                      </pre>
-                    </div>
-                  </div>
-                  <div>
-                    <h4 className="font-medium mb-2">Members Data:</h4>
-                    <div className="bg-slate-900 text-green-400 p-4 rounded-lg overflow-auto">
-                      <pre className="text-sm">
-                        {JSON.stringify(additionalData.members, null, 2)}
-                      </pre>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground">
-                    No Kind 30078 additional data available
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Raw Project Metadata Display */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Raw Project Metadata</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {projectMetadata ? (
-                <div className="bg-slate-900 text-green-400 p-4 rounded-lg overflow-auto">
-                  <pre className="text-sm">
-                    {JSON.stringify(projectMetadata, null, 2)}
-                  </pre>
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground">
-                    No project metadata available
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Raw Indexer Data Display */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Raw Indexer Data</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {indexerProject ? (
-                <div className="bg-slate-900 text-blue-400 p-4 rounded-lg overflow-auto">
-                  <pre className="text-sm">
-                    {JSON.stringify(indexerProject, null, 2)}
-                  </pre>
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground">
-                    No indexer data available
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Raw Stats Data Display */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Raw Stats Data</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {stats ? (
-                <div className="bg-slate-900 text-yellow-400 p-4 rounded-lg overflow-auto">
-                  <pre className="text-sm">
-                    {JSON.stringify(stats, null, 2)}
-                  </pre>
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground">
-                    No stats data available
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
         </TabsContent>
       </Tabs>
       </div>
