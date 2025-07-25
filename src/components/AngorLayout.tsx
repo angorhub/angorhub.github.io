@@ -110,7 +110,7 @@ export function AngorLayout({ children }: AngorLayoutProps) {
           {/* Top Bar - Desktop */}
           <div className="hidden lg:flex items-center justify-between p-4 border-b bg-background">
             <div className="flex items-center gap-4">
-              <h1 className="text-xl font-semibold">Grants Platform</h1>
+              <h1 className="text-xl font-semibold">Angor Hub</h1>
             </div>
             
             <div className="flex items-center gap-4">
@@ -130,7 +130,7 @@ export function AngorLayout({ children }: AngorLayoutProps) {
               <Menu className="w-5 h-5" />
             </Button>
             
-            <h1 className="text-lg font-semibold">Grants Platform</h1>
+            <h1 className="text-lg font-semibold">Angor Hub</h1>
             
             <div className="flex items-center gap-2">
               <NetworkSelector />
@@ -201,7 +201,7 @@ export function AngorLayout({ children }: AngorLayoutProps) {
         onLogin={() => {
           setShowLogin(false);
           toast({
-            title: "Welcome to Grants Platform!",
+            title: "Welcome to Angor Hub!",
             description: "You have successfully signed in with Nostr",
           });
         }}

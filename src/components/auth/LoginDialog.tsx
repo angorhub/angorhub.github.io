@@ -100,7 +100,7 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onClose, onLogin, onS
             <Shield className="w-5 h-5 text-white" />
           </div>
           <DialogTitle className='text-lg font-bold text-center text-[#086c81]'>
-            Welcome to Grants Platform
+            Welcome to Angor Hub
           </DialogTitle>
           <DialogDescription className='text-center text-muted-foreground mt-1 text-xs'>
             Connect with your Nostr identity

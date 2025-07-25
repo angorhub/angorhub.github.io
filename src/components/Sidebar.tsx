@@ -39,7 +39,6 @@ export function Sidebar({ className = '' }: SidebarProps) {
   const logoSrc = theme === 'light' ? '/logo-name-dark.svg' : '/logo-name-light.svg';  
   const navigation = [
     { name: 'Home', href: '/', icon: Home, description: 'Discover projects' },
-    { name: 'Discover', href: '/explore', icon: Search, description: 'Find projects' },
     { name: 'Settings', href: '/settings', icon: Settings, description: 'App settings' },
   ];
 
@@ -68,7 +67,7 @@ export function Sidebar({ className = '' }: SidebarProps) {
           {/* Fallback text (hidden by default) */}
           <div className="hidden">
             <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Grants Platform
+              Angor Hub
             </h1>
           </div>
         </div>

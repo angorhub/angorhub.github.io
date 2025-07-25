@@ -1,6 +1,6 @@
 {
   "name": "Angor Hub",
-  "short_name": "Grants Platform",
+  "short_name": "Angor Hub",
   "description": "Decentralized Bitcoin crowdfunding platform powered by Nostr. Fund innovative projects and support creators with complete transparency and security.",
   "start_url": "/",
   "display": "standalone",

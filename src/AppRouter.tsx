@@ -4,8 +4,7 @@ import { ScrollToTop } from "./components/ScrollToTop";
 import { AngorLayout } from "./components/AngorLayout";
 import { useGlobalLoading } from "./hooks/useGlobalLoading";
 import { HomePage } from "./pages/HomePage";
-import { ExplorePage } from "./pages/ExplorePage";
-import { ProjectDetailPage } from "./pages/ProjectDetailPage";
+ import { ProjectDetailPage } from "./pages/ProjectDetailPage";
 import { ProjectDebugPage } from "./pages/ProjectDebugPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { SettingsPage } from "./pages/SettingsPage";
@@ -42,8 +41,7 @@ function RouteLoadingHandler() {
     // Get loading message based on route
     const getLoadingMessage = (pathname: string): string => {
       if (pathname === '/') return 'Loading home page...';
-      if (pathname === '/explore') return 'Loading projects...';
-      if (pathname.startsWith('/project/')) return 'Loading project details...';
+       if (pathname.startsWith('/project/')) return 'Loading project details...';
       if (pathname === '/profile') return 'Loading profile...';
       if (pathname === '/settings') return 'Loading settings...';
       if (pathname === '/analytics') return 'Loading analytics...';
@@ -82,7 +80,6 @@ export function AppRouter() {
         <RouteLoadingHandler />
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/explore" element={<ExplorePage />} />
           <Route path="/project/:projectId" element={<ProjectDetailPage />} />
           <Route path="/project/:projectId/debug" element={<ProjectDebugPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
