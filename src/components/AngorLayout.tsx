@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
@@ -32,6 +33,7 @@ interface AngorLayoutProps {
 }
 
 export function AngorLayout({ children }: AngorLayoutProps) {
+  const navigate = useNavigate();
   const { user, metadata } = useCurrentUser();
   const { logout } = useLoginActions();
   const { toast } = useToast();
@@ -114,6 +116,14 @@ export function AngorLayout({ children }: AngorLayoutProps) {
             </div>
             
             <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/settings')}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <Settings className="w-5 h-5" />
+              </Button>
               <NetworkSelector />
               <ThemeToggle />
              
@@ -133,6 +143,14 @@ export function AngorLayout({ children }: AngorLayoutProps) {
             <h1 className="text-lg font-semibold">Angor Hub</h1>
             
             <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/settings')}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <Settings className="w-5 h-5" />
+              </Button>
               <NetworkSelector />
               <ThemeToggle />
               {user ? (
@@ -160,11 +178,11 @@ export function AngorLayout({ children }: AngorLayoutProps) {
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/profile')}>
                       <User className="w-4 h-4 mr-2" />
                       Profile
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/settings')}>
                       <Settings className="w-4 h-4 mr-2" />
                       Settings
                     </DropdownMenuItem>
