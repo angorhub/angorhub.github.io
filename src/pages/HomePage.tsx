@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AngorProjectCard, AngorProjectCardSkeleton } from '@/components/AngorProjectCard';
-import { ProjectsStatistics } from '@/components/ProjectsStatistics';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { 
@@ -208,7 +207,7 @@ export function HomePage() {
       });
     }
     return filtered;
-  }, [allProjectsFiltered, searchTerm, activeFilter, activeSort, isLoading]);
+  }, [allProjectsFiltered, searchTerm, activeFilter, activeSort]);
 
   const projects = filteredProjects;
 
@@ -390,12 +389,6 @@ export function HomePage() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 pb-20">
-        {/* Always show statistics at the top, even during loading or error */}
-        <ProjectsStatistics 
-          projects={allProjectsFiltered} 
-          isLoading={isLoading}
-        />
-
         {error ? (
           <div className="text-center py-20 max-w-lg mx-auto">
             <div className="text-red-500 mb-4">
