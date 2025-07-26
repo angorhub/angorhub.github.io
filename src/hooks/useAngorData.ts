@@ -66,6 +66,8 @@ export function useAngorProject(projectId: string | undefined) {
     enabled: !!projectId,
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
+    retry: 3, // Add retry logic
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   });
 }
 
@@ -83,6 +85,8 @@ export function useAngorProjectStats(projectId: string | undefined) {
     staleTime: 2 * 60 * 1000, // More frequent updates for stats
     gcTime: 15 * 60 * 1000,
     refetchInterval: 30 * 1000, // Refresh every 30 seconds
+    retry: 3, // Add retry logic
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   });
 }
 

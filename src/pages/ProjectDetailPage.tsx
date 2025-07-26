@@ -398,7 +398,8 @@ export function ProjectDetailPage() {
     return <ProjectDetailSkeleton />;
   }
 
-  if (!project || !stats) {
+  // Only require project data - stats and investments are optional
+  if (!project) {
     return <ProjectNotFound />;
   }
 
