@@ -13,9 +13,9 @@ import { AppProvider } from '@/components/AppProvider';
 import { NetworkProvider } from '@/contexts/NetworkContext';
 import { IndexerProvider } from '@/contexts/IndexerContext';
 import { RelayProvider } from '@/contexts/RelayContext';
+import { SearchProvider } from '@/contexts/SearchContext';
 import AppRouter from './AppRouter';
 import type { AppConfig } from "./contexts/AppContext";
-import SWhandler from "smart-widget-handler";
 
 const head = createHead({
   plugins: [
@@ -50,27 +50,28 @@ const presetRelays = [
 ];
 
 export function App() {
-  SWhandler.client.ready();
   return (
     <UnheadProvider head={head}>
       <NetworkProvider>
         <IndexerProvider>
           <RelayProvider>
-            <AppProvider storageKey="nostr:app-config" defaultConfig={defaultConfig} presetRelays={presetRelays}>
-              <QueryClientProvider client={queryClient}>
-                <NostrLoginProvider storageKey='nostr:login'>
-                  <NostrProvider>
-                    <TooltipProvider>
-                      <Toaster />
-                      <Sonner />
-                      <Suspense>
-                        <AppRouter />
-                      </Suspense>
-                    </TooltipProvider>
-                  </NostrProvider>
-                </NostrLoginProvider>
-              </QueryClientProvider>
-            </AppProvider>
+            <SearchProvider>
+              <AppProvider storageKey="nostr:app-config" defaultConfig={defaultConfig} presetRelays={presetRelays}>
+                <QueryClientProvider client={queryClient}>
+                  <NostrLoginProvider storageKey='nostr:login'>
+                    <NostrProvider>
+                      <TooltipProvider>
+                        <Toaster />
+                        <Sonner />
+                        <Suspense>
+                          <AppRouter />
+                        </Suspense>
+                      </TooltipProvider>
+                    </NostrProvider>
+                  </NostrLoginProvider>
+                </QueryClientProvider>
+              </AppProvider>
+            </SearchProvider>
           </RelayProvider>
         </IndexerProvider>
       </NetworkProvider>

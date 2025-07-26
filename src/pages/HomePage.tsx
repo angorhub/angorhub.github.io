@@ -22,11 +22,13 @@ import { useAngorProjects } from '@/hooks/useAngorProjects';
 import { useIndexerCacheInvalidation } from '@/hooks/useIndexerCacheInvalidation';
 import { useRelayCacheInvalidation } from '@/hooks/useRelayCacheInvalidation';
 import { useDenyList, filterDeniedProjects } from '@/services/denyService';
+import { useSearch } from '@/hooks/useSearch';
 import type { FilterType, SortType, AngorProject } from '@/types/angor';
 
 export function HomePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const scrollTriggerRef = useRef<HTMLDivElement>(null);
+  const { isSearchOpen, closeSearch } = useSearch();
   
   // Filter and search state
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
@@ -265,40 +267,51 @@ export function HomePage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Search and Filters */}
-      <div className="sticky top-4 z-30 px-4 mb-12">
-        <div className="max-w-6xl mx-auto bg-card/90 backdrop-blur-lg rounded-2xl shadow-2xl border border-border">
-          <div className="flex items-center gap-4 p-2">
-            {/* Search Input */}
-            <div className="relative flex-grow">
-              <Input
-                type="text"
-                placeholder="Search projects..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-12 pr-10 h-11"
-              />
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              {searchTerm && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSearchTerm('')}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 p-0"
-                >
-                  <X className="h-3 w-3" />
-                </Button>
-              )}
-            </div>
+      {isSearchOpen && (
+        <div className="sticky top-4 z-30 px-4 mb-12">
+          <div className="max-w-6xl mx-auto bg-card/90 backdrop-blur-lg rounded-2xl shadow-2xl border border-border">
+            <div className="flex items-center gap-4 p-2">
+              {/* Search Input */}
+              <div className="relative flex-grow">
+                <Input
+                  type="text"
+                  placeholder="Search projects..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-12 pr-10 h-11"
+                />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                {searchTerm && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSearchTerm('')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 p-0"
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                )}
+              </div>
 
-            {/* Mobile Filter Toggle */}
-            <Button
-              variant={showMobileFilters ? "default" : "outline"}
-              size="sm"
-              onClick={() => setShowMobileFilters(!showMobileFilters)}
-              className="md:hidden"
-            >
-              <Filter className="h-4 w-4" />
-            </Button>
+              {/* Close Search Button */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={closeSearch}
+                className="h-6 w-6 p-0"
+              >
+                <X className="h-3 w-3" />
+              </Button>
+
+              {/* Mobile Filter Toggle */}
+              <Button
+                variant={showMobileFilters ? "default" : "outline"}
+                size="sm"
+                onClick={() => setShowMobileFilters(!showMobileFilters)}
+                className="md:hidden"
+              >
+                <Filter className="h-4 w-4" />
+              </Button>
 
             {/* Desktop Filters */}
             <div className="hidden md:flex items-center gap-3">
@@ -386,9 +399,10 @@ export function HomePage() {
           )}
         </div>
       </div>
+      )}
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 pb-20">
+      <div className={`container mx-auto px-4 pb-20 ${!isSearchOpen ? 'pt-8' : ''}`}>
         {error ? (
           <div className="text-center py-20 max-w-lg mx-auto">
             <div className="text-red-500 mb-4">

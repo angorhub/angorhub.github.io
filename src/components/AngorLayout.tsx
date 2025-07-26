@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
@@ -16,10 +16,12 @@ import {
   User,
   Shield,
   Home,
+  Search,
 } from 'lucide-react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useLoginActions } from '@/hooks/useLoginActions';
 import { useMiniApp } from '@/hooks/useMiniApp';
+import { useSearch } from '@/hooks/useSearch';
 import LoginDialog from '@/components/auth/LoginDialog';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useToast } from '@/hooks/useToast';
@@ -32,11 +34,16 @@ interface AngorLayoutProps {
 
 export function AngorLayout({ children }: AngorLayoutProps) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, metadata } = useCurrentUser();
   const { logout } = useLoginActions();
   const { toast } = useToast();
   const { loading } = useAppContext();
   const { isMiniApp, miniAppUser } = useMiniApp();
+  const { toggleSearch } = useSearch();
+  
+  // Check if we're on the home page
+  const isHomePage = location.pathname === '/';
   
   // Temporary debug
   console.log('Debug: isMiniApp =', isMiniApp, 'miniAppUser =', miniAppUser);
@@ -90,6 +97,17 @@ export function AngorLayout({ children }: AngorLayoutProps) {
             </div>
             
             <div className="flex items-center gap-4">
+              {/* Search button - only shown on home page */}
+              {isHomePage && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={toggleSearch}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <Search className="w-5 h-5" />
+                </Button>
+              )}
 
               <Button
                 variant="ghost"
