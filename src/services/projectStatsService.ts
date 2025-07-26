@@ -364,23 +364,34 @@ export class ProjectStatsService {
    * Test indexer connection
    */
   async testIndexerConnection(url: string): Promise<boolean> {
-    const endpoints = ['api/stats/heartbeat', 'api/mempool'];
-
-    for (const endpoint of endpoints) {
-      try {
-        const response = await fetch(`${url}${endpoint}`, {
-          method: 'GET',
-          signal: AbortSignal.timeout(5000)
-        });
-        
-        if (response.ok) {
-          return true;
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      
+      const response = await fetch(url, {
+        method: 'HEAD',
+        headers: { 'Accept': '*/*' },
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
+      // Consider any response < 500 as "server is online"
+      // 404 means server is online but endpoint doesn't exist
+      return response.status < 500;
+    } catch (error) {
+      console.error(`Failed to connect to ${url}:`, error);
+      
+      // If we get CORS or network error, server is likely offline
+      if (error instanceof Error) {
+        if (error.message.includes('CORS') || 
+            error.message.includes('Failed to fetch') || 
+            error.message.includes('NetworkError')) {
+          return false;
         }
-      } catch (error) {
-        console.error(`Failed to connect to ${url}${endpoint}:`, error);
       }
+      
+      return false;
     }
-
-    return false;
   }
 }

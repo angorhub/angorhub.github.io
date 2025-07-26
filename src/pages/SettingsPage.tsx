@@ -24,10 +24,10 @@ import { useTheme } from '@/hooks/useTheme';
 import { useToast } from '@/hooks/useToast';
 import { useNetwork } from '@/contexts/NetworkContext';
 import { useIndexer } from '@/contexts/IndexerContext';
+import { IndexerTestingService } from '@/services/indexerTesting';
 import { useRelay } from '@/hooks/useRelay';
 import { useSettings } from '@/hooks/useSettings';
 import { NetworkSelector } from '@/components/NetworkSelector';
-import { IndexerStatusCard } from '@/components/IndexerStatusCard';
 
 export function SettingsPage() {
   const { theme, setTheme } = useTheme();
@@ -38,8 +38,7 @@ export function SettingsPage() {
     addIndexer, 
     removeIndexer, 
     setPrimaryIndexer, 
-    resetToDefaults,
-    testIndexerConnection 
+    resetToDefaults
   } = useIndexer();
   
   const {
@@ -60,6 +59,7 @@ export function SettingsPage() {
   const [testingIndexers, setTestingIndexers] = useState<Set<string>>(new Set());
   const [testingRelays, setTestingRelays] = useState<Set<string>>(new Set());
   const [resettingRelays, setResettingRelays] = useState(false);
+  const [indexerTestResults, setIndexerTestResults] = useState<Map<string, { isOnline: boolean; statusText: string; responseTime: number }>>(new Map());
 
   const addNewRelay = async () => {
     if (!newRelay.trim()) return;
@@ -226,21 +226,26 @@ export function SettingsPage() {
     setTestingIndexers(prev => new Set([...prev, url]));
     
     try {
-      const isOnline = await testIndexerConnection(url);
-      toast({
-        title: isOnline ? "Connection successful" : "Connection failed",
-        description: isOnline 
-          ? "Indexer is online and responding" 
-          : "Indexer is not responding",
-        variant: isOnline ? "default" : "destructive"
-      });
+      console.log(`🔍 Starting test for: ${url}`);
+      const result = await IndexerTestingService.testWithRetry(url);
+      console.log(`📊 Test completed:`, result);
+      
+      // Update test results
+      setIndexerTestResults(prev => new Map(prev).set(url, {
+        isOnline: result.isOnline,
+        statusText: result.statusText || (result.isOnline ? 'Online' : 'Offline'),
+        responseTime: result.responseTime
+      }));
+      
     } catch (err) {
       console.error('Test indexer error:', err);
-      toast({
-        title: "Connection test failed",
-        description: "Unable to test indexer connection",
-        variant: "destructive"
-      });
+      
+      // Update test results with error
+      setIndexerTestResults(prev => new Map(prev).set(url, {
+        isOnline: false,
+        statusText: 'Test Error',
+        responseTime: 0
+      }));
     } finally {
       setTestingIndexers(prev => {
         const next = new Set(prev);
@@ -419,8 +424,6 @@ export function SettingsPage() {
               </CardContent>
             </Card>
 
-            {/* Indexer Health Status */}
-            <IndexerStatusCard />
 
             <Card>
               <CardHeader>
@@ -490,13 +493,13 @@ export function SettingsPage() {
                       </div>
 
                       <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
-                        <div className="flex gap-2">
+                        <div className="flex items-center gap-2">
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => testIndexer(indexer.url)}
                             disabled={testingIndexers.has(indexer.url)}
-                            className="flex-1 sm:flex-none"
+                            className="flex-shrink-0"
                           >
                             {testingIndexers.has(indexer.url) ? (
                               <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
@@ -506,12 +509,34 @@ export function SettingsPage() {
                             Test
                           </Button>
                           
+                          {/* Test Result Status */}
+                          {indexerTestResults.has(indexer.url) && (
+                            <div className="flex items-center gap-1 text-sm">
+                              {indexerTestResults.get(indexer.url)?.isOnline ? (
+                                <>
+                                  <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                                  <span className="text-green-600">Online</span>
+                                  <span className="text-muted-foreground">
+                                    ({indexerTestResults.get(indexer.url)?.responseTime}ms)
+                                  </span>
+                                </>
+                              ) : (
+                                <>
+                                  <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                                  <span className="text-red-600">
+                                    {indexerTestResults.get(indexer.url)?.statusText || 'Offline'}
+                                  </span>
+                                </>
+                              )}
+                            </div>
+                          )}
+                          
                           {!indexer.isPrimary && (
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => setPrimaryIndexerHandler(indexer.url)}
-                              className="flex-1 sm:flex-none whitespace-nowrap"
+                              className="flex-shrink-0 whitespace-nowrap"
                             >
                               Set Primary
                             </Button>
@@ -525,8 +550,7 @@ export function SettingsPage() {
                           className="text-red-600 hover:text-red-700 w-full sm:w-auto"
                           disabled={indexers[network].length === 1}
                         >
-                          <Trash2 className="w-3 h-3 mr-2" />
-                          Remove
+                          <Trash2 className="w-3 h-3" />
                         </Button>
                       </div>
                     </div>

@@ -13,7 +13,6 @@ import {
   CheckCircle, 
   XCircle, 
   AlertTriangle,
-  Clock,
   ExternalLink,
   Wifi,
   WifiOff
@@ -42,16 +41,19 @@ export function IndexerStatusCard({ className = '' }: IndexerStatusCardProps) {
 
   const [testingIndividual, setTestingIndividual] = useState<Set<string>>(new Set());
 
-  const handleTestSingleIndexer = async (url: string) => {
+  const handleTestSingleIndexer = async (url: string, useQuickTest: boolean = false) => {
     setTestingIndividual(prev => new Set([...prev, url]));
     
     try {
-      const result = await testSingleIndexer(url);
+      const result = useQuickTest 
+        ? await testSingleIndexer(url) // For now, use the same method
+        : await IndexerTestingService.testWithRetry(url);
+        
       toast({
         title: result.isOnline ? "Connection successful" : "Connection failed",
-        description: result.isOnline 
+        description: result.statusText || (result.isOnline 
           ? `Indexer responded in ${IndexerTestingService.formatResponseTime(result.responseTime)}` 
-          : result.error || "Indexer is not responding",
+          : result.error || "Indexer is not responding"),
         variant: result.isOnline ? "default" : "destructive"
       });
     } catch (err) {
@@ -106,17 +108,18 @@ export function IndexerStatusCard({ className = '' }: IndexerStatusCardProps) {
     return (
       <div
         key={result.url}
-        className={`p-4 border rounded-lg space-y-3 ${
+        className={`p-3 border rounded-lg flex items-center justify-between ${
           isPrimary ? 'border-primary bg-primary/5' : 'border-border'
         }`}
       >
-        {/* Header */}
-        <div className="flex items-start justify-between">
+        {/* Indexer Info */}
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div className={`w-3 h-3 rounded-full ${
+            result.isOnline ? 'bg-green-500' : 'bg-red-500'
+          }`} />
+          
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <div className={`w-3 h-3 rounded-full ${
-                result.isOnline ? 'bg-green-500' : 'bg-red-500'
-              }`} />
               <p className="font-medium truncate text-sm">{result.url}</p>
               {isPrimary && (
                 <Badge variant="default" className="text-xs">Primary</Badge>
@@ -126,69 +129,52 @@ export function IndexerStatusCard({ className = '' }: IndexerStatusCardProps) {
             {result.isOnline ? (
               <p className="text-xs text-green-600 flex items-center gap-1">
                 <Wifi className="w-3 h-3" />
-                Online • {IndexerTestingService.formatResponseTime(result.responseTime)}
+                {result.statusText || 'Online'} • {IndexerTestingService.formatResponseTime(result.responseTime)}
+                {result.method && <span className="text-muted-foreground">({result.method})</span>}
               </p>
             ) : (
               <p className="text-xs text-red-600 flex items-center gap-1">
                 <WifiOff className="w-3 h-3" />
-                Offline • {result.error || 'No response'}
+                {result.statusText || 'Offline'} {result.status ? `(${result.status})` : ''}
+                {result.method && <span className="text-muted-foreground">({result.method})</span>}
               </p>
             )}
           </div>
+        </div>
+        
+        {/* Action Buttons */}
+        <div className="flex items-center gap-2 ml-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleTestSingleIndexer(result.url, false)} // Full test with retry
+            disabled={testingIndividual.has(result.url)}
+            className="text-xs px-3 py-1 h-8"
+            title="Test with retry (recommended)"
+          >
+            {testingIndividual.has(result.url) ? (
+              <>
+                <RefreshCw className="w-3 h-3 animate-spin mr-1" />
+                Testing
+              </>
+            ) : (
+              <>
+                <Activity className="w-3 h-3 mr-1" />
+                Test
+              </>
+            )}
+          </Button>
           
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleTestSingleIndexer(result.url)}
-              disabled={testingIndividual.has(result.url)}
-              className="text-xs px-2 py-1 h-7"
-            >
-              {testingIndividual.has(result.url) ? (
-                <RefreshCw className="w-3 h-3 animate-spin" />
-              ) : (
-                <Activity className="w-3 h-3" />
-              )}
-            </Button>
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => window.open(result.url, '_blank')}
-              className="text-xs px-2 py-1 h-7"
-            >
-              <ExternalLink className="w-3 h-3" />
-            </Button>
-          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => window.open(result.url, '_blank')}
+            className="text-xs px-2 py-1 h-8"
+            title="Open in browser"
+          >
+            <ExternalLink className="w-3 h-3" />
+          </Button>
         </div>
-
-        {/* Endpoint Status */}
-        <div className="grid grid-cols-3 gap-2 text-xs">
-          <div className={`flex items-center gap-1 px-2 py-1 rounded ${
-            result.endpoints.heartbeat ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
-          }`}>
-            {result.endpoints.heartbeat ? <CheckCircle className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
-            Heartbeat
-          </div>
-          <div className={`flex items-center gap-1 px-2 py-1 rounded ${
-            result.endpoints.stats ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
-          }`}>
-            {result.endpoints.stats ? <CheckCircle className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
-            Stats
-          </div>
-          <div className={`flex items-center gap-1 px-2 py-1 rounded ${
-            result.endpoints.projects ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
-          }`}>
-            {result.endpoints.projects ? <CheckCircle className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
-            Projects
-          </div>
-        </div>
-
-        {/* Last Tested */}
-        <p className="text-xs text-muted-foreground flex items-center gap-1">
-          <Clock className="w-3 h-3" />
-          Tested {new Date(result.lastTested).toLocaleTimeString()}
-        </p>
       </div>
     );
   };
