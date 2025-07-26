@@ -1,9 +1,8 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { CalendarDays, Users, Target, Bitcoin } from 'lucide-react';
+import { Users, Target, Bitcoin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useNetwork } from '@/contexts/NetworkContext';
 import { useSettings } from '@/hooks/useSettings';
@@ -27,7 +26,7 @@ export function AngorProjectCard({ project }: AngorProjectCardProps) {
   const { data: projectMetadata } = useProjectMetadata(nostrProjectData?.nostrPubKey);
   
   // Fetch real-time stats from indexer
-  const { data: indexerStats, isLoading: statsLoading } = useAngorProjectStats(project.projectIdentifier);
+  const { data: indexerStats } = useAngorProjectStats(project.projectIdentifier);
   
   // Fetch detailed project info from indexer only if we don't have targetAmount from other sources
   const needsDetailedProject = !project.targetAmount && !project.details?.targetAmount && !(nostrProjectData?.projectDetails as Record<string, unknown>)?.targetAmount;
@@ -50,117 +49,56 @@ export function AngorProjectCard({ project }: AngorProjectCardProps) {
   const projectPicture = (projectMetadata?.profile as Record<string, unknown>)?.picture as string || 
                         (projectMetadata?.media as Record<string, unknown>)?.picture as string ||
                         project.metadata?.picture;
-                        
-  const projectBanner = (projectMetadata?.profile as Record<string, unknown>)?.banner as string || 
-                       (projectMetadata?.media as Record<string, unknown>)?.banner as string ||
-                       project.metadata?.banner;
+
+  // Get amounts from multiple sources with prioritization
+  const targetAmount = indexerStats?.targetAmount ||
+                      detailedProject?.targetAmount ||
+                      project.targetAmount ||
+                      project.details?.targetAmount ||
+                      (nostrProjectData?.projectDetails as Record<string, unknown>)?.targetAmount as number ||
+                      0;
+
+  const amountInvested = indexerStats?.amountInvested ||
+                        detailedProject?.amountInvested ||
+                        project.amountInvested ||
+                        0;
+
+  const investorCount = indexerStats?.investorCount ||
+                       detailedProject?.investorCount ||
+                       project.investorCount ||
+                       0;
+
+  const currentTargetAmount = targetAmount || 0;
+  const currentAmountInvested = amountInvested || 0;
+  const currentInvestorCount = investorCount || 0;
+
+  // Calculate funding progress
+  const fundingProgress = currentTargetAmount > 0 
+    ? Math.min((currentAmountInvested / currentTargetAmount) * 100, 100) 
+    : 0;
   
-  // Use the correct data sources based on Angular sample:
-  // - amountInvested and investorCount from indexer stats (or fallback to project data)
-  // - targetAmount from Nostr project data (merged from kinds 3030 and 30078) or fallback to project data
-  const currentAmountInvested = indexerStats?.amountInvested ?? project.stats?.amountInvested ?? project.amountInvested ?? 0;
-  const currentInvestorCount = indexerStats?.investorCount ?? project.stats?.investorCount ?? project.investorCount ?? 0;
-  
-  // Updated targetAmount logic - now uses the improved Nostr data from both event kinds
-  let currentTargetAmount = nostrProjectData?.targetAmount ?? // From merged Nostr data (kinds 3030 + 30078)
-                            (nostrProjectData?.projectDetails as Record<string, unknown>)?.targetAmount as number ??
-                            project.details?.targetAmount ?? 
-                            detailedProject?.details?.targetAmount ??
-                            detailedProject?.targetAmount ??
-                            project.targetAmount ?? 
-                            0;
-
-  // TEMPORARY FIX: Add sample target amounts for testing - will be removed once Nostr data is properly loaded
-  // This ensures the progress bar works for demo/testing purposes
-  if (currentTargetAmount === 0 && currentAmountInvested > 0) {
-    // For the project with 4,100,400 sats invested, assume 6M sats target
-    if (currentAmountInvested > 4000000) {
-      currentTargetAmount = 6000000; // 0.06 BTC
-    } else if (currentAmountInvested > 0) {
-      currentTargetAmount = currentAmountInvested * 1.5; // Assume 150% of current as target
-    }
-  }
-
-  // TODO: Remove temporary fix once Nostr data is consistently loaded
-  // The improved Nostr service now fetches data from both event kinds 3030 and 30078,
-  // but some projects may still need the fallback until all data is properly indexed
-
-  // Calculate completion percentage - simplified approach
-  let completionPercentage = 0;
-  
-  // First try from indexer or project stats
-  if (indexerStats?.completionPercentage) {
-    completionPercentage = indexerStats.completionPercentage;
-  } else if (project.stats?.completionPercentage) {
-    completionPercentage = project.stats.completionPercentage;
-  } else {
-    // Manual calculation
-    if (currentAmountInvested > 0 && currentTargetAmount > 0) {
-      const percentage = (currentAmountInvested / currentTargetAmount) * 100;
-      completionPercentage = Math.min(Math.round(percentage * 10) / 10, 999.9);
-    } else if (currentAmountInvested > 0 && currentTargetAmount === 0) {
-      // If there's investment but no target, show a small progress
-      completionPercentage = 10; // Show 10% as placeholder
-    }
-  }
-
-  // Calculate days remaining based on expiryDate from Nostr data or indexer stats
-  const calculateDaysRemaining = () => {
-    // First try to get expiryDate from Nostr data
-    const expiryDate = nostrProjectData?.projectDetails?.expiryDate || 
-                      (nostrProjectData?.projectDetails as Record<string, unknown>)?.expiryDate ||
-                      project.details?.expiryDate;
+  // Determine project status and color
+  const getStatusInfo = () => {
+    const status = indexerStats?.status || 'active';
     
-    if (expiryDate) {
-      const currentTime = Math.floor(Date.now() / 1000); // Current timestamp in seconds
-      const timeRemaining = Number(expiryDate) - currentTime;
-      
-      if (timeRemaining <= 0) {
-        return 0; // Expired
-      }
-      
-      const daysRemaining = Math.ceil(timeRemaining / (24 * 60 * 60)); // Convert seconds to days
-      return daysRemaining;
+    switch (status) {
+      case 'completed':
+        return { color: 'bg-green-500', text: 'Completed' };
+      case 'expired':
+        return { color: 'bg-red-500', text: 'Expired' };
+      case 'upcoming':
+        return { color: 'bg-yellow-500', text: 'Upcoming' };
+      default:
+        return { color: 'bg-blue-500', text: 'Active' };
     }
-    
-    // Fallback to indexer or project stats
-    return indexerStats?.daysRemaining ?? project.stats?.daysRemaining ?? null;
   };
 
-  const daysRemaining = calculateDaysRemaining();
-  
-  // Always show progress if there's any completion percentage or amount invested
-  const fundingProgress = Math.min(completionPercentage, 100);
+  const { color: statusColor, text: statusText } = getStatusInfo();
 
-  // Determine project status with expiry check
-  let status = indexerStats?.status ?? project.stats?.status ?? 'active';
-  
-  // Override status if we can calculate expiry from days remaining
-  if (daysRemaining !== null && daysRemaining === 0) {
-    status = 'expired';
-  } else if (completionPercentage >= 100) {
-    status = 'completed';
-  }
-
-  const statusColor = {
-    active: 'bg-green-500',
-    completed: 'bg-blue-500',
-    expired: 'bg-red-500',
-    upcoming: 'bg-yellow-500',
-  }[status];
-
-  const statusText = {
-    active: 'Active',
-    completed: 'Completed', 
-    expired: 'Expired',
-    upcoming: 'Upcoming',
-  }[status];
-
-  const formatBTCWithNetwork = (sats: number | undefined, fallbackText: string = 'Loading...') => {
-    if (sats === undefined || sats === null) return fallbackText;
-    if (sats === 0) return 'TBD'; // To Be Determined - when target is not set yet
+  // Format Bitcoin amounts for display with network awareness
+  const formatBTCWithNetwork = (sats: number | undefined, fallback = '0') => {
+    if (!sats) return fallback;
     
-    // Use the user's currency preference
     const formatted = formatBitcoinAmount(sats, { 
       network, 
       currency: settings.defaultCurrency,
@@ -175,204 +113,100 @@ export function AngorProjectCard({ project }: AngorProjectCardProps) {
   };
 
   return (
-    <Card className="min-h-[420px] hover:shadow-lg transition-shadow group overflow-hidden p-0 h-full flex flex-col">
-      {/* Banner - Full width cover from top */}
-      <div className="relative h-40 w-full">
-        {projectBanner ? (
-          <img 
-            src={projectBanner} 
-            alt={`${projectName} banner`}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full bg-[#086c81]" />
-        )}
-        
-        {/* Overlay for better text readability */}
-        <div className="absolute inset-0 bg-black/20" />
-        
-        {/* Status Badge - Top left */}
-        <div className="absolute top-3 left-3 flex gap-2">
-          <Badge className={`text-white ${statusColor} border-none text-xs shadow-md`}>
-            {statusText}
-          </Badge>
-          {/* Show live stats indicator */}
-          {indexerStats && !statsLoading && (
-            <Badge variant="secondary" className="bg-green-600 text-white border-none text-xs shadow-md">
-              Live
-            </Badge>
-          )}
-          {statsLoading && (
-            <Badge variant="secondary" className="bg-gray-600 text-white border-none text-xs shadow-md animate-pulse">
-              Loading...
-            </Badge>
-          )}
-        </div>
-        
-        {/* Target Amount - Top right */}
-        <div className="absolute top-3 right-3">
-          <Badge variant="secondary" className="bg-black/60 text-white border-none text-xs shadow-md backdrop-blur-sm">
-            <Bitcoin className="w-3 h-3 mr-1" />
-            {formatBTCWithNetwork(currentTargetAmount, 'TBD')}
-          </Badge>
-        </div>
-      </div>
-
-      {/* Project Avatar - Overlapping banner (higher position) */}
-      <div className="relative px-5">
-        <div className="absolute -top-14 left-5">
-          <Avatar className="w-16 h-16 border-4 border-white shadow-lg">
+    <Card className="hover:shadow-lg transition-all duration-200 group overflow-hidden cursor-pointer" onClick={handleViewProject}>
+      <CardContent className="p-4">
+        {/* Header with Avatar and Title */}
+        <div className="flex items-start gap-3 mb-3">
+          <Avatar className="w-12 h-12 flex-shrink-0">
             <AvatarImage 
               src={projectPicture} 
               alt={projectName}
               className="object-cover"
             />
-            <AvatarFallback className="text-lg font-semibold bg-orange-100 text-orange-700">
+            <AvatarFallback className="text-sm font-semibold bg-orange-100 text-orange-700">
               {projectName?.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
-        </div>
-      </div>
-
-      {/* Content Section - Flexible grow */}
-      <div className="px-5 pt-5 pb-5 flex flex-col flex-grow">
-        {/* Project Title and Creator */}
-        <div className="mb-4">
-          <h3 className="font-bold text-lg leading-tight group-hover:text-orange-600 transition-colors mb-1">
-            {projectName}
-          </h3>
-          <p className="text-sm text-muted-foreground line-clamp-3 min-h-[3.6rem]">
-            {projectDescription}
-          </p>
+          
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold text-base leading-tight group-hover:text-orange-600 transition-colors mb-1 line-clamp-1">
+              {projectName}
+            </h3>
+            <p className="text-sm text-muted-foreground line-clamp-2">
+              {projectDescription}
+            </p>
+          </div>
+          
+          <Badge className={`text-white ${statusColor} border-none text-xs flex-shrink-0`}>
+            {statusText}
+          </Badge>
         </div>
 
         {/* Funding Progress */}
-        <div className="space-y-2 mb-4">
+        <div className="space-y-2 mb-3">
           <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-foreground">Funding Progress</span>
+            <span className="text-sm font-medium">Progress</span>
             <span className="text-sm font-semibold text-orange-600">
-              {fundingProgress > 0 ? `${fundingProgress}%` : (currentAmountInvested > 0 ? 'TBD' : '0%')}
+              {fundingProgress > 0 ? `${Math.round(fundingProgress)}%` : '0%'}
             </span>
           </div>
-          <Progress value={fundingProgress} className="h-3 bg-gray-200 dark:bg-gray-700" />
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>{formatBTCWithNetwork(currentAmountInvested, '0')} raised</span>
-            <span>Goal: {formatBTCWithNetwork(currentTargetAmount, 'TBD')}</span>
-          </div>
+          <Progress value={fundingProgress} className="h-2" />
         </div>
 
         {/* Stats Row */}
-        <div className="flex justify-between text-center mb-4">
-          <div className="flex-1">
-            <div className="flex items-center justify-center text-muted-foreground mb-1">
-              <Users className="w-4 h-4" />
-            </div>
-            <div className="text-sm font-semibold">{formatNumber(currentInvestorCount || 0)}</div>
-            <div className="text-xs text-muted-foreground">Investors</div>
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <div className="flex items-center gap-1">
+            <Users className="w-4 h-4" />
+            <span>{formatNumber(currentInvestorCount || 0)}</span>
           </div>
           
-          <div className="flex-1">
-            <div className="flex items-center justify-center text-muted-foreground mb-1">
-              <Target className="w-4 h-4" />
-            </div>
-            <div className="text-sm font-semibold">{formatBTCWithNetwork(currentTargetAmount, 'TBD')}</div>
-            <div className="text-xs text-muted-foreground">Target</div>
+          <div className="flex items-center gap-1">
+            <Bitcoin className="w-4 h-4" />
+            <span>{formatBTCWithNetwork(currentAmountInvested, '0')}</span>
           </div>
           
-          <div className="flex-1">
-            <div className="flex items-center justify-center text-muted-foreground mb-1">
-              <CalendarDays className="w-4 h-4" />
-            </div>
-            <div className="text-sm font-semibold">
-              {daysRemaining !== null ? (daysRemaining > 0 ? daysRemaining : 'Expired') : 'TBD'}
-            </div>
-            <div className="text-xs text-muted-foreground">Days left</div>
+          <div className="flex items-center gap-1">
+            <Target className="w-4 h-4" />
+            <span>{formatBTCWithNetwork(currentTargetAmount, 'TBD')}</span>
           </div>
         </div>
-
-        {/* Category Tag */}
-        {project.metadata?.category && (
-          <div className="flex justify-start mb-4">
-            <Badge variant="outline" className="text-xs">
-              {project.metadata.category}
-            </Badge>
-          </div>
-        )}
-
-        {/* Spacer to push button to bottom */}
-        <div className="flex-grow"></div>
-
-        {/* Action Button - Always at bottom */}
-        <Button 
-          onClick={handleViewProject}
-          className="w-full bg-[#086c81] hover:bg-[#022229] text-white mt-auto"
-        >
-          View Project
-        </Button>
-      </div>
+      </CardContent>
     </Card>
   );
 }
 
-interface AngorProjectCardSkeletonProps {
-  count?: number;
-}
-
-export function AngorProjectCardSkeleton({ count = 1 }: AngorProjectCardSkeletonProps) {
+// Skeleton component for loading state
+export function AngorProjectCardSkeleton({ count = 1 }: { count?: number }) {
   return (
     <>
-      {Array.from({ length: count }).map((_, i) => (
-        <Card key={i} className="overflow-hidden min-h-[480px] border border-border">
-          {/* Project Image */}
-          <div className="h-44 w-full bg-muted animate-pulse rounded-t-xl" />
-          
-          <CardContent className="pt-7 space-y-4">
-            {/* Creator Info */}
-            <div className="flex items-center gap-3">
-              <div className="h-12 w-12 bg-muted animate-pulse rounded-full" />
+      {Array.from({ length: count }).map((_, index) => (
+        <Card key={index} className="overflow-hidden">
+          <CardContent className="p-4">
+            {/* Header skeleton */}
+            <div className="flex items-start gap-3 mb-3">
+              <div className="w-12 h-12 bg-muted animate-pulse rounded-full flex-shrink-0" />
               <div className="flex-1 space-y-2">
-                <div className="h-5 w-36 bg-muted animate-pulse rounded" />
-                <div className="h-4 w-24 bg-muted animate-pulse rounded" />
+                <div className="h-4 bg-muted animate-pulse rounded w-3/4" />
+                <div className="h-3 bg-muted animate-pulse rounded w-full" />
+                <div className="h-3 bg-muted animate-pulse rounded w-2/3" />
               </div>
-              <div className="h-6 w-16 bg-muted animate-pulse rounded-full" />
+              <div className="h-5 w-16 bg-muted animate-pulse rounded flex-shrink-0" />
             </div>
-            
-            {/* Project Description */}
-            <div className="space-y-2 pt-2">
-              <div className="h-4 w-full bg-muted animate-pulse rounded" />
-              <div className="h-4 w-4/5 bg-muted animate-pulse rounded" />
-              <div className="h-4 w-3/5 bg-muted animate-pulse rounded" />
+
+            {/* Progress skeleton */}
+            <div className="space-y-2 mb-3">
+              <div className="flex justify-between">
+                <div className="h-4 bg-muted animate-pulse rounded w-16" />
+                <div className="h-4 bg-muted animate-pulse rounded w-8" />
+              </div>
+              <div className="h-2 bg-muted animate-pulse rounded w-full" />
             </div>
-            
-            {/* Progress Section */}
-            <div className="space-y-3 pt-4">
-              <div className="flex justify-between items-center">
-                <div className="h-4 w-20 bg-muted animate-pulse rounded" />
-                <div className="h-4 w-12 bg-muted animate-pulse rounded" />
-              </div>
-              <div className="h-2 w-full bg-muted animate-pulse rounded-full" />
-            </div>
-            
-            {/* Stats Grid */}
-            <div className="grid grid-cols-3 gap-4 pt-4">
-              <div className="text-center space-y-1">
-                <div className="h-5 w-16 bg-muted animate-pulse rounded mx-auto" />
-                <div className="h-3 w-12 bg-muted animate-pulse rounded mx-auto" />
-              </div>
-              <div className="text-center space-y-1">
-                <div className="h-5 w-10 bg-muted animate-pulse rounded mx-auto" />
-                <div className="h-3 w-16 bg-muted animate-pulse rounded mx-auto" />
-              </div>
-              <div className="text-center space-y-1">
-                <div className="h-5 w-14 bg-muted animate-pulse rounded mx-auto" />
-                <div className="h-3 w-10 bg-muted animate-pulse rounded mx-auto" />
-              </div>
-            </div>
-            
-            {/* Action Buttons */}
-            <div className="flex gap-2 pt-6">
-              <div className="h-9 flex-1 bg-muted animate-pulse rounded-md" />
-              <div className="h-9 flex-1 bg-primary/20 animate-pulse rounded-md" />
+
+            {/* Stats skeleton */}
+            <div className="flex items-center justify-between">
+              <div className="h-4 bg-muted animate-pulse rounded w-20" />
+              <div className="h-4 bg-muted animate-pulse rounded w-16" />
+              <div className="h-4 bg-muted animate-pulse rounded w-20" />
             </div>
           </CardContent>
         </Card>
