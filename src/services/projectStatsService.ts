@@ -1,5 +1,14 @@
 import { AngorIndexerService } from './angorIndexer';
 import type { NetworkType } from '@/contexts/NetworkContext';
+import type { ProjectStats } from '@/types/angor';
+
+export interface NetworkSupply {
+  circulating: number;
+  total: number;
+  max: number;
+  rewards: number;
+  height: number;
+}
 
 export interface ProjectStatsAdvanced {
   // Basic stats
@@ -78,7 +87,7 @@ export interface ProjectAnalytics {
 
 export class ProjectStatsService {
   private indexerService: AngorIndexerService;
-  private cache: Map<string, { data: any; timestamp: number }> = new Map();
+  private cache: Map<string, { data: unknown; timestamp: number }> = new Map();
   private cacheTimeout = 60000; // 1 minute
 
   constructor() {
@@ -90,7 +99,7 @@ export class ProjectStatsService {
    */
   async getAdvancedProjectStats(projectIdentifier: string, network: NetworkType = 'mainnet'): Promise<ProjectStatsAdvanced> {
     const cacheKey = `stats-${projectIdentifier}-${network}`;
-    const cached = this.getFromCache(cacheKey);
+    const cached = this.getFromCache(cacheKey) as ProjectStatsAdvanced | null;
     if (cached) return cached;
 
     try {
@@ -142,7 +151,7 @@ export class ProjectStatsService {
    */
   async getDetailedInvestments(projectIdentifier: string, network: NetworkType = 'mainnet'): Promise<ProjectInvestmentDetailed[]> {
     const cacheKey = `investments-${projectIdentifier}-${network}`;
-    const cached = this.getFromCache(cacheKey);
+    const cached = this.getFromCache(cacheKey) as ProjectInvestmentDetailed[] | null;
     if (cached) return cached;
 
     try {
@@ -235,7 +244,7 @@ export class ProjectStatsService {
   /**
    * Calculate risk score based on various factors
    */
-  private calculateRiskScore(stats: any, investorCount: number, fundingVelocity: number): number {
+  private calculateRiskScore(stats: ProjectStats, investorCount: number, fundingVelocity: number): number {
     let riskScore = 50; // Base risk score
 
     // Factor 1: Funding progress
@@ -251,7 +260,7 @@ export class ProjectStatsService {
     else if (fundingVelocity < 1000) riskScore += 15; // Low daily funding
 
     // Factor 4: Penalties
-    if (stats.amountInPenalties > 0) riskScore += 30;
+    if (stats.amountInPenalties && stats.amountInPenalties > 0) riskScore += 30;
 
     // Factor 5: Time remaining
     if (stats.daysRemaining && stats.daysRemaining < 7) riskScore += 20;
@@ -311,7 +320,7 @@ export class ProjectStatsService {
   /**
    * Cache management
    */
-  private getFromCache(key: string): any {
+  private getFromCache(key: string): unknown {
     const cached = this.cache.get(key);
     if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
       return cached.data;
@@ -319,7 +328,7 @@ export class ProjectStatsService {
     return null;
   }
 
-  private setCache(key: string, data: any): void {
+  private setCache(key: string, data: unknown): void {
     this.cache.set(key, { data, timestamp: Date.now() });
   }
 
@@ -333,7 +342,7 @@ export class ProjectStatsService {
   /**
    * Get supply information (Bitcoin network stats)
    */
-  async getNetworkSupply(network: NetworkType = 'mainnet'): Promise<any> {
+  async getNetworkSupply(network: NetworkType = 'mainnet'): Promise<NetworkSupply | null> {
     try {
       const baseUrl = network === 'mainnet' 
         ? 'https://fulcrum.angor.online/' 
