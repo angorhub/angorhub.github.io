@@ -107,8 +107,8 @@ export function AngorLayout({ children }: AngorLayoutProps) {
                 <div className="flex items-center gap-2">
                    <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm">
-                        <Avatar className="w-8 h-8">
+                      <div className="cursor-pointer">
+                        <Avatar className="w-8 h-8 hover:ring-2 hover:ring-ring hover:ring-offset-2 transition-all">
                           {userPicture ? (
                             <AvatarImage src={userPicture} alt={userDisplayName} />
                           ) : null}
@@ -116,7 +116,7 @@ export function AngorLayout({ children }: AngorLayoutProps) {
                             {userDisplayName.slice(0, 2).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
-                      </Button>
+                      </div>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-56">
                       <DropdownMenuLabel>
@@ -147,14 +147,14 @@ export function AngorLayout({ children }: AngorLayoutProps) {
                 user ? (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm">
-                        <Avatar className="w-8 h-8">
+                      <div className="cursor-pointer">
+                        <Avatar className="w-8 h-8 hover:ring-2 hover:ring-ring hover:ring-offset-2 transition-all">
                           {userPicture && <AvatarImage src={userPicture} />}
                           <AvatarFallback className="text-xs">
                             {userDisplayName.slice(0, 2).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
-                      </Button>
+                      </div>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-56">
                       <DropdownMenuLabel>

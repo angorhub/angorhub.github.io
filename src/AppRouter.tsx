@@ -6,9 +6,6 @@ import { useGlobalLoading } from "./hooks/useGlobalLoading";
 import { ProjectDetailPage } from "./pages/ProjectDetailPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { SettingsPage } from "./pages/SettingsPage";
-import { TrendingPage } from "./pages/TrendingPage";
-import { AnalyticsPage } from "./pages/AnalyticsPage";
-import { DebugPage } from "./pages/DebugPage";
 import NotFound from "./pages/NotFound";
 import { HomePage } from "./pages/HomePage";
 
@@ -80,11 +77,8 @@ export function AppRouter() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/project/:projectId" element={<ProjectDetailPage />} />
-          <Route path="/analytics" element={<AnalyticsPage />} />
-          <Route path="/trending" element={<TrendingPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/debug" element={<DebugPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </AngorLayout>

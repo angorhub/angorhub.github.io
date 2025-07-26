@@ -94,12 +94,12 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onClose, onLogin, onS
     }
   };
   return (    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className='w-[90vw] max-w-sm mx-auto p-0 overflow-hidden rounded-xl border-0 shadow-2xl bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800'>
+      <DialogContent className='w-[90vw] max-w-sm mx-auto p-0 overflow-hidden rounded-xl border-0 shadow-2xl bg-background'>
         <DialogHeader className='px-4 pt-4 pb-2 relative'>
-          <div className="w-10 h-10 bg-[#086c81] rounded-lg flex items-center justify-center mx-auto mb-2 shadow-lg">
-            <Shield className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center mx-auto mb-2 shadow-lg">
+            <Shield className="w-5 h-5 text-primary-foreground" />
           </div>
-          <DialogTitle className='text-lg font-bold text-center text-[#086c81]'>
+          <DialogTitle className='text-lg font-bold text-center text-primary'>
             Welcome to Angor Hub
           </DialogTitle>
           <DialogDescription className='text-center text-muted-foreground mt-1 text-xs'>
@@ -108,36 +108,36 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onClose, onLogin, onS
         </DialogHeader>
 
         <div className='px-4 py-3 space-y-3'>          <Tabs defaultValue={'nostr' in window ? 'extension' : 'key'} className='w-full'>
-            <TabsList className='grid w-full grid-cols-3 mb-3 bg-gray-100 dark:bg-gray-800 p-0.5 rounded-lg h-8'>
+            <TabsList className='grid w-full grid-cols-3 mb-3 bg-muted p-0.5 rounded-lg h-8'>
               <TabsTrigger 
                 value='extension' 
-                className='rounded-md text-xs font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[#086c81] transition-all duration-200'
+                className='rounded-md text-xs font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary transition-all duration-200'
               >
                 Extension
               </TabsTrigger>
               <TabsTrigger 
                 value='key' 
-                className='rounded-md text-xs font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[#086c81] transition-all duration-200'
+                className='rounded-md text-xs font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary transition-all duration-200'
               >
                 Private Key
               </TabsTrigger>
               <TabsTrigger 
                 value='bunker' 
-                className='rounded-md text-xs font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[#086c81] transition-all duration-200'
+                className='rounded-md text-xs font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary transition-all duration-200'
               >
                 Bunker
               </TabsTrigger>
             </TabsList>            <TabsContent value='extension' className='space-y-3'>
-              <div className='text-center p-3 rounded-lg bg-gradient-to-br from-[#cbdde1]/50 to-[#cbdde1]/30 dark:from-[#022229]/20 dark:to-[#086c81]/10 border border-[#cbdde1] dark:border-[#086c81]'>
-                <div className="w-10 h-10 bg-[#086c81] rounded-lg flex items-center justify-center mx-auto mb-2 shadow-lg">
-                  <Shield className='w-5 h-5 text-white' />
+              <div className='text-center p-3 rounded-lg bg-secondary/50 border border-border'>
+                <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center mx-auto mb-2 shadow-lg">
+                  <Shield className='w-5 h-5 text-primary-foreground' />
                 </div>
-                <h3 className="font-semibold text-sm mb-1 text-gray-900 dark:text-white">Browser Extension</h3>
-                <p className='text-xs text-gray-600 dark:text-gray-300 mb-3 leading-relaxed'>
+                <h3 className="font-semibold text-sm mb-1 text-foreground">Browser Extension</h3>
+                <p className='text-xs text-muted-foreground mb-3 leading-relaxed'>
                   Secure one-click authentication using your Nostr browser extension.
                 </p>
                 <Button
-                  className='w-full rounded-lg py-2 h-9 bg-[#086c81] hover:bg-[#054e5a] text-white shadow-lg hover:shadow-xl transition-all duration-200 font-medium text-sm'
+                  className='w-full rounded-lg py-2 h-9 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200 font-medium text-sm'
                   onClick={handleExtensionLogin}
                   disabled={isLoading}
                 >
@@ -157,20 +157,20 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onClose, onLogin, onS
                 )}
               </div>
             </TabsContent>            <TabsContent value='key' className='space-y-4 mt-4'>
-              <div className='space-y-4 p-4 rounded-lg bg-gradient-to-br from-[#cbdde1]/50 to-[#cbdde1]/30 dark:from-[#022229]/20 dark:to-[#086c81]/10 border border-[#cbdde1] dark:border-[#086c81]'>
+              <div className='space-y-4 p-4 rounded-lg bg-secondary/50 border border-border'>
                 <div className="text-center mb-3">
-                  <div className="w-12 h-12 bg-[#086c81] rounded-lg flex items-center justify-center mx-auto mb-2 shadow-lg">
-                    <Shield className='w-6 h-6 text-white' />
+                  <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mx-auto mb-2 shadow-lg">
+                    <Shield className='w-6 h-6 text-primary-foreground' />
                   </div>
-                  <h3 className="font-semibold text-base text-gray-900 dark:text-white">Private Key Login</h3>
-                  <p className='text-xs text-gray-600 dark:text-gray-300 mt-1'>
+                  <h3 className="font-semibold text-base text-foreground">Private Key Login</h3>
+                  <p className='text-xs text-muted-foreground mt-1'>
                     Enter your nsec private key to securely access your account
                   </p>
                 </div>
 
                 <div className='space-y-3'>
                   <div className='space-y-1'>
-                    <label htmlFor='nsec' className='text-xs font-medium text-gray-700 dark:text-gray-300'>
+                    <label htmlFor='nsec' className='text-xs font-medium text-foreground'>
                       Nostr Private Key (nsec)
                     </label>
                     <Input
@@ -178,17 +178,17 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onClose, onLogin, onS
                       type="password"
                       value={nsec}
                       onChange={(e) => setNsec(e.target.value)}
-                      className='rounded-lg border-gray-300 dark:border-gray-600 focus-visible:ring-[#086c81] focus-visible:border-[#086c81] h-9 bg-white/50 dark:bg-gray-900/50 text-sm'
+                      className='rounded-lg focus-visible:ring-primary focus-visible:border-primary h-9 text-sm'
                       placeholder='nsec1...'
                     />
                   </div>
 
                   <div className='relative'>
                     <div className='absolute inset-0 flex items-center'>
-                      <span className='w-full border-t border-gray-300 dark:border-gray-600' />
+                      <span className='w-full border-t border-border' />
                     </div>
                     <div className='relative flex justify-center text-xs uppercase'>
-                      <span className='bg-white dark:bg-gray-800 px-2 text-gray-500'>Or</span>
+                      <span className='bg-background px-2 text-muted-foreground'>Or</span>
                     </div>
                   </div>
 
@@ -204,7 +204,7 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onClose, onLogin, onS
                     />
                     <Button
                       variant='outline'
-                      className='w-full rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-900/50 hover:bg-[#cbdde1]/20 dark:hover:bg-[#086c81]/10 h-9 transition-all duration-200 text-sm'
+                      className='w-full rounded-lg border-2 border-dashed h-9 transition-all duration-200 text-sm'
                       onClick={() => fileInputRef.current?.click()}
                     >
                       <Upload className='w-3 h-3 mr-2' />
@@ -213,7 +213,7 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onClose, onLogin, onS
                   </div>
 
                   <Button
-                    className='w-full rounded-lg py-2 h-9 bg-[#086c81] hover:bg-[#054e5a] text-white shadow-lg hover:shadow-xl transition-all duration-200 font-medium text-sm'
+                    className='w-full rounded-lg py-2 h-9 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200 font-medium text-sm'
                     onClick={handleKeyLogin}
                     disabled={isLoading || !nsec.trim()}
                   >
@@ -229,39 +229,39 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onClose, onLogin, onS
                 </div>
               </div>
             </TabsContent>            <TabsContent value='bunker' className='space-y-4 mt-4'>
-              <div className='space-y-4 p-4 rounded-lg bg-gradient-to-br from-[#cbdde1]/50 to-[#cbdde1]/30 dark:from-[#022229]/20 dark:to-[#086c81]/10 border border-[#cbdde1] dark:border-[#086c81]'>
+              <div className='space-y-4 p-4 rounded-lg bg-secondary/50 border border-border'>
                 <div className="text-center mb-3">
-                  <div className="w-12 h-12 bg-[#086c81] rounded-lg flex items-center justify-center mx-auto mb-2 shadow-lg">
-                    <Shield className='w-6 h-6 text-white' />
+                  <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mx-auto mb-2 shadow-lg">
+                    <Shield className='w-6 h-6 text-primary-foreground' />
                   </div>
-                  <h3 className="font-semibold text-base text-gray-900 dark:text-white">Remote Signer</h3>
-                  <p className='text-xs text-gray-600 dark:text-gray-300 mt-1'>
+                  <h3 className="font-semibold text-base text-foreground">Remote Signer</h3>
+                  <p className='text-xs text-muted-foreground mt-1'>
                     Connect using a remote signing service for enhanced security
                   </p>
                 </div>
 
                 <div className='space-y-3'>
                   <div className='space-y-1'>
-                    <label htmlFor='bunkerUri' className='text-xs font-medium text-gray-700 dark:text-gray-300'>
+                    <label htmlFor='bunkerUri' className='text-xs font-medium text-foreground'>
                       Bunker Connection URI
                     </label>
                     <Input
                       id='bunkerUri'
                       value={bunkerUri}
                       onChange={(e) => setBunkerUri(e.target.value)}
-                      className='rounded-lg border-gray-300 dark:border-gray-600 focus-visible:ring-[#086c81] focus-visible:border-[#086c81] h-9 bg-white/50 dark:bg-gray-900/50 text-sm'
+                      className='rounded-lg focus-visible:ring-primary focus-visible:border-primary h-9 text-sm'
                       placeholder='bunker://...'
                     />
                     {bunkerUri && !bunkerUri.startsWith('bunker://') && (
-                      <div className='flex items-center gap-2 text-red-500 text-xs mt-1'>
-                        <div className="w-1 h-1 bg-red-500 rounded-full" />
+                      <div className='flex items-center gap-2 text-destructive text-xs mt-1'>
+                        <div className="w-1 h-1 bg-destructive rounded-full" />
                         URI must start with "bunker://"
                       </div>
                     )}
                   </div>
 
                   <Button
-                    className='w-full rounded-lg py-2 h-9 bg-[#086c81] hover:bg-[#054e5a] text-white shadow-lg hover:shadow-xl transition-all duration-200 font-medium text-sm'
+                    className='w-full rounded-lg py-2 h-9 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200 font-medium text-sm'
                     onClick={handleBunkerLogin}
                     disabled={isLoading || !bunkerUri.trim() || !bunkerUri.startsWith('bunker://')}
                   >
@@ -276,18 +276,18 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onClose, onLogin, onS
                   </Button>
                 </div>
               </div>
-            </TabsContent></Tabs>          <div className='text-center pt-4 border-t border-gray-200 dark:border-gray-700'>
+            </TabsContent></Tabs>          <div className='text-center pt-4 border-t border-border'>
             <div className="space-y-2">
-              <p className='text-xs text-gray-600 dark:text-gray-400'>
+              <p className='text-xs text-muted-foreground'>
                 New to Nostr?{' '}
                 <button
                   onClick={handleSignupClick}
-                  className='text-[#086c81] hover:text-[#022229] dark:text-[#086c81] dark:hover:text-[#cbdde1] font-semibold hover:underline transition-colors duration-200'
+                  className='text-primary hover:text-primary/80 font-semibold hover:underline transition-colors duration-200'
                 >
                   Create your identity
                 </button>
               </p>
-              <p className='text-xs text-gray-500 dark:text-gray-500 leading-relaxed'>
+              <p className='text-xs text-muted-foreground leading-relaxed'>
                 Your keys, your identity, your data. Welcome to the decentralized future.
               </p>
             </div>
