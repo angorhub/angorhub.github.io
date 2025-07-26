@@ -336,8 +336,8 @@ export class ProjectStatsService {
   async getNetworkSupply(network: NetworkType = 'mainnet'): Promise<any> {
     try {
       const baseUrl = network === 'mainnet' 
-        ? 'https://explorer.angor.io/' 
-        : 'https://tbtc.indexer.angor.io/';
+        ? 'https://fulcrum.angor.online/' 
+        : 'https://test.indexer.angor.io/';
       
       const response = await fetch(`${baseUrl}api/insight/supply`);
       if (!response.ok) {

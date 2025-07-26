@@ -218,8 +218,8 @@ export interface IndexerConfig {
 // Constants - Multi-indexer configuration
 export const ANGOR_INDEXER_CONFIG: IndexerConfig = {
   mainnet: [
-    { url: 'https://indexer.angor.io/', isPrimary: true },
-    { url: 'https://fulcrum.angor.online/', isPrimary: false },
+    { url: 'https://indexer.angor.io/', isPrimary: false },
+    { url: 'https://fulcrum.angor.online/', isPrimary: true },
     { url: 'https://electrs.angor.online/', isPrimary: false },
     { url: 'https://cyphermunkhouse.angor.online/', isPrimary: false },
     { url: 'https://indexer.angor.fund/', isPrimary: false }
