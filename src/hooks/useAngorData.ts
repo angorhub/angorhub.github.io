@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState, useCallback } from 'react';
 import { angorData } from '@/services/angorData';
-import { angorIndexer } from '@/services/angorIndexer';
+import { AngorIndexerService } from '@/services/angorIndexer';
 import { useNetwork } from '@/contexts/NetworkContext';
 import { useCurrentIndexer } from '@/hooks/useCurrentIndexer';
 import type { IndexedProject, ProjectFilters } from '@/types/angor';
@@ -61,7 +61,10 @@ export function useAngorProject(projectId: string | undefined) {
     queryKey: ['angor-project', projectId, network, primaryUrl],
     queryFn: async () => {
       if (!projectId) return null;
-      return angorIndexer.getProject(projectId, network);
+      
+      // Create indexer instance with current primary URL
+      const indexerService = new AngorIndexerService(primaryUrl);
+      return indexerService.getProject(projectId, network);
     },
     enabled: !!projectId,
     staleTime: 5 * 60 * 1000,
@@ -79,7 +82,10 @@ export function useAngorProjectStats(projectId: string | undefined) {
     queryKey: ['angor-project-stats', projectId, network, primaryUrl],
     queryFn: async () => {
       if (!projectId) return null;
-      return angorIndexer.getProjectStats(projectId, network);
+      
+      // Create indexer instance with current primary URL
+      const indexerService = new AngorIndexerService(primaryUrl);
+      return indexerService.getProjectStats(projectId, network);
     },
     enabled: !!projectId,
     staleTime: 2 * 60 * 1000, // More frequent updates for stats
@@ -98,7 +104,10 @@ export function useAngorProjectInvestments(projectId: string | undefined) {
     queryKey: ['angor-project-investments', projectId, network, primaryUrl],
     queryFn: async () => {
       if (!projectId) return [];
-      return angorIndexer.getProjectInvestments(projectId, network);
+      
+      // Create indexer instance with current primary URL
+      const indexerService = new AngorIndexerService(primaryUrl);
+      return indexerService.getProjectInvestments(projectId, network);
     },
     enabled: !!projectId,
     staleTime: 1 * 60 * 1000, // 1 minute
@@ -114,7 +123,10 @@ export function useAngorProjectSearch(query: string, limit: number = 20) {
     queryKey: ['angor-project-search', query, limit, network, primaryUrl],
     queryFn: async () => {
       if (!query.trim()) return [];
-      return angorIndexer.searchProjects(query, limit, network);
+      
+      // Create indexer instance with current primary URL
+      const indexerService = new AngorIndexerService(primaryUrl);
+      return indexerService.searchProjects(query, limit, network);
     },
     enabled: !!query.trim(),
     staleTime: 2 * 60 * 1000,

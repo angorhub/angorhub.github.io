@@ -9,6 +9,11 @@ export class AngorIndexerService {
     this.customBaseUrl = customBaseUrl;
   }
 
+  // Method to update the custom base URL (for primary indexer)
+  updateBaseUrl(baseUrl: string) {
+    this.customBaseUrl = baseUrl;
+  }
+
   private getBaseUrl(network: NetworkType): string {
     // Use custom base URL if provided (from useCurrentIndexer hook)
     if (this.customBaseUrl) {
