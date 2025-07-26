@@ -88,7 +88,7 @@ export function AngorLayout({ children }: AngorLayoutProps) {
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate('/')}
-                className="text-muted-foreground hover:text-foreground"
+                className="text-muted-foreground"
               >
                 <Home className="w-5 h-5 mr-2" />
                 Angor Hub
@@ -103,7 +103,7 @@ export function AngorLayout({ children }: AngorLayoutProps) {
                   variant="ghost"
                   size="sm"
                   onClick={toggleSearch}
-                  className="text-muted-foreground hover:text-foreground"
+                  className="text-muted-foreground"
                 >
                   <Search className="w-5 h-5" />
                 </Button>
@@ -113,7 +113,7 @@ export function AngorLayout({ children }: AngorLayoutProps) {
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate('/settings')}
-                className="text-muted-foreground hover:text-foreground"
+                className="text-muted-foreground"
               >
               <Settings className="w-5 h-5" />
               </Button>
