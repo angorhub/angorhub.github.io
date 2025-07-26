@@ -27,6 +27,7 @@ import { useIndexer } from '@/contexts/IndexerContext';
 import { useRelay } from '@/hooks/useRelay';
 import { useSettings } from '@/hooks/useSettings';
 import { NetworkSelector } from '@/components/NetworkSelector';
+import { IndexerStatusCard } from '@/components/IndexerStatusCard';
 
 export function SettingsPage() {
   const { theme, setTheme } = useTheme();
@@ -417,6 +418,9 @@ export function SettingsPage() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Indexer Health Status */}
+            <IndexerStatusCard />
 
             <Card>
               <CardHeader>
