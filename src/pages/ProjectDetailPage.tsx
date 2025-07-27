@@ -701,7 +701,7 @@ export function ProjectDetailPage() {
                               className="w-full"
                             >
                               <Zap className="h-5 w-5 mr-2" />
-                              Send Zap ⚡
+                              Send Zap
                             </Button>
                           }
                         />
@@ -743,7 +743,7 @@ export function ProjectDetailPage() {
                               className="w-full"
                             >
                               <Zap className="h-5 w-5 mr-2" />
-                              Send Zap ⚡
+                              Send Zap
                             </Button>
                           }
                         />
@@ -977,7 +977,7 @@ export function ProjectDetailPage() {
             )}
 
             {/* Project Seeders Information - Responsive */}
-            {additionalData?.project?.projectSeeders && (
+            {/* {additionalData?.project?.projectSeeders && (
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg sm:text-xl">Project Seeders Configuration</CardTitle>
@@ -1001,7 +1001,7 @@ export function ProjectDetailPage() {
                   </div>
                 </CardContent>
               </Card>
-            )}
+            )} */}
 
             {/* Media Gallery - Enhanced Responsive Layout */}
             {(hasGallery(mediaData) || hasGallery(additionalData?.media) || (additionalData?.media && Array.isArray(additionalData.media) && additionalData.media.length > 0)) && (
