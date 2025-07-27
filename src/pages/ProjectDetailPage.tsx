@@ -559,7 +559,18 @@ export function ProjectDetailPage() {
           </TabsContent>
 
           <TabsContent value="faq">
-            <FAQTab additionalData={undefined} />
+            <FAQTab additionalData={{
+              faq: (() => {
+                // Handle different FAQ data structures
+                if (Array.isArray(additionalData?.faq)) {
+                  return additionalData.faq;
+                }
+                if (additionalData?.faq && typeof additionalData.faq === 'object' && 'questions' in additionalData.faq) {
+                  return (additionalData.faq as { questions: { question: string; answer: string; }[] }).questions;
+                }
+                return [];
+              })()
+            }} />
           </TabsContent>
 
           <TabsContent value="investors">
@@ -571,7 +582,21 @@ export function ProjectDetailPage() {
 
           <TabsContent value="team">
             <TeamTab 
-              additionalData={undefined}
+              additionalData={{
+                members: (() => {
+                  if (additionalData?.members && typeof additionalData.members === 'object') {
+                    const members = additionalData.members as { team?: { pubkey: string; name?: string; role?: string; bio?: string; picture?: string; }[]; pubkeys?: string[]; };
+                    return {
+                      pubkeys: members.pubkeys || members.team?.map(m => m.pubkey) || [],
+                      team: members.team?.map(m => ({
+                        ...m,
+                        role: m.role || 'Team Member'
+                      })) || []
+                    };
+                  }
+                  return { pubkeys: [], team: [] };
+                })()
+              }}
               TeamMemberProfile={TeamMemberProfile}
             />
           </TabsContent>

@@ -281,15 +281,15 @@ export function ProjectComments({ projectId, nostrPubKey }: ProjectCommentsProps
         <Separator />
 
         {/* Comments List */}
-        <div className="space-y-4">
+        <div className="space-y-6">
           {isLoading ? (
-            <div className="space-y-4">
+            <div className="space-y-6">
               {[...Array(3)].map((_, i) => (
                 <CommentSkeleton key={i} />
               ))}
             </div>
           ) : comments.length === 0 ? (
-            <div className="text-center py-8 space-y-3">
+            <div className="text-center py-12 space-y-3">
               <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto" />
               <div className="font-medium text-muted-foreground">No comments yet</div>
               <div className="text-sm text-muted-foreground">
@@ -297,7 +297,7 @@ export function ProjectComments({ projectId, nostrPubKey }: ProjectCommentsProps
               </div>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-6">
               {mainComments.map((comment) => (
                 <CommentItem
                   key={comment.id}
@@ -355,9 +355,9 @@ function CommentItem({
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {/* Main Comment */}
-      <div className="flex items-start space-x-3">
+      <div className="flex items-start space-x-3 p-4 bg-card/50 border rounded-lg">
         <Avatar className="h-8 w-8 flex-shrink-0">
           <AvatarImage src={metadata?.picture} />
           <AvatarFallback className="text-xs">
@@ -365,9 +365,9 @@ function CommentItem({
           </AvatarFallback>
         </Avatar>
         
-        <div className="flex-1 space-y-2">
+        <div className="flex-1 space-y-2 min-w-0">
           <div className="flex items-center space-x-2">
-            <span className="font-medium text-sm">
+            <span className="font-medium text-sm truncate max-w-32">
               {metadata?.display_name || metadata?.name || 'Anonymous'}
             </span>
             <span className="text-xs text-muted-foreground">
@@ -380,8 +380,12 @@ function CommentItem({
             )}
           </div>
           
-          <div className="prose prose-sm max-w-none">
-            <MarkdownRenderer content={comment.content} />
+          <div className="bg-card border rounded-lg p-3 break-words overflow-hidden comment-box">
+            <div className="prose prose-sm max-w-none comment-text">
+              <div className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+                <MarkdownRenderer content={comment.content} />
+              </div>
+            </div>
           </div>
           
           <div className="flex items-center space-x-4">
@@ -406,7 +410,7 @@ function CommentItem({
         {isOwn && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+              <Button variant="ghost" size="sm" className="h-6 w-6 p-0 flex-shrink-0">
                 <MoreHorizontal className="h-3 w-3" />
               </Button>
             </DropdownMenuTrigger>
@@ -426,7 +430,7 @@ function CommentItem({
 
       {/* Reply Input */}
       {replyTo === comment.id && (
-        <div className="ml-11 space-y-2">
+        <div className="ml-4 pl-4 border-l-2 border-muted/50 space-y-2">
           <Textarea
             placeholder="Write a reply..."
             value={replyContent}
@@ -475,7 +479,7 @@ function CommentItem({
 
       {/* Replies */}
       {replies.length > 0 && (
-        <div className="ml-11 space-y-3 border-l-2 border-muted pl-4">
+        <div className="ml-4 pl-4 space-y-3 border-l-2 border-muted/50">
           {replies.map((reply) => (
             <CommentReply key={reply.id} comment={reply} currentUser={currentUser} />
           ))}
@@ -500,7 +504,7 @@ function CommentReply({ comment, currentUser }: { comment: NostrComment; current
   };
 
   return (
-    <div className="flex items-start space-x-3">
+    <div className="flex items-start space-x-3 p-3 bg-muted/20 border rounded-md">
       <Avatar className="h-6 w-6 flex-shrink-0">
         <AvatarImage src={metadata?.picture} />
         <AvatarFallback className="text-xs">
@@ -508,9 +512,9 @@ function CommentReply({ comment, currentUser }: { comment: NostrComment; current
         </AvatarFallback>
       </Avatar>
       
-      <div className="flex-1 space-y-1">
+      <div className="flex-1 space-y-1 min-w-0">
         <div className="flex items-center space-x-2">
-          <span className="font-medium text-xs">
+          <span className="font-medium text-xs truncate max-w-24">
             {metadata?.display_name || metadata?.name || 'Anonymous'}
           </span>
           <span className="text-xs text-muted-foreground">
@@ -523,8 +527,12 @@ function CommentReply({ comment, currentUser }: { comment: NostrComment; current
           )}
         </div>
         
-        <div className="prose prose-xs max-w-none">
-          <MarkdownRenderer content={comment.content} />
+        <div className="bg-muted/30 border rounded-md p-2 break-words overflow-hidden comment-box">
+          <div className="prose prose-xs max-w-none comment-text">
+            <div className="whitespace-pre-wrap break-words text-xs leading-relaxed">
+              <MarkdownRenderer content={comment.content} />
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -534,16 +542,19 @@ function CommentReply({ comment, currentUser }: { comment: NostrComment; current
 // Skeleton Component
 function CommentSkeleton() {
   return (
-    <div className="flex items-start space-x-3">
-      <div className="h-8 w-8 bg-muted rounded-full animate-pulse" />
-      <div className="flex-1 space-y-2">
+    <div className="flex items-start space-x-3 p-4 bg-card/50 border rounded-lg">
+      <div className="h-8 w-8 bg-muted rounded-full animate-pulse flex-shrink-0" />
+      <div className="flex-1 space-y-3 min-w-0">
         <div className="flex items-center space-x-2">
           <div className="h-3 w-20 bg-muted rounded animate-pulse" />
           <div className="h-3 w-16 bg-muted rounded animate-pulse" />
         </div>
-        <div className="space-y-1">
-          <div className="h-3 w-full bg-muted rounded animate-pulse" />
-          <div className="h-3 w-3/4 bg-muted rounded animate-pulse" />
+        <div className="bg-card border rounded-lg p-3">
+          <div className="space-y-2">
+            <div className="h-3 w-full bg-muted rounded animate-pulse" />
+            <div className="h-3 w-3/4 bg-muted rounded animate-pulse" />
+            <div className="h-3 w-1/2 bg-muted rounded animate-pulse" />
+          </div>
         </div>
         <div className="h-3 w-12 bg-muted rounded animate-pulse" />
       </div>
