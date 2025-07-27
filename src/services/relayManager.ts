@@ -15,7 +15,7 @@ export class RelayManager {
   private relays: RelayConfig[] = [];
   private connections: Map<string, WebSocket> = new Map();
   private options: RelayManagerOptions;
-  private eventListeners: Map<string, Set<(event: any) => void>> = new Map();
+  private eventListeners: Map<string, Set<(event: Record<string, unknown>) => void>> = new Map();
 
   constructor(options: RelayManagerOptions) {
     this.options = options;
@@ -141,7 +141,7 @@ export class RelayManager {
     }
   }
 
-  private handleRelayMessage(relayUrl: string, message: any): void {
+  private handleRelayMessage(relayUrl: string, message: unknown[]): void {
     // Handle different types of Nostr messages
     if (Array.isArray(message)) {
       const [type, ...data] = message;
@@ -163,29 +163,29 @@ export class RelayManager {
     }
   }
 
-  public subscribe(eventType: string, callback: (event: any) => void): void {
+  public subscribe(eventType: string, callback: (event: Record<string, unknown>) => void): void {
     if (!this.eventListeners.has(eventType)) {
       this.eventListeners.set(eventType, new Set());
     }
     this.eventListeners.get(eventType)!.add(callback);
   }
 
-  public unsubscribe(eventType: string, callback: (event: any) => void): void {
+  public unsubscribe(eventType: string, callback: (event: Record<string, unknown>) => void): void {
     const listeners = this.eventListeners.get(eventType);
     if (listeners) {
       listeners.delete(callback);
     }
   }
 
-  private notifyEventListeners(eventType: string, data: any): void {
+  private notifyEventListeners(eventType: string, data: Record<string, unknown>): void {
     const listeners = this.eventListeners.get(eventType);
     if (listeners) {
       listeners.forEach(callback => callback(data));
     }
   }
 
-  public async queryEvents(filter: any, timeoutMs: number = 5000): Promise<any[]> {
-    const events: any[] = [];
+  public async queryEvents(filter: Record<string, unknown>, timeoutMs: number = 5000): Promise<Record<string, unknown>[]> {
+    const events: Record<string, unknown>[] = [];
     const subscriptionId = Math.random().toString(36).substring(7);
     
     return new Promise((resolve, reject) => {
@@ -202,13 +202,13 @@ export class RelayManager {
         return;
       }
 
-      const handleEvent = (data: any) => {
+      const handleEvent = (data: Record<string, unknown>) => {
         if (data.subscriptionId === subscriptionId) {
-          events.push(data.event);
+          events.push(data.event as Record<string, unknown>);
         }
       };
 
-      const handleEose = (data: any) => {
+      const handleEose = (data: Record<string, unknown>) => {
         if (data.subscriptionId === subscriptionId) {
           eoseCount++;
           if (eoseCount >= connectedRelays.length) {
@@ -241,7 +241,7 @@ export class RelayManager {
     });
   }
 
-  public async publishEvent(event: any): Promise<boolean> {
+  public async publishEvent(event: Record<string, unknown>): Promise<boolean> {
     const promises = Array.from(this.connections.values()).map(ws => {
       return new Promise<boolean>((resolve) => {
         if (ws.readyState === WebSocket.OPEN) {

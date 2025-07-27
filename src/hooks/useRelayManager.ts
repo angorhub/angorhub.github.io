@@ -155,12 +155,12 @@ export function useRelayManager() {
   }, [relayManager, queryClient]);
 
   // Query events from relays
-  const queryEvents = useCallback(async (filter: any, timeoutMs: number = 5000) => {
+  const queryEvents = useCallback(async (filter: Record<string, unknown>, timeoutMs: number = 5000) => {
     return await relayManager.queryEvents(filter, timeoutMs);
   }, [relayManager]);
 
   // Publish event to relays
-  const publishEvent = useCallback(async (event: any) => {
+  const publishEvent = useCallback(async (event: Record<string, unknown>) => {
     return await relayManager.publishEvent(event);
   }, [relayManager]);
 
@@ -208,7 +208,7 @@ export function useRelayConnectivity() {
 /**
  * Hook for querying Nostr events across relays
  */
-export function useNostrQuery(filter: any, options: { enabled?: boolean; timeout?: number } = {}) {
+export function useNostrQuery(filter: Record<string, unknown>, options: { enabled?: boolean; timeout?: number } = {}) {
   const { enabled = true, timeout = 5000 } = options;
   const { queryEvents } = useRelayManager();
 
@@ -228,7 +228,7 @@ export function useNostrPublish() {
   const { publishEvent } = useRelayManager();
 
   return useMutation({
-    mutationFn: async (event: any) => {
+    mutationFn: async (event: Record<string, unknown>) => {
       const success = await publishEvent(event);
       if (!success) {
         throw new Error('Failed to publish event to any relay');

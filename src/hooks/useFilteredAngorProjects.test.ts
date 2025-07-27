@@ -11,7 +11,7 @@ vi.mock('@/services/denyService', () => ({
     isLoading: false,
     error: null,
   }),
-  filterDeniedProjects: (projects: any[], denyService: any) => {
+  filterDeniedProjects: (projects: AngorProject[], denyService: { isDenied: (id: string) => boolean }) => {
     return projects.filter(project => !denyService.isDenied(project.projectIdentifier));
   },
 }));
