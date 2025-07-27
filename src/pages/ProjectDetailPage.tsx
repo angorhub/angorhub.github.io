@@ -10,6 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { ZapForm } from '@/components/ZapForm';
+import { ProjectComments } from '@/components/ProjectComments';
 import { useToast } from '@/hooks/useToast';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useNostrPublish } from '@/hooks/useNostrPublish';
@@ -1259,6 +1260,14 @@ export function ProjectDetailPage() {
           </TabsContent>
 
         </Tabs>
+
+        {/* Project Comments Section */}
+        <div className="mt-8">
+          <ProjectComments 
+            projectId={projectId || ''} 
+            nostrPubKey={nostrPubKey} 
+          />
+        </div>
       </div>
     </div>
   );
