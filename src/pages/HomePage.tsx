@@ -402,7 +402,7 @@ export function HomePage() {
       )}
 
       {/* Main Content */}
-      <div className={`container mx-auto px-4 pb-20 ${!isSearchOpen ? 'pt-8' : ''}`}>
+      <div className={`container mx-auto px-4 pb-20 ${!isSearchOpen ? 'pt-4' : ''}`}>
         {error ? (
           <div className="text-center py-20 max-w-lg mx-auto">
             <div className="text-red-500 mb-4">

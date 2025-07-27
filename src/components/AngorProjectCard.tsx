@@ -113,7 +113,7 @@ export function AngorProjectCard({ project }: AngorProjectCardProps) {
   };
 
   return (
-    <Card className="hover:shadow-lg transition-all duration-200 group overflow-hidden cursor-pointer" onClick={handleViewProject}>
+    <Card className="hover:shadow-lg transition-all duration-200 group overflow-hidden cursor-pointer py-0" onClick={handleViewProject}>
       <CardContent className="p-4">
         {/* Header with Avatar and Title */}
         <div className="flex items-start gap-3 mb-3">
