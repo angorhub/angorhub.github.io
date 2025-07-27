@@ -47,6 +47,7 @@ export interface ProjectStats {
 export interface ProjectDetails {
   targetAmount?: number;
   startDate?: number;
+  endDate?: number;
   expiryDate?: number;
   nostrPubKey?: string;
   projectIdentifier?: string;
@@ -268,6 +269,7 @@ export interface NostrProjectDetails {
   projectIdentifier?: string;
   nostrPubKey?: string;
   startDate?: number;
+  endDate?: number;
   penaltyDays?: number;
   expiryDate?: number;
   targetAmount?: number;

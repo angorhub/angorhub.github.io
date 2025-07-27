@@ -855,7 +855,33 @@ export function ProjectDetailPage() {
                             new Date(project.details.startDate * 1000).toLocaleDateString('en-US', {
                               year: 'numeric',
                               month: 'long',
-                              day: 'numeric'
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            }) : 'N/A'
+                          )
+                        }
+                      </div>
+                    </div>
+
+                   <div className="space-y-3">
+                      <Label className="text-sm font-medium">End Date</Label>
+                      <div className="text-sm text-muted-foreground p-2 bg-muted rounded">
+                        {(nostrProjectData?.projectDetails?.endDate || additionalData?.project?.endDate) ?
+                          new Date(((nostrProjectData?.projectDetails?.endDate || additionalData?.project?.endDate) ?? 0) * 1000).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          }) :
+                          (project?.details?.endDate ?
+                            new Date(project.details.endDate * 1000).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
                             }) : 'N/A'
                           )
                         }
@@ -877,7 +903,9 @@ export function ProjectDetailPage() {
                             new Date(project.details.expiryDate * 1000).toLocaleDateString('en-US', {
                               year: 'numeric',
                               month: 'long',
-                              day: 'numeric'
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
                             }) : 'N/A'
                           )
                         }
