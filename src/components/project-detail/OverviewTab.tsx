@@ -1,10 +1,8 @@
 import { 
   ProjectDescription,
   ProjectTechnicalDetails,
-  ProjectMediaGallery,
   ProjectDescriptionSkeleton,
   ProjectTechnicalDetailsSkeleton,
-  ProjectMediaGallerySkeleton
 } from '.';
 import type { 
   NostrProfile, 
@@ -18,7 +16,6 @@ export function OverviewTabSkeleton() {
     <div className="space-y-6">
       <ProjectDescriptionSkeleton />
       <ProjectTechnicalDetailsSkeleton />
-      <ProjectMediaGallerySkeleton />
     </div>
   );
 }
@@ -98,7 +95,6 @@ export function OverviewTab({
   indexerProject,
   nostrProjectData,
   stats,
-  mediaData,
   formatBTC
 }: OverviewTabProps) {
   return (
@@ -120,11 +116,7 @@ export function OverviewTab({
         formatBTC={formatBTC}
       />
 
-      {/* Project Media Gallery Component */}
-      <ProjectMediaGallery
-        additionalData={additionalData}
-        mediaData={mediaData}
-      />
+
     </div>
   );
 }

@@ -10,6 +10,8 @@ import {
   ProjectBannerSkeleton,
   ProjectHeader, 
   ProjectHeaderSkeleton,
+  ProjectMediaSlider,
+  ProjectMediaSliderSkeleton,
   SupportProject, 
   SupportProjectSkeleton,
   FundingProgress,
@@ -28,7 +30,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useNostrPublish } from '@/hooks/useNostrPublish';
 import { useNostr } from '@/hooks/useNostr';
 import { useMiniApp } from '@/hooks/useMiniApp';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { nip19 } from 'nostr-tools';
 import { ArrowLeft, AlertCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
@@ -161,7 +163,6 @@ export function ProjectDetailPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'overview');
-  const [isLiking, setIsLiking] = useState(false);
 
   // User and Nostr hooks
   const { user } = useCurrentUser();
@@ -169,6 +170,7 @@ export function ProjectDetailPage() {
   const { toast } = useToast();
   const { nostr } = useNostr();
   const { isMiniApp } = useMiniApp();
+  const queryClient = useQueryClient();
 
   // Network and settings
   const { network } = useNetwork();
@@ -271,6 +273,84 @@ export function ProjectDetailPage() {
   // EVENT HANDLERS
   // ============================================================================
 
+  // Like mutation with optimistic updates
+  const likeMutation = useMutation({
+    mutationFn: async ({ isCurrentlyLiked }: { isCurrentlyLiked: boolean }) => {
+      if (!user) {
+        throw new Error("Login Required");
+      }
+
+      if (!nostrPubKey) {
+        throw new Error("Project Nostr public key not found");
+      }
+
+      // Publish the like/unlike event
+      return new Promise<void>((resolve) => {
+        publishEvent({
+          kind: 7,
+          content: isCurrentlyLiked ? "-" : "+", // Toggle like/unlike
+          created_at: Math.floor(Date.now() / 1000),
+          tags: [["p", nostrPubKey]]
+        });
+        
+        // Simulate async operation
+        setTimeout(() => {
+          resolve();
+        }, 100);
+      });
+    },
+    onMutate: async ({ isCurrentlyLiked }) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['projectLikes', nostrPubKey] });
+      
+      // Snapshot the previous value
+      const previousLikes = queryClient.getQueryData(['projectLikes', nostrPubKey]);
+      
+      // Optimistically update to the new value
+      queryClient.setQueryData(['projectLikes', nostrPubKey], (old: { likes: unknown[]; count: number; userHasLiked: boolean } | undefined) => {
+        if (!old) return { likes: [], count: 0, userHasLiked: false };
+        
+        const newCount = isCurrentlyLiked ? old.count - 1 : old.count + 1;
+        return {
+          ...old,
+          count: Math.max(0, newCount), // Ensure count doesn't go negative
+          userHasLiked: !isCurrentlyLiked
+        };
+      });
+      
+      // Return a context object with the snapshotted value
+      return { previousLikes };
+    },
+    onError: (_err, _variables, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousLikes) {
+        queryClient.setQueryData(['projectLikes', nostrPubKey], context.previousLikes);
+      }
+      
+      toast({
+        title: "Like Failed",
+        description: "Could not send like. Please try again.",
+        variant: "destructive"
+      });
+    },
+    onSuccess: (_data, { isCurrentlyLiked }) => {
+      toast({
+        title: isCurrentlyLiked ? "Unliked" : "Liked!",
+        description: isCurrentlyLiked ? "You unliked this project" : "You liked this project",
+      });
+      
+      // Refetch after a delay to sync with server
+      setTimeout(() => {
+        refetchLikes();
+      }, 2000);
+    },
+    onSettled: () => {
+      // Always refetch after error or success to ensure we have the latest data
+      // This is commented out to avoid immediate refetch that would override optimistic update
+      // queryClient.invalidateQueries({ queryKey: ['projectLikes', nostrPubKey] });
+    },
+  });
+
   // Handle like functionality
   const handleLike = async () => {
     if (!user) {
@@ -291,35 +371,8 @@ export function ProjectDetailPage() {
       return;
     }
 
-    setIsLiking(true);
-    try {
-      const isCurrentlyLiked = projectLikes?.userHasLiked || false;
-      
-      publishEvent({
-        kind: 7,
-        content: isCurrentlyLiked ? "-" : "+", // Toggle like/unlike
-        created_at: Math.floor(Date.now() / 1000),
-        tags: [["p", nostrPubKey]]
-      });
-      
-      // Refetch likes after a short delay
-      setTimeout(() => {
-        refetchLikes();
-      }, 1000);
-
-      toast({
-        title: isCurrentlyLiked ? "Unliked" : "Liked!",
-        description: isCurrentlyLiked ? "You unliked this project" : "You liked this project",
-      });
-    } catch {
-      toast({
-        title: "Like Failed",
-        description: "Could not send like. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLiking(false);
-    }
+    const isCurrentlyLiked = projectLikes?.userHasLiked || false;
+    likeMutation.mutate({ isCurrentlyLiked });
   };
 
   // Handle share functionality
@@ -408,6 +461,9 @@ export function ProjectDetailPage() {
               {/* Header Skeleton */}
               <ProjectHeaderSkeleton />
 
+              {/* Media Slider Skeleton */}
+              <ProjectMediaSliderSkeleton />
+
               {/* Funding Progress Skeleton */}
               <FundingProgressSkeleton />
 
@@ -473,6 +529,82 @@ export function ProjectDetailPage() {
     upcoming: 'bg-yellow-500',
   }[stats?.status || 'active'];
 
+  // Extract media items from project data
+  const extractMediaItems = () => {
+    const mediaItems: Array<{ type: 'image' | 'video' | 'youtube'; url: string; thumbnail?: string; alt?: string }> = [];
+    
+    // Helper function to detect YouTube URLs
+    const isYouTubeUrl = (url: string) => {
+      return /(?:https?:\/\/)?(?:www\.)?(youtube\.com|youtu\.be)/.test(url);
+    };
+    
+    // From project media data
+    if (mediaData) {
+      if (mediaData.images) {
+        mediaData.images.forEach(imageUrl => {
+          mediaItems.push({ type: 'image', url: imageUrl, alt: 'Project image' });
+        });
+      }
+      if (mediaData.videos) {
+        mediaData.videos.forEach(videoUrl => {
+          const type = isYouTubeUrl(videoUrl) ? 'youtube' : 'video';
+          mediaItems.push({ type, url: videoUrl, alt: 'Project video' });
+        });
+      }
+    }
+    
+    // From project gallery/media in additional data
+    if (additionalData?.media) {
+      const media = additionalData.media as unknown[];
+      if (Array.isArray(media)) {
+        media.forEach(item => {
+          if (typeof item === 'string') {
+            // Check if it's YouTube first
+            if (isYouTubeUrl(item)) {
+              mediaItems.push({ 
+                type: 'youtube', 
+                url: item, 
+                alt: 'Project YouTube video' 
+              });
+            } else {
+              // Determine type by URL extension
+              const isVideo = /\.(mp4|webm|ogg|mov)$/i.test(item);
+              mediaItems.push({ 
+                type: isVideo ? 'video' : 'image', 
+                url: item, 
+                alt: `Project ${isVideo ? 'video' : 'image'}` 
+              });
+            }
+          } else if (item && typeof item === 'object') {
+            const mediaItem = item as Record<string, unknown>;
+            const url = (mediaItem.url || mediaItem.src || '') as string;
+            
+            // Check if object URL is YouTube
+            if (isYouTubeUrl(url)) {
+              mediaItems.push({ 
+                type: 'youtube', 
+                url, 
+                thumbnail: mediaItem.thumbnail as string,
+                alt: (mediaItem.alt || mediaItem.description || 'Project YouTube video') as string
+              });
+            } else {
+              mediaItems.push({ 
+                type: (mediaItem.type as 'image' | 'video') || 'image', 
+                url, 
+                thumbnail: mediaItem.thumbnail as string,
+                alt: (mediaItem.alt || mediaItem.description || 'Project media') as string
+              });
+            }
+          }
+        });
+      }
+    }
+    
+    return mediaItems;
+  };
+
+  const mediaItems = extractMediaItems();
+
   return (
     <div className="min-h-screen bg-background">
       {/* Project Banner - Responsive */}
@@ -507,11 +639,16 @@ export function ProjectDetailPage() {
               project={project}
               stats={stats || undefined}
               projectLikes={projectLikes}
-              isLiking={isLiking}
+              isLiking={likeMutation.isPending}
               statusColor={statusColor}
               onLike={handleLike}
               onShare={handleShare}
             />
+
+            {/* Media Slider - Show if media exists */}
+            {mediaItems.length > 0 && (
+              <ProjectMediaSlider media={mediaItems} />
+            )}
 
             {/* Funding Progress - Enhanced Mobile Layout */}
             <FundingProgress

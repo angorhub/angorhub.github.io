@@ -11,7 +11,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useNostrPublish } from '@/hooks/useNostrPublish';
 import { useNostr } from '@/hooks/useNostr';
 import { useAuthor } from '@/hooks/useAuthor';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   MessageCircle, 
   Send, 
@@ -42,7 +42,6 @@ interface ProjectCommentsProps {
 
 export function ProjectComments({ projectId, nostrPubKey }: ProjectCommentsProps) {
   const [newComment, setNewComment] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [replyTo, setReplyTo] = useState<string | null>(null);
   const [replyContent, setReplyContent] = useState('');
   
@@ -50,6 +49,7 @@ export function ProjectComments({ projectId, nostrPubKey }: ProjectCommentsProps
   const { mutate: publishEvent } = useNostrPublish();
   const { nostr } = useNostr();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // Fetch comments for this project
   const { data: comments = [], isLoading, refetch } = useQuery({
@@ -93,7 +93,116 @@ export function ProjectComments({ projectId, nostrPubKey }: ProjectCommentsProps
       }
     },
     enabled: !!(projectId || nostrPubKey),
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 10000, // Refetch every 10 seconds for real-time updates
+  });
+
+  // Comment mutation with optimistic updates
+  const commentMutation = useMutation({
+    mutationFn: async ({ content, replyToId }: { content: string; replyToId?: string }) => {
+      if (!user) {
+        throw new Error("Login Required");
+      }
+
+      const tags = [
+        ['t', `angor:project:${projectId}`], // Tag with project
+      ];
+
+      // Add project creator reference if available
+      if (nostrPubKey) {
+        tags.push(['p', nostrPubKey]);
+      }
+
+      // Add reply reference if this is a reply
+      if (replyToId) {
+        tags.push(['e', replyToId, '', 'reply']);
+      }
+
+      // Publish the comment event
+      return new Promise<NostrComment>((resolve) => {
+        const tempId = `temp_${Date.now()}_${Math.random()}`;
+        const createdAt = Math.floor(Date.now() / 1000);
+        
+        publishEvent({
+          kind: 1,
+          content: content.trim(),
+          created_at: createdAt,
+          tags
+        });
+        
+        // Return the optimistic comment
+        setTimeout(() => {
+          resolve({
+            id: tempId,
+            content: content.trim(),
+            created_at: createdAt,
+            pubkey: user.pubkey,
+            tags,
+            replyTo: replyToId,
+          });
+        }, 100);
+      });
+    },
+    onMutate: async ({ content, replyToId }) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['projectComments', projectId, nostrPubKey] });
+      
+      // Snapshot the previous value
+      const previousComments = queryClient.getQueryData(['projectComments', projectId, nostrPubKey]);
+      
+      // Create optimistic comment
+      const optimisticComment: NostrComment = {
+        id: `optimistic_${Date.now()}_${Math.random()}`,
+        content: content.trim(),
+        created_at: Math.floor(Date.now() / 1000),
+        pubkey: user?.pubkey || '',
+        tags: [
+          ['t', `angor:project:${projectId}`],
+          ...(nostrPubKey ? [['p', nostrPubKey]] : []),
+          ...(replyToId ? [['e', replyToId, '', 'reply']] : []),
+        ],
+        replyTo: replyToId,
+      };
+      
+      // Optimistically update the comments
+      queryClient.setQueryData(['projectComments', projectId, nostrPubKey], (old: NostrComment[] | undefined) => {
+        const currentComments = old || [];
+        return [optimisticComment, ...currentComments];
+      });
+      
+      // Return a context object with the snapshotted value
+      return { previousComments };
+    },
+    onError: (_err, _variables, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousComments) {
+        queryClient.setQueryData(['projectComments', projectId, nostrPubKey], context.previousComments);
+      }
+      
+      toast({
+        title: "Comment Failed",
+        description: "Could not post comment. Please try again.",
+        variant: "destructive"
+      });
+    },
+    onSuccess: (_data, { replyToId }) => {
+      toast({
+        title: "Comment Posted! 💬",
+        description: "Your comment has been published",
+      });
+      
+      // Clear the input fields
+      if (replyToId) {
+        setReplyContent('');
+        setReplyTo(null);
+      } else {
+        setNewComment('');
+      }
+      
+      // Refetch after a delay to sync with server and remove optimistic updates
+      setTimeout(() => {
+        refetch();
+      }, 2000);
+    },
   });
 
   const handleSubmitComment = async () => {
@@ -115,52 +224,14 @@ export function ProjectComments({ projectId, nostrPubKey }: ProjectCommentsProps
       return;
     }
 
-    setIsSubmitting(true);
-    try {
-      const tags = [
-        ['t', `angor:project:${projectId}`], // Tag with project
-      ];
-
-      // Add project creator reference if available
-      if (nostrPubKey) {
-        tags.push(['p', nostrPubKey]);
-      }
-
-      publishEvent({
-        kind: 1,
-        content: newComment.trim(),
-        created_at: Math.floor(Date.now() / 1000),
-        tags
-      });
-
-      setNewComment('');
-      
-      // Refetch comments after a short delay
-      setTimeout(() => {
-        refetch();
-      }, 1000);
-
-      toast({
-        title: "Comment Posted! 💬",
-        description: "Your comment has been published",
-      });
-    } catch (error) {
-      console.error('Failed to post comment:', error);
-      toast({
-        title: "Comment Failed",
-        description: "Could not post comment. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    commentMutation.mutate({ content: newComment });
   };
 
-  const handleReply = async (commentId: string) => {
+  const handleSubmitReply = (parentId: string) => {
     if (!user) {
       toast({
         title: "Login Required",
-        description: "Please login to reply",
+        description: "Please login with your Nostr account to reply",
         variant: "destructive"
       });
       return;
@@ -169,51 +240,13 @@ export function ProjectComments({ projectId, nostrPubKey }: ProjectCommentsProps
     if (!replyContent.trim()) {
       toast({
         title: "Empty Reply",
-        description: "Please write something before replying",
+        description: "Please write something before posting",
         variant: "destructive"
       });
       return;
     }
 
-    setIsSubmitting(true);
-    try {
-      const tags = [
-        ['e', commentId], // Reply to specific comment
-        ['t', `angor:project:${projectId}`],
-      ];
-
-      if (nostrPubKey) {
-        tags.push(['p', nostrPubKey]);
-      }
-
-      publishEvent({
-        kind: 1,
-        content: replyContent.trim(),
-        created_at: Math.floor(Date.now() / 1000),
-        tags
-      });
-
-      setReplyContent('');
-      setReplyTo(null);
-      
-      setTimeout(() => {
-        refetch();
-      }, 1000);
-
-      toast({
-        title: "Reply Posted! 💬",
-        description: "Your reply has been published",
-      });
-    } catch (error) {
-      console.error('Failed to post reply:', error);
-      toast({
-        title: "Reply Failed",
-        description: "Could not post reply. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    commentMutation.mutate({ content: replyContent, replyToId: parentId });
   };
 
   // Group comments by thread (main comments vs replies)
@@ -247,7 +280,7 @@ export function ProjectComments({ projectId, nostrPubKey }: ProjectCommentsProps
                 placeholder={user ? "Share your thoughts about this project..." : "Login to join the discussion"}
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                disabled={!user || isSubmitting}
+                disabled={!user || commentMutation.isPending}
                 className="min-h-[80px] resize-none"
                 maxLength={500}
               />
@@ -257,11 +290,11 @@ export function ProjectComments({ projectId, nostrPubKey }: ProjectCommentsProps
                 </div>
                 <Button
                   onClick={handleSubmitComment}
-                  disabled={!user || !newComment.trim() || isSubmitting}
+                  disabled={!user || !newComment.trim() || commentMutation.isPending}
                   size="sm"
                   className="h-8"
                 >
-                  {isSubmitting ? (
+                  {commentMutation.isPending ? (
                     <>
                       <div className="w-3 h-3 border border-white/30 border-t-white rounded-full animate-spin mr-2" />
                       Posting...
@@ -307,8 +340,8 @@ export function ProjectComments({ projectId, nostrPubKey }: ProjectCommentsProps
                   replyTo={replyTo}
                   replyContent={replyContent}
                   setReplyContent={setReplyContent}
-                  onSubmitReply={handleReply}
-                  isSubmitting={isSubmitting}
+                  onSubmitReply={handleSubmitReply}
+                  isSubmitting={commentMutation.isPending}
                   currentUser={user}
                 />
               ))}
