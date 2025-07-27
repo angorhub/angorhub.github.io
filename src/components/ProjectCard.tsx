@@ -3,11 +3,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { CalendarDays, Users, Target, TrendingUp } from 'lucide-react';
+import { CalendarDays, Users, Target, TrendingUp, Star } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { useNetwork } from '@/contexts/NetworkContext';
 import { useSettings } from '@/hooks/useSettings';
+import { useFavorites } from '@/hooks/useFavorites';
 import { formatProjectAmount } from '@/lib/formatCurrency';
 import type { IndexedProject } from '@/types/angor';
 
@@ -19,6 +20,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
   const navigate = useNavigate();
   const { network } = useNetwork();
   const { settings } = useSettings();
+  const { isFavorite, toggleFavorite } = useFavorites();
   
   const {
     project: angorProject,
@@ -61,8 +63,32 @@ export function ProjectCard({ project }: ProjectCardProps) {
           <Badge variant="secondary" className={`${statusColor} text-white`}>
             {stats.status.toUpperCase()}
           </Badge>
-          <div className="text-sm text-muted-foreground">
-            #{angorProject.projectIdentifier}
+          <div className="flex items-center gap-2">
+            <div className="text-sm text-muted-foreground">
+              #{angorProject.projectIdentifier}
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                const projectName = profile.name || angorProject.projectIdentifier;
+                const projectPicture = profile.picture;
+                const projectDescription = profile.about;
+                toggleFavorite(angorProject.projectIdentifier, projectName, projectPicture, projectDescription);
+              }}
+              className={`h-6 w-6 p-0 ${
+                isFavorite(angorProject.projectIdentifier) 
+                  ? 'text-yellow-500 hover:text-yellow-600' 
+                  : 'text-muted-foreground hover:text-yellow-500'
+              }`}
+            >
+              <Star 
+                className={`h-4 w-4 ${
+                  isFavorite(angorProject.projectIdentifier) ? 'fill-current' : ''
+                }`}
+              />
+            </Button>
           </div>
         </div>
 

@@ -6,6 +6,7 @@ import { useGlobalLoading } from "./hooks/useGlobalLoading";
 import { ProjectDetailPage } from "./pages/ProjectDetailPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { SettingsPage } from "./pages/SettingsPage";
+import { FavoritesPage } from "./pages/FavoritesPage";
 import NotFound from "./pages/NotFound";
 import { HomePage } from "./pages/HomePage";
 
@@ -40,6 +41,7 @@ function RouteLoadingHandler() {
        if (pathname.startsWith('/project/')) return 'Loading project details...';
       if (pathname === '/profile') return 'Loading profile...';
       if (pathname === '/settings') return 'Loading settings...';
+      if (pathname === '/favorites') return 'Loading favorites...';
       if (pathname === '/analytics') return 'Loading analytics...';
       if (pathname === '/trending') return 'Loading trending projects...';
       if (pathname === '/debug') return 'Loading debug information...';
@@ -79,6 +81,7 @@ export function AppRouter() {
           <Route path="/project/:projectId" element={<ProjectDetailPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/favorites" element={<FavoritesPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </AngorLayout>

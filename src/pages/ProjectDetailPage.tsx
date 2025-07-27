@@ -40,6 +40,7 @@ import { useIndexerProject } from '@/hooks/useIndexerProject';
 import { useDenyList } from '@/services/denyService';
 import { useNetwork } from '@/contexts/NetworkContext';
 import { useSettings } from '@/hooks/useSettings';
+import { useFavorites } from '@/hooks/useFavorites';
 import { formatBitcoinAmount } from '@/lib/formatCurrency';
 import { useAuthor } from '@/hooks/useAuthor';
 import type { 
@@ -176,6 +177,9 @@ export function ProjectDetailPage() {
   const { network } = useNetwork();
   const { settings } = useSettings();
   const denyService = useDenyList();
+
+  // Favorites functionality
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   // Comments section ref for scrolling
   const commentsRef = useRef<HTMLDivElement>(null);
@@ -431,6 +435,16 @@ export function ProjectDetailPage() {
       block: 'start'
     });
   };
+
+  // Handle favorite toggle
+  const handleToggleFavorite = () => {
+    if (projectId) {
+      const projectName = projectData?.name || profile?.name || additionalData?.project?.projectIdentifier || project?.projectIdentifier || 'Unnamed Project';
+      const projectPicture = projectData?.picture || profile?.picture;
+      const projectDescription = projectData?.about || profile?.about;
+      toggleFavorite(projectId, projectName, projectPicture, projectDescription);
+    }
+  };
   
   // ============================================================================
   // EFFECTS
@@ -655,6 +669,8 @@ export function ProjectDetailPage() {
               onLike={handleLike}
               onShare={handleShare}
               onScrollToComments={handleScrollToComments}
+              isFavorite={projectId ? isFavorite(projectId) : false}
+              onToggleFavorite={handleToggleFavorite}
             />
 
             {/* Media Slider - Show if media exists */}

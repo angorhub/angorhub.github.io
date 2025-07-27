@@ -2,7 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { RichContent } from '@/components/ui/RichContent';
-import { Heart, MessageCircle } from 'lucide-react';
+import { Heart, MessageCircle, Star } from 'lucide-react';
 import { ProjectShare } from './ProjectShare';
 import type { NostrProfile, ProjectMetadata } from '@/types/angor';
 
@@ -37,6 +37,7 @@ export function ProjectHeaderSkeleton() {
         {/* Action Buttons Skeleton */}
         <div className="hidden sm:flex space-x-4">
           <div className="h-10 w-20 bg-muted animate-pulse rounded-md" />
+          <div className="h-10 w-10 bg-muted animate-pulse rounded-md" />
           <div className="h-10 w-24 bg-muted animate-pulse rounded-md" />
           <div className="h-10 w-10 bg-muted animate-pulse rounded-md" />
         </div>
@@ -45,6 +46,7 @@ export function ProjectHeaderSkeleton() {
       {/* Mobile Action Buttons Skeleton */}
       <div className="flex sm:hidden space-x-3 pt-2">
         <div className="h-10 w-16 bg-muted animate-pulse rounded-md" />
+        <div className="h-10 w-10 bg-muted animate-pulse rounded-md" />
         <div className="h-10 w-20 bg-muted animate-pulse rounded-md" />
         <div className="h-10 w-10 bg-muted animate-pulse rounded-md" />
       </div>
@@ -83,6 +85,8 @@ interface ProjectHeaderProps {
   onLike: () => void;
   onShare: (platform: 'copy' | 'twitter' | 'facebook' | 'telegram') => void;
   onScrollToComments?: () => void;
+  isFavorite?: boolean;
+  onToggleFavorite?: () => void;
 }
 
 export function ProjectHeader({
@@ -96,7 +100,9 @@ export function ProjectHeader({
   statusColor,
   onLike,
   onShare,
-  onScrollToComments
+  onScrollToComments,
+  isFavorite,
+  onToggleFavorite
 }: ProjectHeaderProps) {
   return (
     <div className="space-y-4">
@@ -129,6 +135,23 @@ export function ProjectHeader({
                 <span className="font-medium">
                   {projectLikes?.count || 0}
                 </span>
+              </Button>
+
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={onToggleFavorite}
+                className={`h-10 px-3 ${
+                  isFavorite 
+                    ? 'text-yellow-500 hover:text-yellow-600' 
+                    : 'hover:text-yellow-500'
+                }`}
+              >
+                <Star 
+                  className={`h-4 w-4 ${
+                    isFavorite ? 'fill-current' : ''
+                  }`}
+                />
               </Button>
               
               <Button 
@@ -173,6 +196,23 @@ export function ProjectHeader({
             <span className="font-medium">
               {projectLikes?.count || 0}
             </span>
+          </Button>
+
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={onToggleFavorite}
+            className={`h-10 px-4 ${
+              isFavorite 
+                ? 'text-yellow-500 hover:text-yellow-600' 
+                : 'hover:text-yellow-500'
+            }`}
+          >
+            <Star 
+              className={`h-5 w-5 ${
+                isFavorite ? 'fill-current' : ''
+              }`}
+            />
           </Button>
           
           <Button 

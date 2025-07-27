@@ -17,6 +17,7 @@ import {
   Shield,
   Home,
   Search,
+  Star,
 } from 'lucide-react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useLoginActions } from '@/hooks/useLoginActions';
@@ -153,6 +154,10 @@ export function AngorLayout({ children }: AngorLayoutProps) {
                         <User className="w-4 h-4 mr-2" />
                         Profile
                       </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate('/favorites')}>
+                        <Star className="w-4 h-4 mr-2" />
+                        Favorites
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => navigate('/settings')}>
                         <Settings className="w-4 h-4 mr-2" />
                         Settings
@@ -190,6 +195,10 @@ export function AngorLayout({ children }: AngorLayoutProps) {
                       <DropdownMenuItem onClick={() => navigate('/profile')}>
                         <User className="w-4 h-4 mr-2" />
                         Profile
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate('/favorites')}>
+                        <Star className="w-4 h-4 mr-2" />
+                        Favorites
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => navigate('/settings')}>
                         <Settings className="w-4 h-4 mr-2" />
