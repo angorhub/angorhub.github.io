@@ -2,7 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { RichContent } from '@/components/ui/RichContent';
-import { Heart } from 'lucide-react';
+import { Heart, MessageCircle } from 'lucide-react';
 import { ProjectShare } from './ProjectShare';
 import type { NostrProfile, ProjectMetadata } from '@/types/angor';
 
@@ -35,16 +35,18 @@ export function ProjectHeaderSkeleton() {
         </div>
         
         {/* Action Buttons Skeleton */}
-        <div className="hidden sm:flex space-x-2">
-          <div className="h-10 w-16 bg-muted animate-pulse rounded" />
-          <div className="h-10 w-10 bg-muted animate-pulse rounded" />
+        <div className="hidden sm:flex space-x-4">
+          <div className="h-10 w-20 bg-muted animate-pulse rounded-md" />
+          <div className="h-10 w-24 bg-muted animate-pulse rounded-md" />
+          <div className="h-10 w-10 bg-muted animate-pulse rounded-md" />
         </div>
       </div>
       
       {/* Mobile Action Buttons Skeleton */}
-      <div className="flex sm:hidden space-x-2 pt-2">
-        <div className="h-10 w-16 bg-muted animate-pulse rounded flex-1" />
-        <div className="h-10 w-10 bg-muted animate-pulse rounded" />
+      <div className="flex sm:hidden space-x-3 pt-2">
+        <div className="h-10 w-16 bg-muted animate-pulse rounded-md" />
+        <div className="h-10 w-20 bg-muted animate-pulse rounded-md" />
+        <div className="h-10 w-10 bg-muted animate-pulse rounded-md" />
       </div>
     </div>
   );
@@ -80,6 +82,7 @@ interface ProjectHeaderProps {
   statusColor: string;
   onLike: () => void;
   onShare: (platform: 'copy' | 'twitter' | 'facebook' | 'telegram') => void;
+  onScrollToComments?: () => void;
 }
 
 export function ProjectHeader({
@@ -92,7 +95,8 @@ export function ProjectHeader({
   isLiking,
   statusColor,
   onLike,
-  onShare
+  onShare,
+  onScrollToComments
 }: ProjectHeaderProps) {
   return (
     <div className="space-y-4">
@@ -103,20 +107,38 @@ export function ProjectHeader({
               {(stats?.status || 'ACTIVE').toUpperCase()}
             </Badge>
             {/* Mobile Share/Like Actions */}
-            <div className="flex items-center space-x-2 sm:hidden">
+            <div className="flex items-center gap-3 sm:hidden">
               <Button 
                 variant="ghost" 
                 size="sm"
                 onClick={onLike}
                 disabled={isLiking}
-                className={`${projectLikes?.userHasLiked ? 'text-red-500' : 'text-muted-foreground'} hover:text-red-500`}
+                className={`h-10 px-3 ${
+                  projectLikes?.userHasLiked 
+                    ? 'text-red-500 hover:text-red-600' 
+                    : 'hover:text-red-500'
+                }`}
               >
                 <Heart 
-                  className={`h-6 w-6 ${projectLikes?.userHasLiked ? 'fill-current' : ''}`}
+                  className={`h-4 w-4 mr-2 ${
+                    projectLikes?.userHasLiked ? 'fill-current' : ''
+                  } ${
+                    isLiking ? 'animate-heartbeat' : ''
+                  }`}
                 />
-                <span className="text-sm font-medium ml-1">
+                <span className="font-medium">
                   {projectLikes?.count || 0}
                 </span>
+              </Button>
+              
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={onScrollToComments}
+                className="h-10 px-3"
+              >
+                <MessageCircle className="h-4 w-4 mr-2" />
+                <span className="font-medium">Comments</span>
               </Button>
               
               <ProjectShare onShare={onShare} variant="mobile" />
@@ -129,24 +151,38 @@ export function ProjectHeader({
         </div>
         
         {/* Desktop Share/Like Actions */}
-        <div className="hidden sm:flex items-center space-x-2">
+        <div className="hidden sm:flex items-center gap-4">
           <Button 
             variant="ghost" 
             size="sm"
             onClick={onLike}
             disabled={isLiking}
-            className={`${projectLikes?.userHasLiked ? 'text-red-500' : 'text-muted-foreground'} hover:text-red-500`}
+            className={`h-10 px-4 ${
+              projectLikes?.userHasLiked 
+                ? 'text-red-500 hover:text-red-600' 
+                : 'hover:text-red-500'
+            }`}
           >
             <Heart 
-              className={`h-8 w-8 transition-all duration-200 ${
+              className={`h-5 w-5 mr-2 ${
                 projectLikes?.userHasLiked ? 'fill-current' : ''
               } ${
                 isLiking ? 'animate-heartbeat' : ''
               }`}
             />
-            <span className="text-sm font-medium">
+            <span className="font-medium">
               {projectLikes?.count || 0}
             </span>
+          </Button>
+          
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={onScrollToComments}
+            className="h-10 px-4"
+          >
+            <MessageCircle className="h-5 w-5 mr-2" />
+            <span className="font-medium">Comments</span>
           </Button>
           
           <ProjectShare onShare={onShare} variant="desktop" />

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -176,6 +176,9 @@ export function ProjectDetailPage() {
   const { network } = useNetwork();
   const { settings } = useSettings();
   const denyService = useDenyList();
+
+  // Comments section ref for scrolling
+  const commentsRef = useRef<HTMLDivElement>(null);
 
   // ============================================================================
   // DATA FETCHING
@@ -420,6 +423,14 @@ export function ProjectDetailPage() {
         break;
     }
   };
+
+  // Handle scroll to comments
+  const handleScrollToComments = () => {
+    commentsRef.current?.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'start'
+    });
+  };
   
   // ============================================================================
   // EFFECTS
@@ -643,6 +654,7 @@ export function ProjectDetailPage() {
               statusColor={statusColor}
               onLike={handleLike}
               onShare={handleShare}
+              onScrollToComments={handleScrollToComments}
             />
 
             {/* Media Slider - Show if media exists */}
@@ -740,7 +752,7 @@ export function ProjectDetailPage() {
         </Tabs>
 
         {/* Project Comments Section */}
-        <div className="mt-8">
+        <div ref={commentsRef} className="mt-8">
           <ProjectComments 
             projectId={projectId || ''} 
             nostrPubKey={nostrPubKey} 
