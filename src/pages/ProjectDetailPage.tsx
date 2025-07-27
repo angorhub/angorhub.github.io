@@ -523,8 +523,8 @@ export function ProjectDetailPage() {
     : 'No deadline';
 
   const statusColor = {
-    active: 'bg-green-500',
-    completed: 'bg-blue-500',
+    active: 'bg-blue-500',
+    completed: 'bg-green-500',
     expired: 'bg-red-500',
     upcoming: 'bg-yellow-500',
   }[stats?.status || 'active'];
