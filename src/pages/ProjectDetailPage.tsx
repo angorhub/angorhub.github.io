@@ -697,12 +697,12 @@ export function ProjectDetailPage() {
 
         {/* Project Details Tabs - Responsive */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5 mb-6 sm:mb-8">
-            <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
-            <TabsTrigger value="updates" className="text-xs sm:text-sm">Updates</TabsTrigger>
-            <TabsTrigger value="faq" className="text-xs sm:text-sm">FAQ</TabsTrigger>
-            <TabsTrigger value="investors" className="text-xs sm:text-sm">Investors</TabsTrigger>
-            <TabsTrigger value="team" className="text-xs sm:text-sm">Team</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-5 mb-6 sm:mb-8 h-12 sm:h-14">
+            <TabsTrigger value="overview" className="text-sm sm:text-base px-4 py-3">Overview</TabsTrigger>
+            <TabsTrigger value="updates" className="text-sm sm:text-base px-4 py-3">Updates</TabsTrigger>
+            <TabsTrigger value="faq" className="text-sm sm:text-base px-4 py-3">FAQ</TabsTrigger>
+            <TabsTrigger value="investors" className="text-sm sm:text-base px-4 py-3">Investors</TabsTrigger>
+            <TabsTrigger value="team" className="text-sm sm:text-base px-4 py-3">Team</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview">
