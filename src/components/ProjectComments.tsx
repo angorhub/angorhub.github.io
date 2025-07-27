@@ -5,6 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { RichContent } from '@/components/ui/RichContent';
 import { useToast } from '@/hooks/useToast';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useNostrPublish } from '@/hooks/useNostrPublish';
@@ -21,7 +22,6 @@ import {
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import MarkdownRenderer from '@/components/MarkdownRenderer';
 import { NUser } from '@nostrify/react/login';
 
 interface NostrComment {
@@ -355,77 +355,75 @@ function CommentItem({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Main Comment */}
-      <div className="flex items-start space-x-3 p-4 bg-card/50 border rounded-lg">
-        <Avatar className="h-8 w-8 flex-shrink-0">
-          <AvatarImage src={metadata?.picture} />
-          <AvatarFallback className="text-xs">
-            {metadata?.display_name?.charAt(0) || metadata?.name?.charAt(0) || '?'}
-          </AvatarFallback>
-        </Avatar>
-        
-        <div className="flex-1 space-y-2 min-w-0">
-          <div className="flex items-center space-x-2">
-            <span className="font-medium text-sm truncate max-w-32">
-              {metadata?.display_name || metadata?.name || 'Anonymous'}
-            </span>
-            <span className="text-xs text-muted-foreground">
-              {formatTime(comment.created_at)}
-            </span>
-            {isOwn && (
-              <Badge variant="outline" className="text-xs h-4">
-                You
-              </Badge>
-            )}
-          </div>
+      <div className="border-l-4 border-blue-500/20 pl-4">
+        <div className="flex items-start space-x-3">
+          <Avatar className="h-8 w-8 flex-shrink-0">
+            <AvatarImage src={metadata?.picture} />
+            <AvatarFallback className="text-xs">
+              {metadata?.display_name?.charAt(0) || metadata?.name?.charAt(0) || '?'}
+            </AvatarFallback>
+          </Avatar>
           
-          <div className="bg-card border rounded-lg p-3 break-words overflow-hidden comment-box">
-            <div className="prose prose-sm max-w-none comment-text">
-              <div className="whitespace-pre-wrap break-words text-sm leading-relaxed">
-                <MarkdownRenderer content={comment.content} />
-              </div>
+          <div className="flex-1 space-y-2 min-w-0">
+            <div className="flex items-center space-x-2">
+              <span className="font-medium text-sm truncate max-w-32">
+                {metadata?.display_name || metadata?.name || 'Anonymous'}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {formatTime(comment.created_at)}
+              </span>
+              {isOwn && (
+                <Badge variant="outline" className="text-xs h-4">
+                  You
+                </Badge>
+              )}
+            </div>
+            
+            <div className="text-sm leading-relaxed comment-text">
+              <RichContent content={comment.content} />
+            </div>
+            
+            <div className="flex items-center space-x-4 pt-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onReply(comment.id)}
+                className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+              >
+                <Reply className="h-3 w-3 mr-1" />
+                Reply
+              </Button>
+              
+              {replies.length > 0 && (
+                <span className="text-xs text-muted-foreground">
+                  {replies.length} {replies.length === 1 ? 'reply' : 'replies'}
+                </span>
+              )}
             </div>
           </div>
-          
-          <div className="flex items-center space-x-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onReply(comment.id)}
-              className="h-6 px-2 text-xs"
-            >
-              <Reply className="h-3 w-3 mr-1" />
-              Reply
-            </Button>
-            
-            {replies.length > 0 && (
-              <span className="text-xs text-muted-foreground">
-                {replies.length} {replies.length === 1 ? 'reply' : 'replies'}
-              </span>
-            )}
-          </div>
-        </div>
 
-        {isOwn && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-6 w-6 p-0 flex-shrink-0">
-                <MoreHorizontal className="h-3 w-3" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem className="text-xs">
-                <Edit3 className="h-3 w-3 mr-2" />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem className="text-xs text-red-600">
-                <Trash2 className="h-3 w-3 mr-2" />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
+          {isOwn && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-6 w-6 p-0 flex-shrink-0">
+                  <MoreHorizontal className="h-3 w-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem className="text-xs">
+                  <Edit3 className="h-3 w-3 mr-2" />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem className="text-xs text-red-600">
+                  <Trash2 className="h-3 w-3 mr-2" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
       </div>
 
       {/* Reply Input */}
@@ -530,7 +528,7 @@ function CommentReply({ comment, currentUser }: { comment: NostrComment; current
         <div className="bg-muted/30 border rounded-md p-2 break-words overflow-hidden comment-box">
           <div className="prose prose-xs max-w-none comment-text">
             <div className="whitespace-pre-wrap break-words text-xs leading-relaxed">
-              <MarkdownRenderer content={comment.content} />
+              <RichContent content={comment.content} />
             </div>
           </div>
         </div>

@@ -360,3 +360,70 @@
 .dark .comment-box:hover {
   box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
 }
+
+/* Rich content styles for advanced parsing */
+.rich-content {
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.rich-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin: 0.25em 0;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+}
+
+.rich-content video {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin: 0.25em 0;
+}
+
+.rich-content a {
+  color: rgb(37 99 235);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.rich-content a:hover {
+  color: rgb(29 78 216);
+}
+
+.dark .rich-content a {
+  color: rgb(96 165 250);
+}
+
+.dark .rich-content a:hover {
+  color: rgb(147 197 253);
+}
+
+.rich-content .nostr-id {
+  color: rgb(147 51 234);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-size: 0.9em;
+  font-weight: 500;
+  padding: 0.1em 0.3em;
+  background: rgba(168, 85, 247, 0.1);
+  border-radius: 4px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.rich-content .nostr-id:hover {
+  color: rgb(126 34 206);
+  background: rgba(168, 85, 247, 0.15);
+  text-decoration: underline;
+}
+
+.dark .rich-content .nostr-id {
+  color: rgb(196 181 253);
+}
+
+.dark .rich-content .nostr-id:hover {
+  color: rgb(221 214 254);
+}

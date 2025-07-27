@@ -1,6 +1,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { RichContent } from '@/components/ui/RichContent';
 import { Heart } from 'lucide-react';
 import { ProjectShare } from './ProjectShare';
 import type { NostrProfile, ProjectMetadata } from '@/types/angor';
@@ -171,9 +172,12 @@ export function ProjectHeader({
       </div>
 
       {/* Description */}
-      <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-        {projectData?.about || profile?.about || 'No description available'}
-      </p>
+      <div className="text-base sm:text-lg text-muted-foreground leading-relaxed">
+        <RichContent 
+          content={projectData?.about || profile?.about || 'No description available'} 
+          className="text-base sm:text-lg text-muted-foreground leading-relaxed"
+        />
+      </div>
     </div>
   );
 }
