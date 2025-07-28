@@ -1,4 +1,3 @@
-export { ProjectBanner, ProjectBannerSkeleton } from './ProjectBanner';
 export { ProjectHeader, ProjectHeaderSkeleton } from './ProjectHeader';
 export { ProjectShare } from './ProjectShare';
 export { ProjectMediaSlider, ProjectMediaSliderSkeleton } from './ProjectMedia';

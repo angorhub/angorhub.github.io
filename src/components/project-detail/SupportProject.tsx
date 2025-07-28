@@ -3,10 +3,13 @@ import { Button } from '@/components/ui/button';
 import { ZapForm } from '@/components/ZapForm';
 import { 
   Bitcoin,
-  CheckCircle,
   AlertCircle,
   Zap,
-  ExternalLink
+  ExternalLink,
+  RefreshCw,
+  Clock,
+  Eye,
+  Settings
 } from 'lucide-react';
 import type { NostrProfile } from '@/types/angor';
 
@@ -14,12 +17,12 @@ export function SupportProjectSkeleton() {
   return (
     <Card>
       <CardHeader>
-        <div className="h-6 w-32 bg-muted animate-pulse rounded" />
+        <div className="h-6 w-40 bg-muted animate-pulse rounded" />
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="h-12 w-full bg-muted animate-pulse rounded" />
         <div className="h-12 w-full bg-muted animate-pulse rounded" />
-        <div className="space-y-2 pt-2">
+        <div className="space-y-2 pt-4">
           {[...Array(3)].map((_, i) => (
             <div key={i} className="flex items-center space-x-2">
               <div className="h-4 w-4 bg-muted animate-pulse rounded-full" />
@@ -51,20 +54,28 @@ export function SupportProject({
   isMiniApp,
   profile
 }: SupportProjectProps) {
+  const isActive = stats?.status === 'active' || !stats?.status;
+
   return (
     <div className="xl:col-span-1">
       <div className="sticky top-4 sm:top-8">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2 text-lg sm:text-xl">
-              <Bitcoin className="h-5 w-5 text-orange-500" />
-              <span>Support Project</span>
+            <CardTitle className="flex items-center space-x-2">
+              <div className="p-1.5 rounded-lg bg-orange-100 dark:bg-orange-900/20">
+                <Bitcoin className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+              </div>
+              <span>Invest with Angor</span>
             </CardTitle>
+            <p className="text-sm text-muted-foreground mt-2">
+              Decentralized Bitcoin crowdfunding with time-locked milestones
+            </p>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {(stats?.status === 'active' || !stats?.status) ? (
+
+          <CardContent className="space-y-6">
+            {isActive ? (
               <>
-                {/* Regular Invest Button */}
+                {/* Investment Button */}
                 <Button 
                   size="lg"
                   className="w-full"
@@ -74,69 +85,133 @@ export function SupportProject({
                     window.open(investUrl, '_blank');
                   }}
                 >
-                  <Bitcoin className="h-5 w-5 mr-2" />
-                  Invest Now
                   <ExternalLink className="h-4 w-4 ml-2" />
+                  Invest Now
                 </Button>
 
-                {/* Zap Button - Only show if NOT in MiniApp */}
+                {/* Donation Section */}
                 {!isMiniApp && profile?.lud16 && (
-                  <ZapForm
-                    zapAddress={profile.lud16}
-                    recipientName={profile.name || profile.display_name || 'Project'}
-                    trigger={
-                      <Button 
-                        variant="outline" 
-                        size="lg"
-                        className="w-full"
-                      >
-                        <Zap className="h-5 w-5 mr-2" />
-                        Send Zap
-                      </Button>
-                    }
-                  />
+                  <div className="space-y-3">
+                    <div className="text-sm font-medium text-center">
+                      Financial Support
+                    </div>
+                    <ZapForm
+                      zapAddress={profile.lud16}
+                      recipientName={profile.name || profile.display_name || 'Project'}
+                      trigger={
+                        <Button 
+                          variant="outline" 
+                          size="lg"
+                          className="w-full"
+                        >
+                          <Zap className="h-4 w-4 mr-2" />
+                          Send Zap
+                        </Button>
+                      }
+                    />
+                  </div>
                 )}
 
-                <div className="text-xs sm:text-sm text-muted-foreground space-y-2 pt-2">
-                  <div className="flex items-center space-x-2">
-                    <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-500 flex-shrink-0" />
-                    <span>Milestone-based releases</span>
+                {/* Angor Protocol Features */}
+                <div className="space-y-4 pt-4 border-t">
+                  <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+                    Angor Protocol Benefits
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-500 flex-shrink-0" />
-                    <span>Refund protection</span>
+                  
+                  <div className="flex items-start space-x-3 text-sm">
+                    <div className="mt-0.5">
+                      <Clock className="h-4 w-4 text-blue-600" />
+                    </div>
+                    <div>
+                      <div className="font-medium mb-1">Time-locked Milestones</div>
+                      <div className="text-xs text-muted-foreground">
+                        Funds released automatically through Bitcoin time-lock contracts
+                      </div>
+                    </div>
                   </div>
+                  
+                  <div className="flex items-start space-x-3 text-sm">
+                    <div className="mt-0.5">
+                      <RefreshCw className="h-4 w-4 text-green-600" />
+                    </div>
+                    <div>
+                      <div className="font-medium mb-1">Investor Recovery</div>
+                      <div className="text-xs text-muted-foreground">
+                        Unspent funds can be recovered at any point via 2-of-2 multisig
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start space-x-3 text-sm">
+                    <div className="mt-0.5">
+                      <Settings className="h-4 w-4 text-purple-600" />
+                    </div>
+                    <div>
+                      <div className="font-medium mb-1">Non-custodial</div>
+                      <div className="text-xs text-muted-foreground">
+                        Fully decentralized with no middleman or backend servers
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start space-x-3 text-sm">
+                    <div className="mt-0.5">
+                      <Eye className="h-4 w-4 text-orange-600" />
+                    </div>
+                    <div>
+                      <div className="font-medium mb-1">Full Transparency</div>
+                      <div className="text-xs text-muted-foreground">
+                        Built on Bitcoin & Nostr for complete transparency
+                      </div>
+                    </div>
+                  </div>
+                  
                   {!isMiniApp && profile?.lud16 && (
-                    <div className="flex items-center space-x-2">
-                      <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-500 flex-shrink-0" />
-                      <span>Lightning zaps available</span>
+                    <div className="flex items-start space-x-3 text-sm">
+                      <div className="mt-0.5">
+                        <Zap className="h-4 w-4 text-yellow-600" />
+                      </div>
+                      <div>
+                        <div className="font-medium mb-1">Lightning Support</div>
+                        <div className="text-xs text-muted-foreground">
+                          Direct zaps available via Lightning Network
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
               </>
             ) : (
-              <div className="text-center py-6 sm:py-8">
-                <AlertCircle className="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground mx-auto mb-4" />
-                <div className="font-medium mb-2">Investment Closed</div>
-                <div className="text-sm text-muted-foreground mb-4">
-                  This project is no longer accepting investments
+              <div className="text-center py-8 space-y-4">
+                <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto" />
+                <div>
+                  <div className="font-medium mb-1">Investment Closed</div>
+                  <div className="text-sm text-muted-foreground">
+                    This project is no longer accepting investments
+                  </div>
                 </div>
-                {/* Still show zap option if available and not in MiniApp */}
+                
+                {/* Zap option for closed projects */}
                 {!isMiniApp && profile?.lud16 && (
-                  <ZapForm
-                    zapAddress={profile.lud16}
-                    recipientName={profile.name || profile.display_name || 'Project'}
-                    trigger={
-                      <Button 
-                        variant="outline" 
-                        size="lg"
-                        className="w-full"
-                      >
-                        <Zap className="h-5 w-5 mr-2" />
-                        Send Zap
-                      </Button>
-                    }
-                  />
+                  <div className="space-y-3 pt-4">
+                    <div className="text-sm font-medium">
+                      Financial Support
+                    </div>
+                    <ZapForm
+                      zapAddress={profile.lud16}
+                      recipientName={profile.name || profile.display_name || 'Project'}
+                      trigger={
+                        <Button 
+                          variant="outline" 
+                          size="lg"
+                          className="w-full"
+                        >
+                          <Zap className="h-4 w-4 mr-2" />
+                          Send Zap
+                        </Button>
+                      }
+                    />
+                  </div>
                 )}
               </div>
             )}

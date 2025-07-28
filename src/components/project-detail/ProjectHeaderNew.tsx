@@ -9,8 +9,8 @@ import type { NostrProfile, ProjectMetadata, AngorProject } from '@/types/angor'
 export function ProjectHeaderSkeleton() {
   return (
     <div className="space-y-4">
-      {/* Banner Skeleton - 820×312px aspect ratio */}
-      <div className="w-full aspect-[82/31] bg-muted animate-pulse rounded-xl" />
+      {/* Banner Skeleton */}
+      <div className="h-32 sm:h-40 bg-muted animate-pulse rounded-xl" />
       
       <div className="flex items-start justify-between">
         <div className="space-y-3 flex-1">
@@ -104,27 +104,17 @@ export function ProjectHeader({
   isFavorite,
   onToggleFavorite
 }: ProjectHeaderProps) {
-  // Debug: Log available image sources
-  console.log('ProjectHeader Debug:', {
-    'projectData?.picture': projectData?.picture,
-    'project?.metadata?.banner': project?.metadata?.banner,
-    'project?.metadata?.picture': project?.metadata?.picture,
-    'profile?.banner': profile?.banner,
-    'profile?.picture': profile?.picture
-  });
-
   return (
     <div className="space-y-6">
-      {/* Compact Project Banner - 820×312px aspect ratio (2.63:1) */}
-      <div className="relative w-full aspect-[82/31] rounded-xl overflow-hidden shadow-lg">
-        {(projectData?.picture || project?.metadata?.banner || project?.metadata?.picture || profile?.banner || profile?.picture) ? (
+      {/* Compact Project Banner */}
+      <div className="relative h-32 sm:h-40 lg:h-48 rounded-xl overflow-hidden shadow-lg">
+        {(projectData?.picture || project?.metadata?.banner || project?.metadata?.picture) ? (
           <>
             <img 
-              src={projectData?.picture || project?.metadata?.banner || project?.metadata?.picture || profile?.banner || profile?.picture || ''} 
-              alt={projectData?.name || project?.metadata?.name || profile?.name || 'Project banner'}
+              src={projectData?.picture || project?.metadata?.banner || project?.metadata?.picture || ''} 
+              alt={projectData?.name || project?.metadata?.name || 'Project banner'}
               className="w-full h-full object-cover"
               onError={(e) => {
-                console.log('Banner image failed to load:', e.currentTarget.src);
                 e.currentTarget.style.display = 'none';
                 e.currentTarget.parentElement?.querySelector('.banner-fallback')?.classList.remove('hidden');
               }}
@@ -133,7 +123,7 @@ export function ProjectHeader({
             {/* Project name overlay */}
             <div className="absolute bottom-4 left-4 text-white">
               <div className="text-sm font-medium opacity-90">
-                {projectData?.name || project?.metadata?.name || profile?.name}
+                {projectData?.name || project?.metadata?.name}
               </div>
             </div>
           </>
@@ -142,10 +132,10 @@ export function ProjectHeader({
           <div className="banner-fallback w-full h-full bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center">
             <div className="text-white text-center">
               <div className="text-lg font-semibold mb-1">
-                {projectData?.name || project?.metadata?.name || profile?.name || 'Project'}
+                {projectData?.name || project?.metadata?.name || 'Project'}
               </div>
               <div className="text-sm opacity-80">
-                Banner (820×312px)
+                Banner
               </div>
             </div>
           </div>

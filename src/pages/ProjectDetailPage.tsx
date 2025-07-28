@@ -6,8 +6,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ProjectComments } from '@/components/ProjectComments';
 import { 
-  ProjectBanner, 
-  ProjectBannerSkeleton,
   ProjectHeader, 
   ProjectHeaderSkeleton,
   ProjectMediaSlider,
@@ -472,9 +470,6 @@ export function ProjectDetailPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
-        {/* Project Banner Skeleton */}
-        <ProjectBannerSkeleton />
-        
         <div className="container mx-auto px-4 py-4 sm:py-8 space-y-6 sm:space-y-8">
           {/* Back Button Skeleton */}
           <div className="h-10 w-32 bg-muted animate-pulse rounded hidden lg:flex" />
@@ -632,25 +627,16 @@ export function ProjectDetailPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Project Banner - Responsive */}
-      <ProjectBanner 
-        bannerImage={projectData?.banner || profile?.banner}
-        onBackClick={() => navigate('/')}
-        showMobileBackButton={true}
-      />
-      
       <div className="container mx-auto px-4 py-4 sm:py-8 space-y-6 sm:space-y-8">
         {/* Back Button - Desktop Only */}
-        {!(projectData?.banner || profile?.banner) && (
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/')}
-            className="flex items-center space-x-2 hidden lg:flex"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span>Back to Discover</span>
-          </Button>
-        )}
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/')}
+          className="flex items-center space-x-2 hidden lg:flex"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Back to Discover</span>
+        </Button>
 
         {/* Project Header - Responsive Layout */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">

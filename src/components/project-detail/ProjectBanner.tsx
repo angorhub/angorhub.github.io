@@ -43,7 +43,7 @@ export function ProjectBanner({
             variant="secondary"
             size="sm"
             onClick={onBackClick}
-            className="bg-white/90 backdrop-blur-sm"
+            className="backdrop-blur-sm"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back

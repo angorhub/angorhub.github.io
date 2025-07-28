@@ -15,13 +15,12 @@ interface ProjectShareProps {
 
 export function ProjectShare({ onShare, variant = 'desktop' }: ProjectShareProps) {
   const isMobile = variant === 'mobile';
-  const iconSize = isMobile ? 'h-6 w-6' : 'h-8 w-8';
   
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm">
-          <Share2 className={iconSize} />
+        <Button variant="ghost" size="sm" className="h-10 px-2">
+          <Share2 className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className={isMobile ? undefined : "w-48"}>
