@@ -25,7 +25,6 @@ export function ProjectHeaderSkeleton() {
             <div className="h-12 w-12 bg-muted animate-pulse rounded-full" />
             <div className="space-y-2">
               <div className="h-4 w-32 bg-muted animate-pulse rounded" />
-              <div className="h-3 w-24 bg-muted animate-pulse rounded" />
             </div>
           </div>
           
@@ -285,9 +284,6 @@ export function ProjectHeader({
         <div>
           <div className="font-semibold text-base sm:text-lg">
             {profile?.display_name || profile?.name || 'Anonymous Creator'}
-          </div>
-          <div className="text-sm text-muted-foreground">
-            Project Creator
           </div>
         </div>
       </div>

@@ -499,7 +499,17 @@ export function ProjectDetailPage() {
 
           {/* Tabs Skeleton */}
           <div className="space-y-6">
-            <div className="grid grid-cols-5 gap-2 p-1 bg-muted rounded-lg">
+            {/* Mobile: Horizontal scroll skeleton */}
+            <div className="overflow-x-auto sm:hidden">
+              <div className="flex gap-2 p-1 bg-muted rounded-lg w-max min-w-full">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="h-10 w-20 bg-muted-foreground/10 animate-pulse rounded" />
+                ))}
+              </div>
+            </div>
+            
+            {/* Desktop: Grid skeleton */}
+            <div className="hidden sm:grid grid-cols-5 gap-2 p-1 bg-muted rounded-lg">
               {[...Array(5)].map((_, i) => (
                 <div key={i} className="h-10 bg-muted-foreground/10 animate-pulse rounded" />
               ))}
@@ -683,7 +693,19 @@ export function ProjectDetailPage() {
 
         {/* Project Details Tabs - Responsive */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5 mb-6 sm:mb-8 h-12 sm:h-14">
+          {/* Mobile: Horizontal scroll tabs */}
+          <div className="overflow-x-auto mb-6 sm:mb-8 sm:hidden">
+            <TabsList className="flex w-max min-w-full h-12 gap-1 p-1">
+              <TabsTrigger value="overview" className="text-xs px-3 py-2 whitespace-nowrap">Overview</TabsTrigger>
+              <TabsTrigger value="updates" className="text-xs px-3 py-2 whitespace-nowrap">Updates</TabsTrigger>
+              <TabsTrigger value="faq" className="text-xs px-3 py-2 whitespace-nowrap">FAQ</TabsTrigger>
+              <TabsTrigger value="investors" className="text-xs px-3 py-2 whitespace-nowrap">Investors</TabsTrigger>
+              <TabsTrigger value="team" className="text-xs px-3 py-2 whitespace-nowrap">Team</TabsTrigger>
+            </TabsList>
+          </div>
+          
+          {/* Desktop: Grid layout */}
+          <TabsList className="hidden sm:grid w-full grid-cols-5 mb-6 sm:mb-8 h-12 sm:h-14">
             <TabsTrigger value="overview" className="text-sm sm:text-base px-4 py-3">Overview</TabsTrigger>
             <TabsTrigger value="updates" className="text-sm sm:text-base px-4 py-3">Updates</TabsTrigger>
             <TabsTrigger value="faq" className="text-sm sm:text-base px-4 py-3">FAQ</TabsTrigger>
