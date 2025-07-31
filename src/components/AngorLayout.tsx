@@ -26,6 +26,7 @@ import { useSearch } from '@/hooks/useSearch';
 import LoginDialog from '@/components/auth/LoginDialog';
 import SignupDialog from '@/components/auth/SignupDialog';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { PWAUpdateButton } from '@/components/PWAUpdateButton';
 import { useToast } from '@/hooks/useToast';
 import { useAppContext } from '@/hooks/useAppContext';
 import { ThemeLoadingOverlay } from '@/components/ThemeLoading';
@@ -100,6 +101,9 @@ export function AngorLayout({ children }: AngorLayoutProps) {
             </div>
             
             <div className="flex items-center gap-4">
+              {/* PWA Update Button */}
+              <PWAUpdateButton />
+              
               {/* Search button - only shown on home page */}
               {isHomePage && (
                 <Button

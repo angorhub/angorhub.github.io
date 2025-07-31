@@ -27,32 +27,111 @@ export function usePWAUpdate(): PWAUpdateAvailable {
 
   useEffect(() => {
     if ('serviceWorker' in navigator) {
-      // Listen for service worker updates
+      // Get the service worker registration
+      navigator.serviceWorker.ready.then((reg) => {
+        setRegistration(reg)
+        
+        // Check for updates immediately
+        reg.update()
+        
+        // Set up periodic update checks (every 60 seconds)
+        const interval = setInterval(() => {
+          reg.update()
+        }, 60000)
+        
+        // Check if there's already a waiting service worker
+        if (reg.waiting) {
+          console.log('Service worker already waiting')
+          setUpdateAvailable(true)
+        }
+        
+        // Listen for new service worker installing
+        reg.addEventListener('updatefound', () => {
+          console.log('New service worker found')
+          const newWorker = reg.installing
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              console.log('Service worker state changed:', newWorker.state)
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                console.log('New service worker installed and ready')
+                setUpdateAvailable(true)
+                setRegistration(reg)
+              }
+            })
+          }
+        })
+        
+        return () => clearInterval(interval)
+      })
+
+      // Listen for messages from service worker
+      const handleSWMessage = (event: MessageEvent) => {
+        console.log('SW Message received:', event.data)
+        if (event.data && event.data.type === 'SW_UPDATE_AVAILABLE') {
+          console.log('Update available from service worker message')
+          setUpdateAvailable(true)
+        }
+      }
+
+      // Listen for service worker updates (Workbox specific)
       const handleSWUpdate = (event: SWUpdateEvent) => {
+        console.log('SW Update event received:', event.detail)
         if (event.detail && event.detail.type === 'workbox-waiting') {
           setUpdateAvailable(true)
           setRegistration(event.detail.registration)
         }
       }
 
-      // Listen for the custom event dispatched by the service worker
+      // Add all listeners
+      navigator.serviceWorker.addEventListener('message', handleSWMessage)
       window.addEventListener('sw-update', handleSWUpdate)
 
+      // Listen for service worker controller changes
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        console.log('Service worker controller changed - reloading page')
+        // Small delay to ensure the new SW is fully active
+        setTimeout(() => {
+          window.location.reload()
+        }, 100)
+      })
+
       return () => {
+        navigator.serviceWorker.removeEventListener('message', handleSWMessage)
         window.removeEventListener('sw-update', handleSWUpdate)
       }
     }
   }, [])
 
   const updateSW = async () => {
-    if (registration && registration.waiting) {
-      // Send message to service worker to skip waiting
-      registration.waiting.postMessage({ type: 'SKIP_WAITING' })
-      
-      // Listen for service worker to become active
-      registration.addEventListener('controllerchange', () => {
-        window.location.reload()
-      })
+    if (!registration) {
+      console.log('No registration available for update')
+      return
+    }
+
+    try {
+      // If there's a waiting service worker, tell it to take control
+      if (registration.waiting) {
+        console.log('Sending SKIP_WAITING message to service worker')
+        registration.waiting.postMessage({ type: 'SKIP_WAITING' })
+      } else {
+        console.log('No waiting service worker, forcing update check')
+        // Force an update check
+        await registration.update()
+        
+        // Check again for waiting worker after update
+        const updatedReg = await navigator.serviceWorker.ready
+        if (updatedReg.waiting) {
+          updatedReg.waiting.postMessage({ type: 'SKIP_WAITING' })
+        } else {
+          // If no waiting worker, just reload to get the latest version
+          console.log('No waiting worker found, reloading page')
+          window.location.reload()
+        }
+      }
+    } catch (error) {
+      console.error('Error during service worker update:', error)
+      // Fallback: just reload the page
+      window.location.reload()
     }
   }
 

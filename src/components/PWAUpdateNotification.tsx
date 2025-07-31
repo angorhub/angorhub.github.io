@@ -7,12 +7,22 @@ export function PWAUpdateNotification() {
   const { updateAvailable, updateSW } = usePWAUpdate()
   const [isVisible, setIsVisible] = useState(false)
   const [isUpdating, setIsUpdating] = useState(false)
+  const [hasShown, setHasShown] = useState(false)
 
   useEffect(() => {
-    if (updateAvailable) {
+    if (updateAvailable && !hasShown) {
+      // Show notification only once per session
       setIsVisible(true)
+      setHasShown(true)
+      
+      // Auto-hide after 10 seconds to avoid being too intrusive
+      const timer = setTimeout(() => {
+        setIsVisible(false)
+      }, 10000)
+      
+      return () => clearTimeout(timer)
     }
-  }, [updateAvailable])
+  }, [updateAvailable, hasShown])
 
   const handleUpdate = async () => {
     setIsUpdating(true)
@@ -34,12 +44,15 @@ export function PWAUpdateNotification() {
 
   return (
     <div className="fixed top-4 left-4 right-4 z-50 max-w-sm mx-auto">
-      <div className="bg-primary text-primary-foreground border border-primary rounded-lg shadow-lg p-4 animate-in slide-in-from-top-5">
+      <div className="bg-gradient-to-r from-green-500 to-green-600 text-white border border-green-600 rounded-lg shadow-lg p-4 animate-in slide-in-from-top-5">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1">
-            <h3 className="font-semibold text-sm mb-1">New Update</h3>
+            <h3 className="font-semibold text-sm mb-1 flex items-center gap-2">
+              <RefreshCw className="w-4 h-4" />
+              App Update Available
+            </h3>
             <p className="text-xs opacity-90 mb-3">
-              A new version of Angor Hub is available
+              A new version is ready to install
             </p>
             <div className="flex gap-2">
               <Button
@@ -47,21 +60,21 @@ export function PWAUpdateNotification() {
                 variant="secondary"
                 onClick={handleUpdate}
                 disabled={isUpdating}
-                className="flex-1"
+                className="flex-1 bg-white text-green-600 hover:bg-green-50"
               >
                 {isUpdating ? (
                   <RefreshCw className="w-4 h-4 mr-1 animate-spin" />
                 ) : (
                   <RefreshCw className="w-4 h-4 mr-1" />
                 )}
-                {isUpdating ? 'Updating...' : 'Update'}
+                {isUpdating ? 'Updating...' : 'Update Now'}
               </Button>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={handleDismiss}
                 disabled={isUpdating}
-                className="bg-transparent border-primary-foreground/20 hover:bg-primary-foreground/10"
+                className="bg-transparent border-white/20 hover:bg-white/10 text-white"
               >
                 Later
               </Button>
@@ -72,7 +85,7 @@ export function PWAUpdateNotification() {
             variant="ghost"
             onClick={handleDismiss}
             disabled={isUpdating}
-            className="p-1 h-auto hover:bg-primary-foreground/10"
+            className="p-1 h-auto hover:bg-white/10 text-white"
           >
             <X className="w-4 h-4" />
           </Button>
