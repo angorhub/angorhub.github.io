@@ -91,7 +91,6 @@ interface ProjectHeaderProps {
 export function ProjectHeader({
   projectData,
   profile,
-  additionalData,
   project,
   stats,
   projectLikes,
