@@ -22,7 +22,11 @@ import { NSchema as n, type NostrMetadata } from '@nostrify/nostrify';
 import { useQueryClient } from '@tanstack/react-query';
 import { useUploadFile } from '@/hooks/useUploadFile';
 
-export const EditProfileForm: React.FC = () => {
+interface EditProfileFormProps {
+  onSuccess?: () => void;
+}
+
+export const EditProfileForm: React.FC<EditProfileFormProps> = ({ onSuccess }) => {
   const queryClient = useQueryClient();
 
   const { user, metadata } = useCurrentUser();
@@ -61,18 +65,27 @@ export const EditProfileForm: React.FC = () => {
 
   // Handle file uploads for profile picture and banner
   const uploadPicture = async (file: File, field: 'picture' | 'banner') => {
-    try {      // The first tuple in the array contains the URL
+    try {
+      // Show upload started toast
+      toast({
+        title: 'Uploading...',
+        description: `Uploading ${field === 'picture' ? 'profile picture' : 'banner'} to Blossom network`,
+      });
+
+      // The first tuple in the array contains the URL
       const [[, url]] = await uploadFile(file);
       form.setValue(field, url);
+      
       toast({
-        title: 'Success',
+        title: 'Upload successful',
         description: `${field === 'picture' ? 'Profile picture' : 'Banner'} uploaded successfully`,
       });
     } catch (error) {
       console.error(`Failed to upload ${field}:`, error);
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       toast({
-        title: 'Error',
-        description: `Failed to upload ${field === 'picture' ? 'profile picture' : 'banner'}. Please try again.`,
+        title: 'Upload failed',
+        description: errorMessage,
         variant: 'destructive',
       });
     }
@@ -113,6 +126,11 @@ export const EditProfileForm: React.FC = () => {
         title: 'Success',
         description: 'Your profile has been updated',
       });
+
+      // Call the success callback if provided
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch (error) {
       console.error('Failed to update profile:', error);
       toast({
@@ -176,6 +194,7 @@ export const EditProfileForm: React.FC = () => {
                 description="URL to your profile picture. You can upload an image or provide a URL."
                 previewType="square"
                 onUpload={(file) => uploadPicture(file, 'picture')}
+                isUploading={isUploading}
               />
             )}
           />
@@ -191,6 +210,7 @@ export const EditProfileForm: React.FC = () => {
                 description="URL to a wide banner image for your profile. You can upload an image or provide a URL."
                 previewType="wide"
                 onUpload={(file) => uploadPicture(file, 'banner')}
+                isUploading={isUploading}
               />
             )}
           />
@@ -281,6 +301,7 @@ interface ImageUploadFieldProps {
   description: string;
   previewType: 'square' | 'wide';
   onUpload: (file: File) => void;
+  isUploading: boolean;
 }
 
 const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
@@ -290,8 +311,30 @@ const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
   description,
   previewType,
   onUpload,
+  isUploading,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('File size must be less than 10MB');
+      return;
+    }
+
+    onUpload(file);
+    // Reset input to allow re-uploading the same file
+    e.target.value = '';
+  };
 
   return (
     <FormItem>
@@ -304,6 +347,7 @@ const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
             value={field.value ?? ''}
             onChange={e => field.onChange(e.target.value)}
             onBlur={field.onBlur}
+            disabled={isUploading}
           />
         </FormControl>
         <div className="flex items-center gap-2">
@@ -314,28 +358,33 @@ const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
             className="hidden"
             title={`Upload ${label}`}
             placeholder={`Choose ${label} image`}
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) {
-                onUpload(file);
-              }
-            }}
+            onChange={handleFileSelect}
+            disabled={isUploading}
           />
           <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={() => fileInputRef.current?.click()}
+            disabled={isUploading}
           >
-            <Upload className="h-4 w-4 mr-2" />
-            Upload Image
+            {isUploading ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Upload className="h-4 w-4 mr-2" />
+            )}
+            {isUploading ? 'Uploading...' : 'Upload Image'}
           </Button>
           {field.value && (
-            <div className={`h-10 ${previewType === 'square' ? 'w-10' : 'w-24'} rounded overflow-hidden`}>
+            <div className={`h-10 ${previewType === 'square' ? 'w-10' : 'w-24'} rounded overflow-hidden border`}>
               <img 
                 src={field.value} 
                 alt={`${label} preview`} 
                 className="h-full w-full object-cover"
+                onError={(e) => {
+                  // Handle broken image URLs
+                  e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjZjNmNGY2Ii8+CjxwYXRoIGQ9Im0xNSA5LTYgNi02LTYiIHN0cm9rZT0iIzY5NzA3YiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+';
+                }}
               />
             </div>
           )}

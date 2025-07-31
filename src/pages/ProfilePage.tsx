@@ -4,9 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { 
   User, 
@@ -14,13 +12,14 @@ import {
   Shield, 
   Copy, 
   Check,
-  Camera,
-  Save,
   X
 } from 'lucide-react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useToast } from '@/hooks/useToast';
 import { useMiniApp } from '@/hooks/useMiniApp';
+import { EditProfileForm } from '@/components/EditProfileForm';
+import LoginDialog from '@/components/auth/LoginDialog';
+import SignupDialog from '@/components/auth/SignupDialog';
 
 export function ProfilePage() {
   const { user, metadata } = useCurrentUser();
@@ -28,14 +27,8 @@ export function ProfilePage() {
   const { isMiniApp, miniAppUser } = useMiniApp();
   const [isEditing, setIsEditing] = useState(false);
   const [copied, setCopied] = useState(false);
-  
-  const [editData, setEditData] = useState({
-    name: metadata?.name || '',
-    about: metadata?.about || '',
-    picture: metadata?.picture || '',
-    nip05: metadata?.nip05 || '',
-    website: metadata?.website || ''
-  });
+  const [showLogin, setShowLogin] = useState(false);
+  const [showSignup, setShowSignup] = useState(false);
 
   const userDisplayName = metadata?.name || `User ${user?.pubkey.slice(0, 8)}`;
   const userPicture = metadata?.picture;
@@ -48,7 +41,8 @@ export function ProfilePage() {
         title: "Copied to clipboard",
         description: "Public key copied successfully",
       });
-      setTimeout(() => setCopied(false), 2000);    } catch {
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
       toast({
         title: "Failed to copy",
         description: "Could not copy to clipboard",
@@ -57,24 +51,18 @@ export function ProfilePage() {
     }
   };
 
-  const handleSave = async () => {
-    // TODO: Implement profile update via Nostr
+  const handleLogin = () => {
+    setShowLogin(false);
+    setShowSignup(false);
     toast({
-      title: "Profile updated",
-      description: "Your profile has been saved successfully",
+      title: "Welcome to Angor Hub!",
+      description: "You have successfully signed in with Nostr",
     });
-    setIsEditing(false);
   };
 
-  const handleCancel = () => {
-    setEditData({
-      name: metadata?.name || '',
-      about: metadata?.about || '',
-      picture: metadata?.picture || '',
-      nip05: metadata?.nip05 || '',
-      website: metadata?.website || ''
-    });
-    setIsEditing(false);
+  const handleSignup = () => {
+    setShowLogin(false);
+    setShowSignup(true);
   };
 
   if (!user && !isMiniApp) {
@@ -87,9 +75,23 @@ export function ProfilePage() {
             <p className="text-muted-foreground mb-4">
               You need to sign in with Nostr to view your profile
             </p>
-            <Button>Sign in with Nostr</Button>
+            <Button onClick={() => setShowLogin(true)}>Sign in with Nostr</Button>
           </CardContent>
         </Card>
+
+        {/* Login Dialog */}
+        <LoginDialog
+          isOpen={showLogin}
+          onClose={() => setShowLogin(false)}
+          onLogin={handleLogin}
+          onSignup={handleSignup}
+        />
+
+        {/* Signup Dialog */}
+        <SignupDialog
+          isOpen={showSignup}
+          onClose={() => setShowSignup(false)}
+        />
       </div>
     );
   }
@@ -214,25 +216,19 @@ export function ProfilePage() {
             <h1 className="text-3xl font-bold">Profile</h1>
             <p className="text-muted-foreground">Manage your Nostr identity and preferences</p>
           </div>
-          <div className="flex gap-2">
+          <Button onClick={() => setIsEditing(!isEditing)}>
             {isEditing ? (
               <>
-                <Button variant="outline" onClick={handleCancel}>
-                  <X className="w-4 h-4 mr-2" />
-                  Cancel
-                </Button>
-                <Button onClick={handleSave}>
-                  <Save className="w-4 h-4 mr-2" />
-                  Save Changes
-                </Button>
+                <X className="w-4 h-4 mr-2" />
+                Cancel
               </>
             ) : (
-              <Button onClick={() => setIsEditing(true)}>
+              <>
                 <Edit className="w-4 h-4 mr-2" />
                 Edit Profile
-              </Button>
+              </>
             )}
-          </div>
+          </Button>
         </div>
 
         <Tabs defaultValue="profile" className="space-y-6">
@@ -243,144 +239,115 @@ export function ProfilePage() {
 
           {/* Profile Tab */}
           <TabsContent value="profile" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Public Profile</CardTitle>
-                <CardDescription>
-                  This information is visible to other users on the network
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Avatar Section */}
-                <div className="flex items-center gap-6">
-                  <div className="relative">
-                    <Avatar className="w-24 h-24 ring-4 ring-purple-500/20">
-                      {userPicture && <AvatarImage src={isEditing ? editData.picture : userPicture} />}
-                      <AvatarFallback className="bg-gradient-to-br from-purple-500 to-indigo-500 text-white text-2xl font-bold">
-                        {userDisplayName.slice(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    {isEditing && (
-                      <Button 
-                        size="sm" 
-                        className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full"
-                        variant="secondary"
-                      >
-                        <Camera className="w-4 h-4" />
-                      </Button>
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Display Name</Label>
-                      {isEditing ? (
-                        <Input
-                          id="name"
-                          value={editData.name}
-                          onChange={(e) => setEditData(prev => ({ ...prev, name: e.target.value }))}
-                          placeholder="Your display name"
-                        />
-                      ) : (
-                        <p className="text-lg font-semibold">{userDisplayName}</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* Profile Fields */}
-                <div className="grid gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="about">About</Label>
-                    {isEditing ? (
-                      <Textarea
-                        id="about"
-                        value={editData.about}
-                        onChange={(e) => setEditData(prev => ({ ...prev, about: e.target.value }))}
-                        placeholder="Tell others about yourself..."
-                        rows={3}
-                      />
-                    ) : (
-                      <p className="text-muted-foreground">
-                        {metadata?.about || "No bio provided"}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="website">Website</Label>
-                      {isEditing ? (
-                        <Input
-                          id="website"
-                          value={editData.website}
-                          onChange={(e) => setEditData(prev => ({ ...prev, website: e.target.value }))}
-                          placeholder="https://yourwebsite.com"
-                        />
-                      ) : (
-                        <p className="text-muted-foreground">
-                          {metadata?.website || "No website provided"}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="nip05">NIP-05 Identifier</Label>
-                      {isEditing ? (
-                        <Input
-                          id="nip05"
-                          value={editData.nip05}
-                          onChange={(e) => setEditData(prev => ({ ...prev, nip05: e.target.value }))}
-                          placeholder="user@domain.com"
-                        />
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          <p className="text-muted-foreground">
-                            {metadata?.nip05 || "Not verified"}
-                          </p>
-                          {metadata?.nip05 && (
+            {isEditing ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Edit Profile</CardTitle>
+                  <CardDescription>
+                    Update your public profile information. Changes are published to the Nostr network.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <EditProfileForm onSuccess={() => setIsEditing(false)} />
+                </CardContent>
+              </Card>
+            ) : (
+              <>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Public Profile</CardTitle>
+                    <CardDescription>
+                      This information is visible to other users on the network
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {/* Avatar Section */}
+                    <div className="flex items-center gap-6">
+                      <Avatar className="w-24 h-24 ring-4 ring-purple-500/20">
+                        {userPicture && <AvatarImage src={userPicture} />}
+                        <AvatarFallback className="bg-gradient-to-br from-purple-500 to-indigo-500 text-white text-2xl font-bold">
+                          {userDisplayName.slice(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <h2 className="text-2xl font-semibold">{userDisplayName}</h2>
+                        {metadata?.nip05 && (
+                          <div className="flex items-center gap-2 mt-2">
                             <Badge variant="secondary" className="text-xs">
                               <Shield className="w-3 h-3 mr-1" />
-                              Verified
+                              {metadata.nip05}
                             </Badge>
-                          )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Profile Info */}
+                    <div className="grid gap-4">
+                      {metadata?.about && (
+                        <div className="space-y-2">
+                          <Label>About</Label>
+                          <p className="text-muted-foreground">{metadata.about}</p>
                         </div>
                       )}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
 
-            {/* Public Key Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Public Key</CardTitle>
-                <CardDescription>
-                  Your unique Nostr identifier
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 bg-muted rounded-lg">
-                  <code className="flex-1 text-xs font-mono break-all overflow-wrap-anywhere w-full min-w-0">
-                    {user.pubkey}
-                  </code>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => copyToClipboard(user.pubkey)}
-                    className="shrink-0 self-start"
-                  >
-                    {copied ? (
-                      <Check className="w-4 h-4 text-green-500" />
-                    ) : (
-                      <Copy className="w-4 h-4" />
-                    )}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {metadata?.website && (
+                          <div className="space-y-2">
+                            <Label>Website</Label>
+                            <p className="text-muted-foreground">{metadata.website}</p>
+                          </div>
+                        )}
+
+                        {metadata?.nip05 && (
+                          <div className="space-y-2">
+                            <Label>NIP-05 Identifier</Label>
+                            <div className="flex items-center gap-2">
+                              <p className="text-muted-foreground">{metadata.nip05}</p>
+                              <Badge variant="secondary" className="text-xs">
+                                <Shield className="w-3 h-3 mr-1" />
+                                Verified
+                              </Badge>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Public Key Card */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Public Key</CardTitle>
+                    <CardDescription>
+                      Your unique Nostr identifier
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 bg-muted rounded-lg">
+                      <code className="flex-1 text-xs font-mono break-all overflow-wrap-anywhere w-full min-w-0">
+                        {user.pubkey}
+                      </code>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => copyToClipboard(user.pubkey)}
+                        className="shrink-0 self-start"
+                      >
+                        {copied ? (
+                          <Check className="w-4 h-4 text-green-500" />
+                        ) : (
+                          <Copy className="w-4 h-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
+            )}
           </TabsContent>
 
           {/* Security Tab */}
