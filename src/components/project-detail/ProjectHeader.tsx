@@ -129,23 +129,12 @@ export function ProjectHeader({
               }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
-            {/* Project name overlay */}
-            <div className="absolute bottom-4 left-4 text-white">
-              <div className="text-sm font-medium opacity-90">
-                {projectData?.name || project?.metadata?.name || profile?.name}
-              </div>
-            </div>
           </>
         ) : (
           /* Fallback gradient banner */
           <div className="banner-fallback w-full h-full bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center">
             <div className="text-white text-center">
-              <div className="text-lg font-semibold mb-1">
-                {projectData?.name || project?.metadata?.name || profile?.name || 'Project'}
-              </div>
-              <div className="text-sm opacity-80">
-                Banner (820×312px)
-              </div>
+
             </div>
           </div>
         )}
@@ -213,9 +202,7 @@ export function ProjectHeader({
             </div>
           </div>
 
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight">
-            {projectData?.name || profile?.name || additionalData?.project?.projectIdentifier || project?.projectIdentifier || 'Unnamed Project'}
-          </h1>
+
         </div>
         
         {/* Desktop Share/Like Actions */}
