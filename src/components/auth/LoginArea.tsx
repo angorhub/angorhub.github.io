@@ -24,6 +24,10 @@ export function LoginArea({ className }: LoginAreaProps) {
     setSignupDialogOpen(false);
   };
 
+  const handleSignupOpen = () => {
+    setSignupDialogOpen(true);
+  };
+
   return (
     <div className={cn("inline-flex items-center justify-center", className)}>
       {currentUser ? (
@@ -42,7 +46,7 @@ export function LoginArea({ className }: LoginAreaProps) {
         isOpen={loginDialogOpen} 
         onClose={() => setLoginDialogOpen(false)} 
         onLogin={handleLogin}
-        onSignup={() => setSignupDialogOpen(true)}
+        onSignup={handleSignupOpen}
       />
 
       <SignupDialog

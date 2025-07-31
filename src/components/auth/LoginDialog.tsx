@@ -88,10 +88,10 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onClose, onLogin, onS
   };
 
   const handleSignupClick = () => {
-    onClose();
     if (onSignup) {
       onSignup();
     }
+    onClose();
   };
   return (    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className='w-[90vw] max-w-sm mx-auto p-0 overflow-hidden rounded-xl border-0 shadow-2xl bg-background'>

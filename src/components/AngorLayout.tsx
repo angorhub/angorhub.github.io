@@ -24,6 +24,7 @@ import { useLoginActions } from '@/hooks/useLoginActions';
 import { useMiniApp } from '@/hooks/useMiniApp';
 import { useSearch } from '@/hooks/useSearch';
 import LoginDialog from '@/components/auth/LoginDialog';
+import SignupDialog from '@/components/auth/SignupDialog';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useToast } from '@/hooks/useToast';
 import { useAppContext } from '@/hooks/useAppContext';
@@ -46,10 +47,11 @@ export function AngorLayout({ children }: AngorLayoutProps) {
   // Check if we're on the home page
   const isHomePage = location.pathname === '/';
   
+  const [showLogin, setShowLogin] = useState(false);
+  const [showSignup, setShowSignup] = useState(false);
+  
   // Temporary debug
   console.log('Debug: isMiniApp =', isMiniApp, 'miniAppUser =', miniAppUser);
-  
-  const [showLogin, setShowLogin] = useState(false);
 
   // Close mobile menu on escape key
   const handleLogout = async () => {
@@ -243,6 +245,17 @@ export function AngorLayout({ children }: AngorLayoutProps) {
               description: "You have successfully signed in with Nostr",
             });
           }}
+          onSignup={() => {
+            setShowLogin(false);
+            setShowSignup(true);
+          }}
+        />
+      )}
+
+      {!isMiniApp && (
+        <SignupDialog
+          isOpen={showSignup}
+          onClose={() => setShowSignup(false)}
         />
       )}
       
