@@ -16,7 +16,6 @@ import { RelayProvider } from '@/contexts/RelayContext';
 import { SearchProvider } from '@/contexts/SearchContext';
 import { PWAInstall } from '@/components/PWAInstall';
 import { PWAUpdateNotification } from '@/components/PWAUpdateNotification';
-import { NetworkStatus } from '@/components/NetworkStatus';
 import AppRouter from './AppRouter';
 import type { AppConfig } from "./contexts/AppContext";
 
@@ -67,7 +66,6 @@ export function App() {
                         <Toaster />
                         <Sonner />
                         <PWAUpdateNotification />
-                        <NetworkStatus />
                         <PWAInstall />
                         <Suspense>
                           <AppRouter />
