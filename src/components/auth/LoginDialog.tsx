@@ -156,7 +156,8 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onClose, onLogin, onS
                   </p>
                 )}
               </div>
-            </TabsContent>            <TabsContent value='key' className='space-y-3 sm:space-y-4 mt-3 sm:mt-4'>
+            </TabsContent>            
+            <TabsContent value='key' className='space-y-3 sm:space-y-4 mt-3 sm:mt-4'>
               <div className='space-y-3 sm:space-y-4 p-3 sm:p-4 rounded-lg bg-secondary/50 border border-border'>
                 <div className="text-center mb-2 sm:mb-3">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary rounded-lg flex items-center justify-center mx-auto mb-2 shadow-lg">
