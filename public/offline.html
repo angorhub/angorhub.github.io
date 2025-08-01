@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Angor Hub - Offline</title>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+      background: linear-gradient(135deg, #022229 0%, #086c81 100%);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .container {
+      text-align: center;
+      max-width: 400px;
+      padding: 40px 30px;
+      background: rgba(203, 221, 225, 0.1);
+      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(20px);
+      border-radius: 16px;
+      border: 1px solid rgba(203, 221, 225, 0.2);
+      box-shadow: 0 20px 40px rgba(2, 34, 41, 0.3);
+    }
+    
+    .logo {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 24px;
+      background: #086c81;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      color: white;
+      box-shadow: 0 8px 24px rgba(8, 108, 129, 0.3);
+    }
+    
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #cbdde1;
+    }
+    
+    .subtitle {
+      font-size: 1rem;
+      margin-bottom: 32px;
+      opacity: 0.8;
+      color: #cbdde1;
+      line-height: 1.5;
+    }
+    
+    .status {
+      background: rgba(8, 108, 129, 0.2);
+      border: 1px solid rgba(8, 108, 129, 0.3);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 32px;
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+    }
+    
+    .status-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #cbdde1;
+    }
+    
+    .status-text {
+      font-size: 13px;
+      opacity: 0.9;
+      line-height: 1.4;
+    }
+    
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .btn {
+      padding: 14px 24px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+    }
+    
+    .btn-primary {
+      background: #086c81;
+      color: white;
+      box-shadow: 0 4px 16px rgba(8, 108, 129, 0.3);
+    }
+    
+    .btn-primary:hover {
+      background: #0a7a93;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(8, 108, 129, 0.4);
+    }
+    
+    .btn-secondary {
+      background: rgba(203, 221, 225, 0.1);
+      color: #cbdde1;
+      border: 1px solid rgba(203, 221, 225, 0.3);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(203, 221, 225, 0.2);
+      transform: translateY(-2px);
+    }
+    
+    .footer {
+      margin-top: 32px;
+      font-size: 12px;
+      opacity: 0.6;
+      color: #cbdde1;
+      line-height: 1.5;
+    }
+    
+    @media (max-width: 480px) {
+      .container {
+        padding: 30px 20px;
+        margin: 10px;
+      }
+      
+      h1 {
+        font-size: 1.5rem;
+      }
+      
+      .subtitle {
+        font-size: 0.9rem;
+      }
+      
+      .logo {
+        width: 56px;
+        height: 56px;
+        font-size: 20px;
+      }
+    }
+    
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+    
+    .slide-up {
+      animation: slideUp 0.6s ease-out;
+    }
+    
+    @keyframes slideUp {
+      from {
+        transform: translateY(20px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container slide-up">
+    <div class="logo pulse">
+        <img src="icon-192.png" width="70" height="70" alt="" srcset="">
+    </div>
+    
+    <h1>Service Unavailable</h1>
+    <p class="subtitle">Angor Hub is temporarily offline</p>
+    
+    <div class="status">
+      <div class="status-title">Connection Status</div>
+      <div class="status-text">Unable to connect to the server. This may be due to maintenance or network issues.</div>
+    </div>
+    
+    <div class="actions">
+      <button class="btn btn-primary" id="tryAgainBtn">
+        Try Again
+      </button>
+      <button class="btn btn-secondary" id="checkStatusBtn">
+        Check Connection
+      </button>
+    </div>
+    
+    <div class="footer">
+      <p><strong>Angor Hub</strong></p>
+      <p>Decentralized Bitcoin Crowdfunding Platform</p>
+    </div>
+  </div>
+
+  <script src="/offline.js"></script>
+</body>
+</html>

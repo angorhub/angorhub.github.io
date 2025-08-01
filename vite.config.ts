@@ -12,7 +12,8 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'icon-192.png', 'icon-512.png', 'logo-name-dark.svg', 'logo-name-light.svg'],
+      strategies: 'generateSW',
+      includeAssets: ['favicon.ico', 'icon-192.png', 'icon-512.png', 'logo-name-dark.svg', 'logo-name-light.svg', 'offline.html', 'offline.js'],
       manifest: {
         name: 'Angor Hub',
         short_name: 'Angor Hub',
@@ -41,6 +42,8 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest}'],
+        skipWaiting: true,
+        clientsClaim: true,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,

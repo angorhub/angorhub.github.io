@@ -112,21 +112,32 @@ export function usePWAUpdate(): PWAUpdateAvailable {
       // If there's a waiting service worker, tell it to take control
       if (registration.waiting) {
         console.log('Sending SKIP_WAITING message to service worker')
-        registration.waiting.postMessage({ type: 'SKIP_WAITING' })
-      } else {
-        console.log('No waiting service worker, forcing update check')
-        // Force an update check
-        await registration.update()
         
-        // Check again for waiting worker after update
-        const updatedReg = await navigator.serviceWorker.ready
-        if (updatedReg.waiting) {
-          updatedReg.waiting.postMessage({ type: 'SKIP_WAITING' })
-        } else {
-          // If no waiting worker, just reload to get the latest version
-          console.log('No waiting worker found, reloading page')
+        // Set up a timeout to reload if the SW doesn't respond
+        const reloadTimeout = setTimeout(() => {
+          console.log('Service worker update timeout, forcing reload')
           window.location.reload()
+        }, 3000)
+        
+        // Listen for controller change once
+        const handleControllerChange = () => {
+          console.log('Service worker controller changed - reloading page')
+          clearTimeout(reloadTimeout)
+          navigator.serviceWorker.removeEventListener('controllerchange', handleControllerChange)
+          setTimeout(() => {
+            window.location.reload()
+          }, 100)
         }
+        
+        navigator.serviceWorker.addEventListener('controllerchange', handleControllerChange)
+        
+        // Send the skip waiting message
+        registration.waiting.postMessage({ type: 'SKIP_WAITING' })
+        
+      } else {
+        console.log('No waiting service worker, forcing reload')
+        // No waiting worker, just reload the page
+        window.location.reload()
       }
     } catch (error) {
       console.error('Error during service worker update:', error)

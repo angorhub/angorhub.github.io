@@ -27,10 +27,25 @@ export function PWAUpdateNotification() {
   const handleUpdate = async () => {
     setIsUpdating(true)
     try {
+      // Set a timeout to reset updating state if it takes too long
+      const timeout = setTimeout(() => {
+        console.log('Update taking too long, showing error')
+        setIsUpdating(false)
+        // Show a brief error message or force reload
+        window.location.reload()
+      }, 5000)
+      
       await updateSW()
+      
+      // Clear timeout if update completes successfully
+      clearTimeout(timeout)
     } catch (error) {
       console.error('Update failed:', error)
       setIsUpdating(false)
+      // Fallback: force reload
+      setTimeout(() => {
+        window.location.reload()
+      }, 1000)
     }
   }
 
