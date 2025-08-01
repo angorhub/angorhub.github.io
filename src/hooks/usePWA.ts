@@ -86,15 +86,6 @@ export function usePWAUpdate(): PWAUpdateAvailable {
       navigator.serviceWorker.addEventListener('message', handleSWMessage)
       window.addEventListener('sw-update', handleSWUpdate)
 
-      // Listen for service worker controller changes
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        console.log('Service worker controller changed - reloading page')
-        // Small delay to ensure the new SW is fully active
-        setTimeout(() => {
-          window.location.reload()
-        }, 100)
-      })
-
       return () => {
         navigator.serviceWorker.removeEventListener('message', handleSWMessage)
         window.removeEventListener('sw-update', handleSWUpdate)
@@ -113,16 +104,9 @@ export function usePWAUpdate(): PWAUpdateAvailable {
       if (registration.waiting) {
         console.log('Sending SKIP_WAITING message to service worker')
         
-        // Set up a timeout to reload if the SW doesn't respond
-        const reloadTimeout = setTimeout(() => {
-          console.log('Service worker update timeout, forcing reload')
-          window.location.reload()
-        }, 3000)
-        
-        // Listen for controller change once
+        // Listen for controller change once to reload the page
         const handleControllerChange = () => {
           console.log('Service worker controller changed - reloading page')
-          clearTimeout(reloadTimeout)
           navigator.serviceWorker.removeEventListener('controllerchange', handleControllerChange)
           setTimeout(() => {
             window.location.reload()

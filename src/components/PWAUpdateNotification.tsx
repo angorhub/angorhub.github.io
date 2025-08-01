@@ -15,30 +15,15 @@ export function PWAUpdateNotification() {
       setIsVisible(true)
       setHasShown(true)
       
-      // Auto-hide after 10 seconds to avoid being too intrusive
-      const timer = setTimeout(() => {
-        setIsVisible(false)
-      }, 10000)
-      
-      return () => clearTimeout(timer)
+      // Don't auto-hide - let user decide when to update
     }
   }, [updateAvailable, hasShown])
 
   const handleUpdate = async () => {
     setIsUpdating(true)
     try {
-      // Set a timeout to reset updating state if it takes too long
-      const timeout = setTimeout(() => {
-        console.log('Update taking too long, showing error')
-        setIsUpdating(false)
-        // Show a brief error message or force reload
-        window.location.reload()
-      }, 5000)
-      
       await updateSW()
-      
-      // Clear timeout if update completes successfully
-      clearTimeout(timeout)
+      // Note: The page will reload automatically after updateSW completes
     } catch (error) {
       console.error('Update failed:', error)
       setIsUpdating(false)
