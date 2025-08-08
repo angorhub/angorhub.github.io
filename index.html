@@ -3,9 +3,1472 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Angor Hub</title>
+    <title>🛰️ Angor Hub - Decentralized Micro-Hub Framework</title>
+    <meta name="description" content="A decentralized, extensible framework for creating curated portals of Angor projects. Build your own Bitcoin-native crowdfunding hub without backend or database.">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #086c81;
+            --secondary-color: #71bacb;
+            --dark-bg: #022229;
+            --light-bg: #ffffff;
+            --text-dark: #022229;
+            --text-light: #086c81;
+            --text-white: #ffffff;
+            --border-color: #cbdde1;
+            --gradient-bg: linear-gradient(135deg, #086c81 0%, #022229 100%);
+            --card-shadow: 0 10px 40px rgba(2, 34, 41, 0.1);
+            --hover-shadow: 0 20px 60px rgba(2, 34, 41, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: var(--light-bg);
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        /* Mobile Menu */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .mobile-menu-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(2, 34, 41, 0.9);
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .mobile-menu-overlay.active {
+            display: flex;
+            opacity: 1;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-menu {
+            background: var(--light-bg);
+            border-radius: 20px;
+            padding: 2rem;
+            min-width: 300px;
+            max-width: 90vw;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+            box-shadow: 0 20px 60px rgba(2, 34, 41, 0.3);
+        }
+
+        .mobile-menu-overlay.active .mobile-menu {
+            transform: scale(1);
+        }
+
+        .mobile-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .mobile-menu-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .mobile-menu-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .mobile-nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .mobile-nav-links a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 500;
+            font-size: 1.1rem;
+            padding: 1rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .mobile-nav-links a:hover {
+            background: var(--secondary-color);
+            color: var(--primary-color);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: var(--gradient-bg);
+            padding: 100px 0;
+            text-align: center;
+            color: var(--text-white);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="rgba(255,255,255,0.05)" points="0,1000 1000,0 1000,1000"/></svg>');
+            background-size: cover;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: var(--text-white);
+            color: var(--primary-color);
+            padding: 15px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 0;
+            background: #fafafa;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            color: var(--text-dark);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: var(--light-bg);
+            padding: 2.5rem;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+
+        .feature-card p {
+            color: var(--text-light);
+            line-height: 1.7;
+        }
+
+        /* Components Section */
+        .components {
+            padding: 100px 0;
+            background: var(--light-bg);
+        }
+
+        .components-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .component-card {
+            background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+
+        .component-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+        }
+
+        .component-card h4 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .component-card p {
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        /* Community Idea Hub */
+        .idea-hub {
+            padding: 100px 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .idea-hub-content {
+            margin-top: 3rem;
+        }
+
+        .idea-process {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .idea-step {
+            background: var(--light-bg);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .idea-step:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+        }
+
+        .idea-step .step-number {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin: 0 auto 1rem;
+        }
+
+        .idea-step h4 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .idea-benefits {
+            background: var(--light-bg);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            margin-bottom: 3rem;
+        }
+
+        .idea-benefits-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .benefit-card {
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .benefit-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .benefit-card h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .benefit-card p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .idea-showcase {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 3rem;
+            border-radius: 20px;
+            color: white;
+            text-align: center;
+        }
+
+        .idea-showcase h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+        }
+
+        .success-story {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            background: rgba(255,255,255,0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: left;
+        }
+
+        .story-icon {
+            font-size: 3rem;
+            flex-shrink: 0;
+        }
+
+        .story-content h4 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .story-content p {
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .story-stats {
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        /* Use Cases */
+        .use-cases {
+            padding: 100px 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .use-case-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .use-case {
+            background: var(--light-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.06);
+            transition: all 0.3s ease;
+        }
+
+        .use-case:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .use-case-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .use-case h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+
+        .use-case p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        /* Vision Section */
+        .vision {
+            padding: 100px 0;
+            background: var(--dark-bg);
+            color: var(--text-white);
+            text-align: center;
+        }
+
+        .vision h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+        }
+
+        .vision-points {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .vision-point {
+            padding: 1.5rem;
+        }
+
+        .vision-point i {
+            font-size: 2.5rem;
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+
+        .vision-point h4 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Footer */
+        footer {
+            background: #111;
+            color: var(--text-white);
+            padding: 3rem 0 1rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            margin-bottom: 2rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-links a {
+            color: var(--text-white);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--secondary-color);
+        }
+
+        .copyright {
+            border-top: 1px solid #333;
+            padding-top: 1rem;
+            opacity: 0.7;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .features-grid,
+            .components-grid,
+            .idea-process,
+            .benefits-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .success-story {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        /* Scroll animations */
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+
+        .animate-on-scroll.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Additional utility classes */
+        .intro-text {
+            text-align: center;
+            font-size: 1.2rem;
+            color: var(--text-light);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .example-box {
+            margin-top: 4rem;
+            padding: 2rem;
+            background: var(--light-bg);
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .example-title {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .example-text {
+            color: var(--text-light);
+        }
+
+        .vision-subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        /* About section styles */
+        .about {
+            padding: 100px 0;
+            background: var(--light-bg);
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+
+        .about-item h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+
+        .about-item p {
+            color: var(--text-light);
+            line-height: 1.7;
+        }
+
+        /* Launch Hub section */
+        .launch-hub {
+            padding: 100px 0;
+            background: linear-gradient(135deg, #cbdde1 0%, #f8f9fa 100%);
+        }
+
+        .launch-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .launch-step {
+            background: var(--light-bg);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .launch-step:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .step-number {
+            background: var(--primary-color);
+            color: var(--text-white);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 auto 1.5rem;
+        }
+
+        .launch-step h4 {
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .launch-step p {
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        .cta-section {
+            text-align: center;
+            margin-top: 4rem;
+            padding: 3rem;
+            background: var(--light-bg);
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .cta-section h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: var(--text-white);
+            padding: 12px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary:hover {
+            background: var(--dark-bg);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary-color);
+            padding: 12px 30px;
+            border: 2px solid var(--primary-color);
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-color);
+            color: var(--text-white);
+        }
+
+        .white-label-section {
+            margin-top: 4rem;
+        }
+
+        .white-label-title {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+        }
+
+        /* Powered by Angor section */
+        .angor-powered {
+            padding: 60px 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        }
+
+        .angor-content {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .angor-title {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+
+        .angor-description {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        /* Nostr features section */
+        .nostr-features {
+            padding: 100px 0;
+            background: linear-gradient(135deg, #e8f4f8 0%, #f0f9fc 100%);
+        }
+
+        .nostr-benefits {
+            margin-top: 4rem;
+            text-align: center;
+        }
+
+        .nostr-benefits-title {
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+        }
+    </style>
 </head>
 <body>
-    
+    <!-- Header -->
+    <header>
+        <nav class="container">
+            <div class="logo">🛰️ Angor Hub</div>
+            <ul class="nav-links">
+                <li><a href="#about">About</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#components">Components</a></li>
+                <li><a href="#idea-hub">Ideas</a></li>
+                <li><a href="#use-cases">Use Cases</a></li>
+                <li><a href="#launch">Launch Hub</a></li>
+                <li><a href="#vision">Vision</a></li>
+            </ul>
+            <button class="mobile-menu-btn" onclick="openMobileMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="closeMobileMenu(event)">
+        <div class="mobile-menu" onclick="event.stopPropagation()">
+            <div class="mobile-menu-header">
+                <div class="mobile-menu-title">🛰️ Menu</div>
+                <button class="mobile-menu-close" onclick="closeMobileMenu()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <ul class="mobile-nav-links">
+                <li><a href="#about" onclick="closeMobileMenu()">About</a></li>
+                <li><a href="#features" onclick="closeMobileMenu()">Features</a></li>
+                <li><a href="#components" onclick="closeMobileMenu()">Components</a></li>
+                <li><a href="#idea-hub" onclick="closeMobileMenu()">Ideas</a></li>
+                <li><a href="#use-cases" onclick="closeMobileMenu()">Use Cases</a></li>
+                <li><a href="#launch" onclick="closeMobileMenu()">Launch Hub</a></li>
+                <li><a href="#vision" onclick="closeMobileMenu()">Vision</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content fade-in-up">
+                <h1>🛰️ Angor Hub</h1>
+                <p class="hero-subtitle">Create your own crowdfunding platform in 5 minutes</p>
+                <a href="#features" class="cta-button">See How</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about" id="about">
+        <div class="container">
+            <h2 class="section-title animate-on-scroll">About Angor Hub</h2>
+            <div class="about-grid">
+                <div class="about-item animate-on-scroll">
+                    <h3>🎯 What We Do</h3>
+                    <p>
+                        We help communities create their own crowdfunding websites. No coding needed. No servers required. Just copy, customize, and launch.
+                    </p>
+                </div>
+                <div class="about-item animate-on-scroll">
+                    <h3>⚡ How It Works</h3>
+                    <p>
+                        Your hub connects directly to the Bitcoin network and decentralized data sources. No middlemen, no gatekeepers - just pure peer-to-peer crowdfunding.
+                    </p>
+                </div>
+                <div class="about-item animate-on-scroll">
+                    <h3>🌍 Why It Matters</h3>
+                    <p>
+                        Every community deserves its own crowdfunding space. Musicians, gamers, students, activists - everyone should control their own platform.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- What is Angor Hub -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title animate-on-scroll">What is Angor Hub?</h2>
+            <div class="animate-on-scroll">
+                <p class="intro-text">
+                    Want your own crowdfunding website? We make it super easy. Pick a template, add your logo, and you're done. No technical skills needed.
+                </p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">🌐</div>
+                    <h3>Launch in Minutes</h3>
+                    <p>Copy our template, change the colors, add your logo. That's it! Host it anywhere - even for free.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Show What You Want</h3>
+                    <p>Only display projects your community cares about. Music? Games? Education? You choose what shows up.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">🔗</div>
+                    <h3>Works Everywhere</h3>
+                    <p>Add it to your website, blog, or app. Works with everything. No complicated setup required.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Nostr Features -->
+    <section class="nostr-features">
+        <div class="container">
+            <h2 class="section-title animate-on-scroll">🌐 Full Nostr Integration</h2>
+            <div class="animate-on-scroll">
+                <p class="intro-text">
+                    Every feature you love from Nostr clients works perfectly with Angor projects. Social crowdfunding has never been this powerful.
+                </p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Lightning Zaps</h3>
+                    <p>Send Bitcoin tips instantly to projects you love. Lightning-fast payments with no middlemen.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">💬</div>
+                    <h3>Real Comments</h3>
+                    <p>Comment and discuss projects using your existing Nostr identity. All conversations are decentralized.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">❤️</div>
+                    <h3>Likes & Reactions</h3>
+                    <p>Show support with likes and emoji reactions. Your engagement helps projects get discovered.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">🔄</div>
+                    <h3>Share & Repost</h3>
+                    <p>Spread the word about amazing projects to your Nostr followers with one click.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">👥</div>
+                    <h3>Follow Creators</h3>
+                    <p>Follow project creators and get updates when they launch new campaigns or milestones.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">🏷️</div>
+                    <h3>Smart Tags</h3>
+                    <p>Discover projects by tags and topics. Filter by #music, #education, #art, or any category you love.</p>
+                </div>
+            </div>
+
+            <!-- Nostr Benefits -->
+            <div class="nostr-benefits animate-on-scroll">
+                <h3 class="nostr-benefits-title">Why Nostr Makes It Better</h3>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🔑</div>
+                        <h3>Your Identity, Your Control</h3>
+                        <p>Use your existing Nostr keys. No new accounts needed. You own your identity forever.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🚫</div>
+                        <h3>Censorship Resistant</h3>
+                        <p>Nobody can delete your comments or block your support. True freedom of expression.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🌍</div>
+                        <h3>Global Network</h3>
+                        <p>Connect with supporters worldwide. Your hub plugs into the entire Nostr ecosystem.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Core Components -->
+    <section class="components" id="components">
+        <div class="container">
+            <h2 class="section-title animate-on-scroll">Core Components</h2>
+            <div class="components-grid">
+                <div class="component-card animate-on-scroll">
+                    <h4>Live Widget</h4>
+                    <p>A beautiful box that shows projects in real-time. Just copy-paste it anywhere.</p>
+                </div>
+                <div class="component-card animate-on-scroll">
+                    <h4>Ready Website</h4>
+                    <p>Complete crowdfunding website that works on phones and computers. Just add your brand.</p>
+                </div>
+                <div class="component-card animate-on-scroll">
+                    <h4>Developer Tools</h4>
+                    <p>For tech people who want to build custom stuff. Simple code library that does the hard work.</p>
+                </div>
+                <div class="component-card animate-on-scroll">
+                    <h4>Startup Help</h4>
+                    <p>Guides and tips to help new projects succeed. Everything you need to launch properly.</p>
+                </div>
+                <div class="component-card animate-on-scroll">
+                    <h4>Easy Embedding</h4>
+                    <p>Add project displays to any website with just a few lines of code. Super simple.</p>
+                </div>
+                <div class="component-card animate-on-scroll">
+                    <h4>Custom Templates</h4>
+                    <p>Pre-made designs you can customize. No coding skills needed to make it yours.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Community Idea Hub -->
+    <section class="idea-hub" id="idea-hub">
+        <div class="container">
+            <h2 class="section-title animate-on-scroll">💡 Community Idea Hub</h2>
+            <div class="animate-on-scroll">
+                <p class="intro-text">
+                    Not ready to launch? Start with an idea. Our community helps great ideas find funding.
+                </p>
+            </div>
+            
+            <div class="idea-hub-content">
+                <div class="idea-process">
+                    <div class="idea-step animate-on-scroll">
+                        <div class="step-number">1</div>
+                        <h4>Share Your Idea</h4>
+                        <p>Post your concept, vision, or project draft. No need for a complete plan yet.</p>
+                    </div>
+                    <div class="idea-step animate-on-scroll">
+                        <div class="step-number">2</div>
+                        <h4>Community Feedback</h4>
+                        <p>Get input, suggestions, and votes from people who understand your field.</p>
+                    </div>
+                    <div class="idea-step animate-on-scroll">
+                        <div class="step-number">3</div>
+                        <h4>Find Your Backers</h4>
+                        <p>Popular ideas attract investors and supporters automatically. We connect you.</p>
+                    </div>
+                </div>
+
+                <div class="idea-benefits animate-on-scroll">
+                    <h3 class="idea-benefits-title">Why Ideas Matter</h3>
+                    <div class="benefits-grid">
+                        <div class="benefit-card">
+                            <div class="benefit-icon">🎯</div>
+                            <h4>Validation First</h4>
+                            <p>Test if people actually want your idea before spending time building it.</p>
+                        </div>
+                        <div class="benefit-card">
+                            <div class="benefit-icon">🤝</div>
+                            <h4>Find Co-founders</h4>
+                            <p>Connect with others who share your vision and want to help build it.</p>
+                        </div>
+                        <div class="benefit-card">
+                            <div class="benefit-icon">📊</div>
+                            <h4>Community Voting</h4>
+                            <p>Let the crowd decide which ideas deserve support and resources.</p>
+                        </div>
+                        <div class="benefit-card">
+                            <div class="benefit-icon">💰</div>
+                            <h4>Early Investment</h4>
+                            <p>Good ideas attract funding even before they become full projects.</p>
+                        </div>
+                        <div class="benefit-card">
+                            <div class="benefit-icon">🎓</div>
+                            <h4>Learn & Improve</h4>
+                            <p>Get expert feedback and mentorship from experienced builders in your field.</p>
+                        </div>
+                        <div class="benefit-card">
+                            <div class="benefit-icon">🔥</div>
+                            <h4>Build Hype Early</h4>
+                            <p>Create excitement and gather your first supporters before you even start building.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="idea-showcase animate-on-scroll">
+                    <h3>From Idea to Success</h3>
+                    <div class="success-story">
+                        <div class="story-icon">🎨</div>
+                        <div class="story-content">
+                            <h4>"Digital Art Education App"</h4>
+                            <p>Started as a simple idea post. Got 200+ votes, found two co-founders, and raised $15,000 in pre-funding. Now it's a real app helping artists worldwide.</p>
+                            <span class="story-stats">📈 Idea → $15K → Live Product</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Launch Your Hub Section -->
+    <section class="launch-hub" id="launch">
+        <div class="container">
+            <h2 class="section-title animate-on-scroll">How to Launch</h2>
+            <div class="animate-on-scroll">
+                <p class="intro-text">
+                    Seriously, it's this easy. No coding, no servers, no monthly fees.
+                </p>
+            </div>
+            
+            <div class="launch-steps">
+                <div class="launch-step animate-on-scroll">
+                    <div class="step-number">1</div>
+                    <h4>Get Template</h4>
+                    <p>Download our ready-made website template from GitHub. It's free and works everywhere.</p>
+                </div>
+                <div class="launch-step animate-on-scroll">
+                    <div class="step-number">2</div>
+                    <h4>Make It Yours</h4>
+                    <p>Change colors, add your logo, pick which projects to show. Takes 10 minutes max.</p>
+                </div>
+                <div class="launch-step animate-on-scroll">
+                    <div class="step-number">3</div>
+                    <h4>Go Live</h4>
+                    <p>Upload to any website host. GitHub Pages is free. Your site connects automatically to live project data.</p>
+                </div>
+            </div>
+
+            <div class="cta-section animate-on-scroll">
+                <h3>🚀 Ready to Start?</h3>
+                <p>Join hundreds of communities already using their own Angor Hubs.</p>
+                <div class="cta-buttons">
+                    <a href="https://github.com/angorhub" class="btn-primary">
+                        <i class="fab fa-github"></i>
+                        Get Template
+                    </a>
+                    <a href="#components" class="btn-secondary">
+                        <i class="fas fa-book"></i>
+                        See Examples
+                    </a>
+                </div>
+            </div>
+
+            <!-- White-label Features -->
+            <div class="white-label-section animate-on-scroll">
+                <h3 class="white-label-title">Why People Love It</h3>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🎨</div>
+                        <h3>Your Brand, Your Way</h3>
+                        <p>Complete control over how it looks. No "powered by" links or ads. It's 100% yours.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>No Tech Headaches</h3>
+                        <p>Just HTML files. No servers to maintain, no databases to manage, no monthly hosting bills.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔍</div>
+                        <h3>Focus on Your Niche</h3>
+                        <p>Show only what your community cares about. Music, education, games - you pick what matters.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Use Cases -->
+    <section class="use-cases" id="use-cases">
+        <div class="container">
+            <h2 class="section-title animate-on-scroll">Perfect For</h2>
+            <div class="use-case-grid">
+                <div class="use-case animate-on-scroll">
+                    <div class="use-case-icon">🎨</div>
+                    <h4>Musicians</h4>
+                    <p>Fund your next album or tour. Show only music projects to your fans.</p>
+                </div>
+                <div class="use-case animate-on-scroll">
+                    <div class="use-case-icon">🏗️</div>
+                    <h4>Communities</h4>
+                    <p>Help your members fund their ideas. Keep everything branded and organized.</p>
+                </div>
+                <div class="use-case animate-on-scroll">
+                    <div class="use-case-icon">🎓</div>
+                    <h4>Schools</h4>
+                    <p>Student projects, research funding, or hackathon prizes. Easy to manage.</p>
+                </div>
+                <div class="use-case animate-on-scroll">
+                    <div class="use-case-icon">📢</div>
+                    <h4>Content Creators</h4>
+                    <p>Share cool projects with your audience. Earn from partnerships too.</p>
+                </div>
+                <div class="use-case animate-on-scroll">
+                    <div class="use-case-icon">🧑‍💻</div>
+                    <h4>Developers</h4>
+                    <p>Add crowdfunding to your app easily. Our tools make it simple.</p>
+                </div>
+                <div class="use-case animate-on-scroll">
+                    <div class="use-case-icon">🏢</div>
+                    <h4>Companies</h4>
+                    <p>Internal innovation funding or startup accelerators. Professional and transparent.</p>
+                </div>
+                <div class="use-case animate-on-scroll">
+                    <div class="use-case-icon">🌱</div>
+                    <h4>Charities</h4>
+                    <p>Transparent donations where people see exactly how money is used.</p>
+                </div>
+                <div class="use-case animate-on-scroll">
+                    <div class="use-case-icon">🎮</div>
+                    <h4>Gamers</h4>
+                    <p>Support indie game developers and community tournaments with ease.</p>
+                </div>
+            </div>
+
+            <!-- Real-World Example -->
+            <div class="example-box animate-on-scroll">
+                <h3 class="example-title">Real Example: MusicHub</h3>
+                <p class="example-text">
+                    A group of musicians wanted to help indie artists get funding. They took our template, changed it to show only music projects, and launched it in one afternoon. Now they've helped artists raise over $50,000!
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Competitive Advantages -->
+    <section class="features" id="advantages">
+        <div class="container">
+            <h2 class="section-title animate-on-scroll">🎯 Why Choose Us</h2>
+            <div class="features-grid">
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">📈</div>
+                    <h3>More Exposure</h3>
+                    <p>Projects get seen by the right people across multiple community hubs.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">🚀</div>
+                    <h3>Easy for Beginners</h3>
+                    <p>Everything's ready to go. Guides, examples, and support to help new projects succeed.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">🌊</div>
+                    <h3>You Stay in Control</h3>
+                    <p>No big company controlling what you can show. Your community, your rules.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Zero Maintenance</h3>
+                    <p>Set it up once and forget it. Updates happen automatically. No technical work needed.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">🎨</div>
+                    <h3>Full Customization</h3>
+                    <p>Make it look exactly how you want. Change everything - colors, layout, features. It's your platform.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>Always Online</h3>
+                    <p>Decentralized means no single point of failure. Your hub works even if we disappear.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Powered by Angor Protocol -->
+    <section class="angor-powered">
+        <div class="container">
+            <div class="angor-content animate-on-scroll">
+                <h3 class="angor-title">⚡ Powered by Angor Protocol</h3>
+                <p class="angor-description">
+                    Angor Hub connects directly to the <strong>Angor Protocol ecosystem</strong>, displaying Bitcoin-native crowdfunding projects from across the decentralized network. Every hub you create showcases real projects from the Angor Protocol, ensuring authentic, transparent, and secure crowdfunding experiences for your community.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Vision -->
+    <section class="vision" id="vision">
+        <div class="container">
+            <h2 class="animate-on-scroll">The Big Picture</h2>
+            <p class="animate-on-scroll vision-subtitle">
+                Crowdfunding should belong to communities, not big corporations. We're giving you the tools to build exactly what your community needs.
+            </p>
+            
+            <div class="vision-points">
+                <div class="vision-point animate-on-scroll">
+                    <i class="fas fa-network-wired"></i>
+                    <h4>No Bosses</h4>
+                    <p>Nobody controls your data or decisions</p>
+                </div>
+                <div class="vision-point animate-on-scroll">
+                    <i class="fas fa-unlock"></i>
+                    <h4>Open to All</h4>
+                    <p>Anyone can join, no approval needed</p>
+                </div>
+                <div class="vision-point animate-on-scroll">
+                    <i class="fas fa-users"></i>
+                    <h4>Community First</h4>
+                    <p>Built for real people, not profit</p>
+                </div>
+                <div class="vision-point animate-on-scroll">
+                    <i class="fab fa-bitcoin"></i>
+                    <h4>Bitcoin Powered</h4>
+                    <p>Transparent, secure, and honest money</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-links">
+                    <a href="https://angor.io">Angor Protocol</a>
+                    <a href="https://github.com/angorhub">GitHub Repository</a>
+                    <a href="#launch">Launch Your Hub</a>
+                    <a href="#components">Developer SDK</a>
+                    <a href="https://nostr.com">Nostr Protocol</a>
+                    <a href="mailto:angorhub@gmail.com">Contact</a>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2025 Angor Hub. Open source and decentralized.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile Menu Functions
+        function openMobileMenu() {
+            const overlay = document.getElementById('mobileMenuOverlay');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMobileMenu(event) {
+            const overlay = document.getElementById('mobileMenuOverlay');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all elements with animate-on-scroll class
+        document.querySelectorAll('.animate-on-scroll').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Add some interactive effects
+        document.querySelectorAll('.feature-card, .component-card, .use-case').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.borderColor = '#086c81';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.borderColor = '#cbdde1';
+            });
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(e) {
+            const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+            const mobileMenu = document.querySelector('.mobile-menu');
+            const overlay = document.getElementById('mobileMenuOverlay');
+            
+            if (!mobileMenuBtn.contains(e.target) && !mobileMenu.contains(e.target) && overlay.classList.contains('active')) {
+                closeMobileMenu();
+            }
+        });
+
+        // Close mobile menu on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const overlay = document.getElementById('mobileMenuOverlay');
+                if (overlay.classList.contains('active')) {
+                    closeMobileMenu();
+                }
+            }
+        });
+    </script>
 </body>
 </html>
