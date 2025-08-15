@@ -29,6 +29,10 @@ import { useRelay } from '@/hooks/useRelay';
 import { useSettings } from '@/hooks/useSettings';
 import { NetworkSelector } from '@/components/NetworkSelector';
 
+// Language types and options
+type Language = 'en' | 'es' | 'fr' | 'de';
+
+
 export function SettingsPage() {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
@@ -368,7 +372,7 @@ export function SettingsPage() {
                   </div>
                   <Select 
                     value={settings.language} 
-                    onValueChange={(value) => updateSetting('language', value)}
+                    onValueChange={(value: Language) => updateSetting('language', value)}
                   >
                     <SelectTrigger className="w-full sm:w-32">
                       <SelectValue />
@@ -391,7 +395,7 @@ export function SettingsPage() {
                   </div>
                   <Switch
                     checked={settings.autoConnect}
-                    onCheckedChange={(checked) => updateSetting('autoConnect', checked)}
+                    onCheckedChange={(checked: boolean) => updateSetting('autoConnect', checked)}
                   />
                 </div>
               </CardContent>

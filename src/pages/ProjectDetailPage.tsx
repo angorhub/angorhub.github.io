@@ -794,6 +794,7 @@ export function ProjectDetailPage() {
             projectId={projectId || ''}
             isMiniApp={isMiniApp}
             profile={profile}
+            projectNostrPubKey={nostrPubKey}
           />
         </div>
 

@@ -1,6 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ZapForm } from '@/components/ZapForm';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useNavigate } from 'react-router-dom';
 import { 
   Bitcoin,
   AlertCircle,
@@ -45,6 +47,7 @@ interface SupportProjectProps {
   projectId: string;
   isMiniApp: boolean;
   profile?: NostrProfile;
+  projectNostrPubKey?: string; // Add project's nostr public key
 }
 
 export function SupportProject({
@@ -52,9 +55,105 @@ export function SupportProject({
   network,
   projectId,
   isMiniApp,
-  profile
+  profile,
+  projectNostrPubKey
 }: SupportProjectProps) {
   const isActive = stats?.status === 'active' || !stats?.status;
+  const { user } = useCurrentUser();
+  const navigate = useNavigate();
+  
+  // Check if current user is the project owner
+  const isProjectOwner = Boolean(user && projectNostrPubKey && user.pubkey === projectNostrPubKey);
+
+  // If project owner is logged in, show management section instead of investment
+  if (isProjectOwner) {
+    return (
+      <div className="xl:col-span-1">
+        <div className="sticky top-4 sm:top-8">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <div className="p-1.5 rounded-lg bg-blue-100 dark:bg-blue-900/20">
+                  <Settings className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <span>Manage Project</span>
+              </CardTitle>
+              <p className="text-sm text-muted-foreground mt-2">
+                You are the owner of this project. You can manage all project details.
+              </p>
+            </CardHeader>
+
+            <CardContent className="space-y-6">
+              {/* Management Button */}
+              <Button 
+                size="lg"
+                className="w-full"
+                onClick={() => navigate('/profile')}
+              >
+                <Settings className="h-4 w-4 mr-2" />
+                Manage Project
+              </Button>
+
+              {/* Project Owner Features */}
+              <div className="space-y-4 pt-4 border-t">
+                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+                  Management Features
+                </div>
+                
+                <div className="flex items-start space-x-3 text-sm">
+                  <div className="mt-0.5">
+                    <Settings className="h-4 w-4 text-blue-600" />
+                  </div>
+                  <div>
+                    <div className="font-medium mb-1">Project Metadata</div>
+                    <div className="text-xs text-muted-foreground">
+                      Update project name, description, images and basic information
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex items-start space-x-3 text-sm">
+                  <div className="mt-0.5">
+                    <ExternalLink className="h-4 w-4 text-green-600" />
+                  </div>
+                  <div>
+                    <div className="font-medium mb-1">Links & Social</div>
+                    <div className="text-xs text-muted-foreground">
+                      Manage social media links and project websites
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex items-start space-x-3 text-sm">
+                  <div className="mt-0.5">
+                    <Eye className="h-4 w-4 text-purple-600" />
+                  </div>
+                  <div>
+                    <div className="font-medium mb-1">Media Gallery</div>
+                    <div className="text-xs text-muted-foreground">
+                      Upload and organize project images and videos
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex items-start space-x-3 text-sm">
+                  <div className="mt-0.5">
+                    <Clock className="h-4 w-4 text-orange-600" />
+                  </div>
+                  <div>
+                    <div className="font-medium mb-1">Team & FAQ</div>
+                    <div className="text-xs text-muted-foreground">
+                      Manage team members and frequently asked questions
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="xl:col-span-1">
