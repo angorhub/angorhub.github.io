@@ -1,7 +1,7 @@
 import { useNostr } from '@nostrify/react';
 import { useQuery } from '@tanstack/react-query';
 import { ANGOR_EVENT_KINDS } from '@/types/angor';
-import type { NostrProfile, ProjectDetails, ProjectFAQ, ProjectMedia, ProjectMembers, NostrProjectDetails } from '@/types/angor';
+import type { NostrProfile, ProjectDetails, ProjectFAQ, ProjectMedia, ProjectMembers, NostrProjectDetails, ProjectLink } from '@/types/angor';
 
 /**
  * Retry mechanism for Nostr queries
@@ -51,6 +51,144 @@ function safeJsonParse(content: string, fallback: Record<string, unknown> = {}):
 }
 
 /**
+ * Helper function to detect link type from URL or platform:username format
+ */
+function detectLinkType(value: string): ProjectLink['type'] {
+  const valueLower = value.toLowerCase();
+  
+  // Check if it's in platform:username format
+  if (valueLower.includes(':')) {
+    const [platform] = valueLower.split(':');
+    switch (platform) {
+      case 'twitter':
+      case 'x':
+        return 'twitter';
+      case 'github':
+        return 'github';
+      case 'telegram':
+        return 'telegram';
+      case 'discord':
+        return 'discord';
+      case 'linkedin':
+        return 'linkedin';
+      case 'youtube':
+        return 'youtube';
+      case 'facebook':
+        return 'facebook';
+      case 'instagram':
+        return 'instagram';
+      case 'mastodon':
+        return 'mastodon';
+      case 'custom':
+        return 'website';
+      default:
+        return 'other';
+    }
+  }
+  
+  // Check if it's a URL
+  if (valueLower.includes('twitter.com') || valueLower.includes('x.com')) {
+    return 'twitter';
+  } else if (valueLower.includes('github.com')) {
+    return 'github';
+  } else if (valueLower.includes('t.me') || valueLower.includes('telegram.')) {
+    return 'telegram';
+  } else if (valueLower.includes('discord.')) {
+    return 'discord';
+  } else if (valueLower.includes('linkedin.com')) {
+    return 'linkedin';
+  } else if (valueLower.includes('youtube.com') || valueLower.includes('youtu.be')) {
+    return 'youtube';
+  } else if (valueLower.includes('facebook.com') || valueLower.includes('fb.com')) {
+    return 'facebook';
+  } else if (valueLower.includes('instagram.com')) {
+    return 'instagram';
+  } else if (valueLower.startsWith('http')) {
+    return 'website';
+  }
+  
+  return 'other';
+}
+
+/**
+ * Helper function to convert platform:username format to full URL
+ */
+function buildUrlFromPlatform(value: string): string {
+  if (!value.includes(':')) {
+    // If it's already a URL, return as is
+    return value;
+  }
+  
+  const [platform, username] = value.split(':', 2);
+  const platformLower = platform.toLowerCase();
+  
+  switch (platformLower) {
+    case 'twitter':
+    case 'x':
+      return `https://twitter.com/${username}`;
+    case 'github':
+      return `https://github.com/${username}`;
+    case 'telegram':
+      return `https://t.me/${username}`;
+    case 'discord':
+      return `https://discord.com/users/${username}`; // or could be a server invite
+    case 'linkedin':
+      return `https://linkedin.com/in/${username}`;
+    case 'youtube':
+      return `https://youtube.com/@${username}`;
+    case 'facebook':
+      return `https://facebook.com/${username}`;
+    case 'instagram':
+      return `https://instagram.com/${username}`;
+    case 'mastodon':
+      // Mastodon needs instance info, so we'll return a generic format
+      return `https://mastodon.social/@${username}`;
+    case 'custom':
+      // For custom, we assume it might be a website
+      return username.startsWith('http') ? username : `https://${username}`;
+    default:
+      // For unknown platforms, try to make a reasonable guess
+      return username.startsWith('http') ? username : `https://${platform}.com/${username}`;
+  }
+}
+
+/**
+ * Helper function to extract links from event i tags
+ */
+function extractLinksFromTags(tags: string[][]): ProjectLink[] {
+  const links: ProjectLink[] = [];
+  
+  tags.forEach(tag => {
+    if (tag[0] === 'i' && tag[1]) {
+      const value = tag[1];
+      const title = tag[2] || undefined;
+      const description = tag[3] || undefined;
+      
+      // Build the full URL from platform:username or use as-is if already a URL
+      const url = buildUrlFromPlatform(value);
+      const type = detectLinkType(value);
+      
+      // Create a better title if none provided and it's in platform:username format
+      let finalTitle = title;
+      if (!finalTitle && value.includes(':')) {
+        const [platform, username] = value.split(':', 2);
+        const platformName = platform.charAt(0).toUpperCase() + platform.slice(1);
+        finalTitle = `${platformName} - @${username}`;
+      }
+      
+      links.push({
+        url,
+        title: finalTitle,
+        description,
+        type
+      });
+    }
+  });
+  
+  return links;
+}
+
+/**
  * Hook to fetch user profile by pubkey
  */
 export function useNostrProfile(pubkey: string | undefined) {
@@ -59,7 +197,7 @@ export function useNostrProfile(pubkey: string | undefined) {
   return useQuery({
     queryKey: ['nostr-profile', pubkey],
     queryFn: async () => {
-      if (!pubkey) return null;
+      if (!pubkey) return { profile: null, links: [] };
 
       return queryWithRetry(async () => {
         const signal = AbortSignal.timeout(5000);
@@ -70,10 +208,16 @@ export function useNostrProfile(pubkey: string | undefined) {
         }], { signal });
 
         if (events.length > 0) {
-          const parsedContent = safeJsonParse(events[0].content, {});
-          return parsedContent as NostrProfile;
+          const event = events[0];
+          const parsedContent = safeJsonParse(event.content, {});
+          const profile = parsedContent as NostrProfile;
+          
+          // Extract links from i tags in the profile event
+          const links = extractLinksFromTags(event.tags);
+          
+          return { profile, links };
         }
-        return {};
+        return { profile: {}, links: [] };
       }, `Profile for ${pubkey}`);
     },
     enabled: !!pubkey,
@@ -122,7 +266,7 @@ export function useNostrAdditionalData(pubkey: string | undefined) {
   return useQuery({
     queryKey: ['nostr-additional-data', pubkey],
     queryFn: async () => {
-      if (!pubkey) return { faq: {}, media: {}, members: {}, project: {} as NostrProjectDetails, content: '' };
+      if (!pubkey) return { faq: {}, media: {}, members: {}, project: {} as NostrProjectDetails, content: '', links: [] };
 
       return queryWithRetry(async () => {
         const signal = AbortSignal.timeout(8000);
@@ -146,8 +290,13 @@ export function useNostrAdditionalData(pubkey: string | undefined) {
         let members: ProjectMembers = { team: [] };
         let project: NostrProjectDetails = {};
         let content: string = '';
+        let links: ProjectLink[] = [];
 
         events.forEach(event => {
+          // Extract links from i tags for all events
+          const eventLinks = extractLinksFromTags(event.tags);
+          links = [...links, ...eventLinks];
+
           if (event.kind === ANGOR_EVENT_KINDS.PROJECT_INFO) {
             // Kind 3030 - Project information
             const parsedContent = safeJsonParse(event.content, {});
@@ -178,7 +327,12 @@ export function useNostrAdditionalData(pubkey: string | undefined) {
           }
         });
 
-        return { faq, media, members, project, content };
+        // Remove duplicate links based on URL
+        const uniqueLinks = links.filter((link, index, self) => 
+          index === self.findIndex(l => l.url === link.url)
+        );
+
+        return { faq, media, members, project, content, links: uniqueLinks };
       }, `Additional data for ${pubkey}`);
     },
     enabled: !!pubkey,
@@ -393,10 +547,13 @@ export function useProjectMetadata(nostrPubKey: string | undefined) {
         let projectData = {};
         let mediaData = {};
         let membersData = {};
+        let links: ProjectLink[] = [];
 
         for (const event of events) {
           if (event.kind === ANGOR_EVENT_KINDS.PROFILE_METADATA) {
             profile = safeJsonParse(event.content, {});
+            // Extract links from i tags in the profile event
+            links = extractLinksFromTags(event.tags);
           } else if (event.kind === ANGOR_EVENT_KINDS.ADDITIONAL_DATA) {
             const dTag = event.tags.find(tag => tag[0] === 'd')?.[1];
             const content = safeJsonParse(event.content, {});
@@ -425,6 +582,7 @@ export function useProjectMetadata(nostrPubKey: string | undefined) {
           project: projectData,
           media: mediaData,
           members: membersData,
+          links,
           nostrPubKey
         };
       }, `Project metadata for ${nostrPubKey}`);

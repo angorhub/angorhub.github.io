@@ -6,6 +6,7 @@ export { FundingProgress, FundingProgressSkeleton } from './FundingProgress';
 export { ProjectDescription, ProjectDescriptionSkeleton } from './ProjectDescription';
 export { ProjectTechnicalDetails, ProjectTechnicalDetailsSkeleton } from './ProjectTechnicalDetails';
 export { ProjectStages, ProjectStagesSkeleton } from './ProjectStages';
+export { ProjectLinks, ProjectLinksCompact } from './ProjectLinks';
 export { OverviewTab, OverviewTabSkeleton } from './OverviewTab';
 export { UpdatesTab, UpdatesTabSkeleton } from './UpdatesTab';
 export { FAQTab, FAQTabSkeleton } from './FAQTab';

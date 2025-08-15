@@ -8,7 +8,8 @@ import type {
   NostrProfile, 
   ProjectMetadata,
   ProjectMedia,
-  NostrMediaItem
+  NostrMediaItem,
+  ProjectLink
 } from '@/types/angor';
 
 export function OverviewTabSkeleton() {
@@ -85,6 +86,7 @@ interface OverviewTabProps {
   stats?: ProjectStats;
   mediaData?: ProjectMedia;
   formatBTC: (sats: number | undefined) => string;
+  projectLinks?: ProjectLink[];
 }
 
 export function OverviewTab({
@@ -95,13 +97,17 @@ export function OverviewTab({
   indexerProject,
   nostrProjectData,
   stats,
-  formatBTC
+  formatBTC,
+  projectLinks
 }: OverviewTabProps) {
   return (
     <div className="space-y-6">
       {/* Project Description Component */}
       <ProjectDescription
-        additionalData={additionalData}
+        additionalData={{
+          ...additionalData,
+          links: projectLinks
+        }}
         projectData={projectData}
         profile={profile}
       />

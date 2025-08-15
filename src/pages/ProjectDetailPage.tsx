@@ -206,6 +206,7 @@ export function ProjectDetailPage() {
   const profile = projectMetadata?.profile as NostrProfile | undefined;
   const projectData = projectMetadata?.project as ProjectMetadata | undefined;
   const mediaData = projectMetadata?.media as ProjectMedia | undefined;
+  const projectLinks = projectMetadata?.links || [];
 
   // ============================================================================
   // UTILITY FUNCTIONS
@@ -724,6 +725,7 @@ export function ProjectDetailPage() {
               stats={stats || undefined}
               mediaData={mediaData}
               formatBTC={formatBTC}
+              projectLinks={projectLinks}
             />
           </TabsContent>
 

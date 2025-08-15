@@ -168,6 +168,15 @@ export interface NostrAdditionalData {
   media?: NostrMediaItem[] | ProjectMedia;
   members?: ProjectMembers;
   project?: NostrProjectDetails;
+  links?: ProjectLink[];
+}
+
+// Project links interface for social media and other external links
+export interface ProjectLink {
+  url: string;
+  title?: string;
+  type?: 'website' | 'twitter' | 'github' | 'telegram' | 'discord' | 'linkedin' | 'youtube' | 'facebook' | 'instagram' | 'mastodon' | 'other';
+  description?: string;
 }
 
 export interface IndexedProject {

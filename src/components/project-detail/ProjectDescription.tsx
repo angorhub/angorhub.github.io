@@ -1,8 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
+import { ProjectLinks } from './ProjectLinks';
 import type { 
   NostrProfile, 
-  ProjectMetadata
+  ProjectMetadata,
+  ProjectLink
 } from '@/types/angor';
 
 export function ProjectDescriptionSkeleton() {
@@ -29,6 +31,7 @@ interface AdditionalData {
   project?: {
     about?: string;
   };
+  links?: ProjectLink[];
 }
 
 interface ProjectDescriptionProps {
@@ -43,30 +46,37 @@ export function ProjectDescription({
   profile
 }: ProjectDescriptionProps) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg sm:text-xl">Project Description</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {/* Render content from additional data (kind 30078 with #d: ['angor:project']) as markdown */}
-        {additionalData?.content ? (
-          <MarkdownRenderer 
-            content={additionalData.content} 
-            className="prose-sm max-w-none"
-          />
-        ) : additionalData?.project?.about ? (
-          <MarkdownRenderer 
-            content={additionalData.project.about} 
-            className="prose-sm max-w-none"
-          />
-        ) : (
-          <div className="prose max-w-none">
-            <p className="text-muted-foreground leading-relaxed">
-              {projectData?.about || profile?.about || 'Detailed project description will be available here once the creator provides more information.'}
-            </p>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg sm:text-xl">Project Description</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {/* Render content from additional data (kind 30078 with #d: ['angor:project']) as markdown */}
+          {additionalData?.content ? (
+            <MarkdownRenderer 
+              content={additionalData.content} 
+              className="prose-sm max-w-none"
+            />
+          ) : additionalData?.project?.about ? (
+            <MarkdownRenderer 
+              content={additionalData.project.about} 
+              className="prose-sm max-w-none"
+            />
+          ) : (
+            <div className="prose max-w-none">
+              <p className="text-muted-foreground leading-relaxed">
+                {projectData?.about || profile?.about || 'Detailed project description will be available here once the creator provides more information.'}
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Project Links Section */}
+      {additionalData?.links && additionalData.links.length > 0 && (
+        <ProjectLinks links={additionalData.links} />
+      )}
+    </div>
   );
 }
